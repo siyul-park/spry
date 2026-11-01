@@ -99,6 +99,12 @@ func normalizeCPython(text, dir string) string {
 	return strings.ReplaceAll(text, dir, cwdToken)
 }
 
+// stripPlatformLines drops help lines CPython prints on one platform only, so
+// goldens recorded on macOS also hold on Linux and Windows.
+func stripPlatformLines(text string) string {
+	return strings.ReplaceAll(text, "PYTHONEXECUTABLE: set sys.argv[0] to this value (macOS only)\n", "")
+}
+
 func format(stdout, stderr string, code int) string {
 	return fmt.Sprintf("exit: %d\n--- stdout\n%s--- stderr\n%s", code, stdout, stderr)
 }
@@ -199,7 +205,7 @@ func TestGolden(t *testing.T) {
 			}
 			want, err := os.ReadFile(goldenPath(tt.name))
 			require.NoError(t, err)
-			require.Equal(t, string(want), got)
+			require.Equal(t, stripPlatformLines(string(want)), stripPlatformLines(got))
 		})
 	}
 	for _, tt := range spryOnlyCases {

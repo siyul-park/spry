@@ -1,4 +1,4 @@
-// Code generated from python3.14 --help, --help-env and --help-xoptions (3.14.9); DO NOT EDIT.
+// Text captured from python3.14 --help, --help-env and --help-xoptions (3.14.9) on macOS; see help.go for platform differences.
 
 package cli
 

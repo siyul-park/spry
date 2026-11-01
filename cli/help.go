@@ -3,6 +3,8 @@ package cli
 import (
 	"context"
 	"io"
+	"runtime"
+	"strings"
 
 	"github.com/spf13/pflag"
 )
@@ -72,13 +74,21 @@ func (Help) Run(_ context.Context, env Env, st *State) int {
 func helpText(action Action) string {
 	switch action {
 	case ActionHelpEnv:
-		return envHelp
+		return envHelpText()
 	case ActionHelpXOptions:
 		return xOptionsHelp()
 	case ActionHelpAll:
-		return usageLine + optionsHelp + "\n" + envHelp + "\n" + xOptionsHelp()
+		return usageLine + optionsHelp + "\n" + envHelpText() + "\n" + xOptionsHelp()
 	}
 	return usageLine + optionsHelp
+}
+
+// envHelpText drops PYTHONEXECUTABLE off macOS, as CPython does (#ifdef __APPLE__).
+func envHelpText() string {
+	if runtime.GOOS == "darwin" {
+		return envHelp
+	}
+	return strings.Replace(envHelp, "PYTHONEXECUTABLE: set sys.argv[0] to this value (macOS only)\n", "", 1)
 }
 
 func xOptionsHelp() string {

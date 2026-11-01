@@ -1,0 +1,36 @@
+name: CI
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: .go-version
+          cache-dependency-path: |
+            go.sum
+            benchmarks/go.sum
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+
+      # The Makefile skips the lighthouse gate when the binary is absent.
+      - name: Run Checks
+        env:
+          SPRY_PYTHON: python3.14
+        run: make check

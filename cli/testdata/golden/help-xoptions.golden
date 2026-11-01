@@ -1,0 +1,45 @@
+exit: 0
+--- stdout
+The following implementation-specific options are available:
+-X spry.dump=STAGE: print an intermediate form (tokens, ast, types, ssa or asm)
+         and stop before running
+-X spry.emit=PATH: write the compiled minivm program to PATH
+-X spry.fallback=MODE: warn (default) or forbid (error) dynamic Any fallbacks
+-X spry.opt=N: optimization level 0, 1, 2 or 3
+-X context_aware_warnings=[0|1]: if true (1) then the warnings module will
+         use a context variables; if false (0) then the warnings module will
+         use module globals, which is not concurrent-safe; set to true for
+         free-threaded builds and false otherwise; also
+         PYTHON_CONTEXT_AWARE_WARNINGS
+-X cpu_count=N: override the return value of os.cpu_count();
+         -X cpu_count=default cancels overriding; also PYTHON_CPU_COUNT
+-X dev : enable Python Development Mode; also PYTHONDEVMODE
+-X disable-remote-debug: disable remote debugging; also PYTHON_DISABLE_REMOTE_DEBUG
+-X faulthandler: dump the Python traceback on fatal errors;
+         also PYTHONFAULTHANDLER
+-X frozen_modules=[on|off]: whether to use frozen modules; the default is "on"
+         for installed Python and "off" for a local build;
+         also PYTHON_FROZEN_MODULES
+-X importtime[=2]: show how long each import takes; use -X importtime=2 to
+         log imports of already-loaded modules; also PYTHONPROFILEIMPORTTIME
+-X int_max_str_digits=N: limit the size of int<->str conversions;
+         0 disables the limit; also PYTHONINTMAXSTRDIGITS
+-X no_debug_ranges: don't include extra location information in code objects;
+         also PYTHONNODEBUGRANGES
+-X perf: support the Linux "perf" profiler; also PYTHONPERFSUPPORT=1
+-X perf_jit: support the Linux "perf" profiler with DWARF support;
+         also PYTHON_PERF_JIT_SUPPORT=1
+-X pycache_prefix=PATH: write .pyc files to a parallel tree instead of to the
+         code tree; also PYTHONPYCACHEPREFIX
+-X showrefcount: output the total reference count and number of used
+         memory blocks when the program finishes or after each statement in
+         the interactive interpreter; only works on debug builds
+-X thread_inherit_context=[0|1]: enable (1) or disable (0) threads inheriting
+         context vars by default; enabled by default in the free-threaded
+         build and disabled otherwise; also PYTHON_THREAD_INHERIT_CONTEXT
+-X tracemalloc[=N]: trace Python memory allocations; N sets a traceback limit
+         of N frames (default: 1); also PYTHONTRACEMALLOC=N
+-X utf8[=0|1]: enable (1) or disable (0) UTF-8 mode; also PYTHONUTF8
+-X warn_default_encoding: enable opt-in EncodingWarning for 'encoding=None';
+         also PYTHONWARNDEFAULTENCODING
+--- stderr

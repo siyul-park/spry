@@ -1,0 +1,79 @@
+apiVersion = "lighthouse/v1alpha1"
+kind = "Project"
+
+[metadata]
+name = "spry"
+
+# Plugins resolve by id, not by path: lighthouse finds each plugin's
+# `lighthouse-plugin.toml` and binary through its discovery rules, and `check`
+# reports analysis as incomplete (exit 3) when one is missing. A contributor who
+# builds lighthouse from source installs them with `make plugins` in
+# https://github.com/siyul-park/lighthouse.
+[spec]
+plugins = [
+  { id = "lang-go" },
+  { id = "lang-markdown" },
+  { id = "lang-python" },
+  { id = "lang-yaml" },
+  { id = "lang-toml" },
+]
+extends = [
+  "core/recommended",
+  "design/recommended",
+  "testing/recommended",
+  "go/recommended",
+  "markdown/recommended",
+]
+
+# Dependency rules of docs/architecture.md as a `design/layers` contract.
+# Layers read top down: a package imports its own layer and the ones below,
+# and peers in different globs of one layer stay independent. Module labels
+# are package directories relative to the repository root.
+[spec.rules."design/layers"]
+level = "error"
+options.forbidden = [
+  { from = "token/**", to = "github.com/siyul-park/minivm/**" },
+  { from = "scanner/**", to = "github.com/siyul-park/minivm/**" },
+  { from = "ast/**", to = "github.com/siyul-park/minivm/**" },
+  { from = "parser/**", to = "github.com/siyul-park/minivm/**" },
+  { from = "types/**", to = "github.com/siyul-park/minivm/**" },
+  { from = "ssa/**", to = "github.com/siyul-park/minivm/**" },
+  { from = "optimize/**", to = "github.com/siyul-park/minivm/**" },
+  { from = "internal/cpython/**", to = "github.com/siyul-park/minivm/**" },
+  { from = "conformance/**", to = "github.com/siyul-park/minivm/**" },
+  { from = "benchmarks/**", to = "github.com/siyul-park/minivm/**" },
+]
+options.layers = [
+  ["cmd/spry/**"],
+  ["cli/**"],
+  ["spry"],
+  ["compiler/**"],
+  ["builtins/**", "optimize/**"],
+  ["ssa/**"],
+  ["types/**"],
+  ["parser/**"],
+  ["scanner/**", "ast/**"],
+  ["token/**"],
+]
+
+# Public types and functions come before the constructors, methods and private
+# helpers of the package (same file order as https://github.com/siyul-park/minivm).
+[spec.rules]
+"design/declaration-groups" = { level = "error", options = { groups = ["public-type", "private-type", "public-const", "private-const", "var", "init", "public-function", "method", "private-function"] } }
+
+# Python programs under these paths are test data and benchmark kernels, not
+# product code: the harness calls `run` by name, and the kernels keep the
+# signatures of the published benchmark programs.
+[[spec.overrides]]
+files = ["benchmarks/fixtures/*.py", "conformance/testdata/**/*.py", "**/testdata/**/*.py"]
+rules = { "design/no-unused-symbol" = "off", "testing/no-missing-owner" = "off", "design/signature-size" = "off", "design/exported-doc" = "off", "design/complexity" = "off" }
+
+# Golden files record foreign output verbatim.
+[[spec.overrides]]
+files = ["**/testdata/**", "benchmarks/fixtures/*.expected"]
+rules = { "core/max-lines" = "off" }
+
+# A test file mirrors one source file and is never split by subject.
+[[spec.overrides]]
+files = ["**/*_test.go"]
+rules = { "core/max-lines" = "off" }

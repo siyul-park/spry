@@ -1,0 +1,4 @@
+exit: 2
+--- stdout
+--- stderr
+invalid -X option "spry.dump=nope": expected one of tokens, ast, types, ssa, asm

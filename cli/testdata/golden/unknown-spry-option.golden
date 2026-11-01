@@ -1,0 +1,4 @@
+exit: 2
+--- stdout
+--- stderr
+invalid -X option "spry.nothing": unknown spry option

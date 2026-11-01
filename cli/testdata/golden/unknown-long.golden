@@ -1,0 +1,6 @@
+exit: 2
+--- stdout
+--- stderr
+Unknown option: --foo
+usage: spry [option] ... [-c cmd | -m mod | file | -] [arg] ...
+Try `spry -h' for more information.

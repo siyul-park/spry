@@ -1,0 +1,4 @@
+exit: 2
+--- stdout
+--- stderr
+invalid -X option "spry.fallback=maybe": expected one of warn, error

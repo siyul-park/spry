@@ -1,0 +1,14 @@
+{
+  // Prose keeps one paragraph per line and tables use compact separators, so
+  // width and table-padding rules do not apply. Go code blocks keep gofmt tabs;
+  // .github holds workflow files, .claude holds agent configuration.
+  "config": {
+    "MD013": false,
+    "MD060": false,
+    "MD034": false,
+    "MD041": false,
+    "MD010": { "code_blocks": false },
+    "MD024": { "siblings_only": true }
+  },
+  "ignores": [".github/**", ".claude/**"]
+}

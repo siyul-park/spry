@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "lighthouse": {
+      "args": [
+        "mcp"
+      ],
+      "command": "lighthouse"
+    },
+    "codegraph": {
+      "command": "codegraph",
+      "args": [
+        "serve",
+        "--mcp"
+      ]
+    }
+  }
+}

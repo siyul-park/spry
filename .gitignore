@@ -1,0 +1,32 @@
+# Binaries
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+bin/
+dist/
+
+# Coverage
+*.out
+coverage.*
+*.coverprofile
+profile.cov
+
+# Go workspace is committed (go.work); local sums are not
+go.work.sum
+
+.env
+.idea/
+.vscode/
+.DS_Store
+__pycache__/
+*.pyc
+
+.claude/settings.local.json
+.codegraph/
+
+# Lighthouse local state
+.lighthouse/*.db*
+.lighthouse/local.toml
+.lighthouse/cache/

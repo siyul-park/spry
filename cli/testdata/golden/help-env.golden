@@ -1,0 +1,70 @@
+exit: 0
+--- stdout
+Environment variables that change behavior:
+PYTHONASYNCIODEBUG: enable asyncio debug mode
+PYTHON_BASIC_REPL: use the traditional parser-based REPL
+PYTHONBREAKPOINT: if this variable is set to 0, it disables the default
+                  debugger.  It can be set to the callable of your debugger of
+                  choice.
+PYTHONCASEOK    : ignore case in 'import' statements (Windows)
+PYTHONCOERCECLOCALE: if this variable is set to 0, it disables the locale
+                  coercion behavior.  Use PYTHONCOERCECLOCALE=warn to request
+                  display of locale coercion and locale compatibility warnings
+                  on stderr.
+PYTHON_COLORS   : if this variable is set to 1, the interpreter will colorize
+                  various kinds of output.  Setting it to 0 deactivates
+                  this behavior.
+PYTHONEXECUTABLE: set sys.argv[0] to this value (macOS only)
+PYTHONHASHSEED  : if this variable is set to 'random', a random value is used
+                  to seed the hashes of str and bytes objects.  It can also be
+                  set to an integer in the range [0,4294967295] to get hash
+                  values with a predictable seed.
+PYTHON_HISTORY  : the location of a .python_history file.
+PYTHONHOME      : alternate <prefix> directory (or <prefix>:<exec_prefix>).
+                  The default module search path uses <prefix>/lib/pythonX.X.
+PYTHONIOENCODING: encoding[:errors] used for stdin/stdout/stderr
+PYTHONMALLOC    : set the Python memory allocators and/or install debug hooks
+                  on Python memory allocators.  Use PYTHONMALLOC=debug to
+                  install debug hooks.
+PYTHONMALLOCSTATS: print memory allocator statistics
+PYTHONPATH      : ':'-separated list of directories prefixed to the
+                  default module search path.  The result is sys.path.
+PYTHONPLATLIBDIR: override sys.platlibdir
+PYTHONSTARTUP   : file executed on interactive startup (no default)
+PYTHONUSERBASE  : defines the user base directory (site.USER_BASE)
+
+These variables have equivalent command-line options (see --help for details):
+PYTHON_CONTEXT_AWARE_WARNINGS: if true (1), enable thread-safe warnings
+                  module behaviour (-X context_aware_warnings)
+PYTHON_CPU_COUNT: override the return value of os.cpu_count() (-X cpu_count)
+PYTHONDEBUG     : enable parser debug mode (-d)
+PYTHONDEVMODE   : enable Python Development Mode (-X dev)
+PYTHONDONTWRITEBYTECODE: don't write .pyc files (-B)
+PYTHONFAULTHANDLER: dump the Python traceback on fatal errors (-X faulthandler)
+PYTHON_FROZEN_MODULES: whether to use frozen modules; the default is "on"
+                  for installed Python and "off" for a local build
+                  (-X frozen_modules)
+PYTHONINSPECT   : inspect interactively after running script (-i)
+PYTHONINTMAXSTRDIGITS: limit the size of int<->str conversions;
+                  0 disables the limit (-X int_max_str_digits=N)
+PYTHONNODEBUGRANGES: don't include extra location information in code objects
+                  (-X no_debug_ranges)
+PYTHONNOUSERSITE: disable user site directory (-s)
+PYTHONOPTIMIZE  : enable level 1 optimizations (-O)
+PYTHON_PERF_JIT_SUPPORT: enable Linux "perf" profiler support with JIT
+                  (-X perf_jit)
+PYTHONPERFSUPPORT: support the Linux "perf" profiler (-X perf)
+PYTHONPROFILEIMPORTTIME: show how long each import takes (-X importtime)
+PYTHONPYCACHEPREFIX: root directory for bytecode cache (pyc) files
+                  (-X pycache_prefix)
+PYTHONSAFEPATH  : don't prepend a potentially unsafe path to sys.path.
+PYTHON_THREAD_INHERIT_CONTEXT: if true (1), threads inherit context vars
+                  (-X thread_inherit_context)
+PYTHONTRACEMALLOC: trace Python memory allocations (-X tracemalloc)
+PYTHONUNBUFFERED: disable stdout/stderr buffering (-u)
+PYTHONUTF8      : control the UTF-8 mode (-X utf8)
+PYTHONVERBOSE   : trace import statements (-v)
+PYTHONWARNDEFAULTENCODING: enable opt-in EncodingWarning for 'encoding=None'
+                  (-X warn_default_encoding)
+PYTHONWARNINGS  : warning control (-W)
+--- stderr

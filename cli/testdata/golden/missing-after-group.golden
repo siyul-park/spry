@@ -1,0 +1,6 @@
+exit: 2
+--- stdout
+--- stderr
+Argument expected for the -W option
+usage: spry [option] ... [-c cmd | -m mod | file | -] [arg] ...
+Try `spry -h' for more information.

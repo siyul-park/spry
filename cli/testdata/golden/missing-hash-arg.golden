@@ -1,0 +1,6 @@
+exit: 2
+--- stdout
+--- stderr
+Argument expected for the --check-hash-based-pycs options
+usage: spry [option] ... [-c cmd | -m mod | file | -] [arg] ...
+Try `spry -h' for more information.

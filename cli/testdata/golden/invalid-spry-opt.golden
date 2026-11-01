@@ -1,0 +1,4 @@
+exit: 2
+--- stdout
+--- stderr
+invalid -X option "spry.opt=9": expected an integer from 0 to 3

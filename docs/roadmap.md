@@ -5,7 +5,7 @@ Each phase has exit criteria that are mechanically checkable by `make check` or 
 | Phase | Theme | Status |
 |---|---|---|
 | P0 | Bootstrap | In progress |
-| P1 | Frontend identical to CPython 3.14 | Planned |
+| P1 | Frontend identical to CPython 3.14 | Done |
 | P2 | Types and SSA build | Planned |
 | P3 | minivm backend, end-to-end execution | Planned |
 | P4 | Optimizer | Planned |
@@ -32,6 +32,12 @@ Exit criteria:
 - `ast.Dump` of every file in the corpus equals CPython 3.14 `ast.dump(tree, include_attributes=True, indent=1)`. Corpus: repo testdata, the conformance corpus, and CPython `Lib/test` samples (valid files; files that CPython rejects must also be rejected with a `SYN` diagnostic at the same line/column).
 - Scanner/parser fuzz targets run clean for the smoke budget; no panics on arbitrary bytes.
 - Positions (`lineno`, `col_offset`, `end_lineno`, `end_col_offset`) match CPython on the full corpus.
+
+Status: done. Every `testdata/cpython/xfail.txt` is empty: the token, scanner, `ast` and `parser` corpora, the cache-backed `Lib/test` files and the hand-written goldens agree with CPython 3.14 on dumps, positions and `SyntaxError` type, message and offsets, and the fuzz targets run clean. The documented divergences and deferrals that remain are:
+
+- `WithTypeComments` is accepted and has no effect: the scanner emits no comments to the parser, so `type_comment` fields stay empty and `TypeIgnores` is nil (docs/frontend.md).
+- `SyntaxWarning`s (for example invalid escape sequences, `is` with a literal) are not produced; the parser reports errors only.
+- A `-c` string is read as bytes, so a coding cookie in it is honored where CPython ignores the cookie of a `str` (`test_source_encoding/call/0001`, skipped as a documented divergence).
 
 ## P2 Types and SSA
 

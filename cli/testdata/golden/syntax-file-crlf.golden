@@ -1,0 +1,7 @@
+exit: 1
+--- stdout
+--- stderr
+  File "$CWD/a.py", line 2
+    y = (
+        ^
+SyntaxError: '(' was never closed

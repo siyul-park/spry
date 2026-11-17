@@ -1,0 +1,45 @@
+Module(
+   body=[
+      AsyncFunctionDef(
+         name='g',
+         args=arguments(),
+         body=[
+            AsyncWith(
+               items=[
+                  withitem(
+                     context_expr=Name(id='a', ctx=Load()),
+                     optional_vars=Name(id='b', ctx=Store())),
+                  withitem(
+                     context_expr=Name(id='c', ctx=Load()))],
+               body=[
+                  Expr(
+                     value=Await(
+                        value=Name(id='d', ctx=Load())))])]),
+      Match(
+         subject=Name(id='p', ctx=Load()),
+         cases=[
+            match_case(
+               pattern=MatchSequence(
+                  patterns=[
+                     MatchValue(
+                        value=Constant(value=1)),
+                     MatchStar(name='r')]),
+               guard=Name(id='r', ctx=Load()),
+               body=[
+                  Pass()]),
+            match_case(
+               pattern=MatchMapping(
+                  keys=[
+                     Constant(value='k')],
+                  patterns=[
+                     MatchAs(name='v')]),
+               body=[
+                  Pass()])]),
+      TypeAlias(
+         name=Name(id='T', ctx=Store()),
+         type_params=[
+            TypeVar(name='X')],
+         value=Subscript(
+            value=Name(id='list', ctx=Load()),
+            slice=Name(id='X', ctx=Load()),
+            ctx=Load()))])

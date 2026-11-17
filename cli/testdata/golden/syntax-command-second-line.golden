@@ -1,0 +1,7 @@
+exit: 1
+--- stdout
+--- stderr
+  File "<string>", line 2
+    y = "abc
+        ^
+SyntaxError: unterminated string literal (detected at line 2)

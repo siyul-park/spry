@@ -2,5 +2,7 @@
 // tests and tools that record or compare reference behavior.
 //
 // The interpreter is found through SPRY_PYTHON, then python3.14 on PATH, then
-// "uv python find 3.14". Allowed spry imports: none.
+// "uv python find 3.14". Check reports its version against Version, and
+// RunDriver runs the embedded driver scripts under driver/. Allowed spry
+// imports: none.
 package cpython

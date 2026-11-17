@@ -1,0 +1,35 @@
+Module(
+   body=[
+      Assign(
+         targets=[
+            Name(id='name', ctx=Store())],
+         value=Constant(value='é')),
+      Expr(
+         value=JoinedStr(
+            values=[
+               Constant(value='a'),
+               FormattedValue(
+                  value=Name(id='name', ctx=Load()),
+                  conversion=114,
+                  format_spec=JoinedStr(
+                     values=[
+                        Constant(value='>'),
+                        FormattedValue(
+                           value=Name(id='width', ctx=Load()),
+                           conversion=-1)])),
+               Constant(value='b')])),
+      Assign(
+         targets=[
+            Name(id='t', ctx=Store())],
+         value=Tuple(
+            elts=[
+               Constant(value=1),
+               Constant(value=2)],
+            ctx=Load())),
+      Assign(
+         targets=[
+            Name(id='x', ctx=Store())],
+         value=IfExp(
+            test=Name(id='name', ctx=Load()),
+            body=Constant(value=1),
+            orelse=Constant(value=2)))])

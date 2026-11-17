@@ -1,0 +1,7 @@
+exit: 1
+--- stdout
+--- stderr
+  File "$CWD/a.py", line 1
+    a = 0123
+        ^
+SyntaxError: leading zeros in decimal integer literals are not permitted; use an 0o prefix for octal integers

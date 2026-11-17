@@ -1,0 +1,7 @@
+exit: 1
+--- stdout
+--- stderr
+  File "$CWD/a.py", line 1
+    x = 1 
+          ^
+SyntaxError: invalid non-printable character U+0001

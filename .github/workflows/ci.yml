@@ -8,6 +8,9 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   check:
     name: Check
@@ -27,10 +30,56 @@ jobs:
       - name: Set up Python 3.14
         uses: actions/setup-python@v6
         with:
-          python-version: '3.14'
+          python-version: '3.14.9'
 
-      # The Makefile skips the lighthouse gate when the binary is absent.
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+
+      # OS-level setup that needs sudo. Tool versions live in the Makefile and
+      # .lighthouse-version; make init installs them.
+      - name: Set up Sandbox
+        run: |
+          sudo apt-get update && sudo apt-get install -y bubblewrap
+          # Ubuntu 24.04 restricts the unprivileged user namespaces bubblewrap needs.
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+      - name: Initialize Project
+        run: make init
+
+      - name: Fetch CPython corpus
+        run: make corpus
+
       - name: Run Checks
         env:
           SPRY_PYTHON: python3.14
+          # CI trusts the project to run the programs it names.
+          LIGHTHOUSE_TRUST: "1"
         run: make check
+
+  corpus-drift:
+    name: Corpus drift
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: .go-version
+
+      # Pinned to the corpus version so regenerated manifests are reproducible.
+      - name: Set up Python 3.14.9
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.14.9'
+
+      - name: Regenerate CPython manifests
+        env:
+          SPRY_PYTHON: python3.14
+        run: make corpus-extract
+
+      - name: Fail on manifest drift
+        run: git diff --exit-code

@@ -42,7 +42,7 @@ Join (`⊔`) is least upper bound: `int ⊔ float = Union[int, float]` (not `flo
 
 ## Inputs
 
-- All reachable modules (via `fs.FS` from `spry.Compile`), already parsed.
+- All reachable modules (resolved by `types`), already parsed.
 - Declared annotations, `TypeVar`/PEP 695 parameters, `typing` constructs recognized by name resolution (not string matching).
 - Built-in signatures: a table for `builtins` giving parameter and result types (generic where needed, e.g. `sorted(Iterable[T]) -> list[T]`).
 

@@ -1,6 +1,6 @@
 # Compiler: SSA to minivm
 
-Package: `compiler` (imports `ssa`, `builtins`, minivm; the pipeline driver is the root `spry` package). Output: `*program.Program` from minivm, built with `program.Builder` and `vmtypes.FunctionBuilder`, then passed through minivm `optimize.New(level)` and `program.Verify`. Opcode names below are minivm's (`instr/opcode.go`; see the [minivm instruction set](https://github.com/siyul-park/minivm/blob/main/docs/instruction-set.md)).
+Package: `compiler` (imports `ssa`, `builtins`, minivm; `cli` calls the stages in order). Output: `*program.Program` from minivm, built with `program.Builder` and `vmtypes.FunctionBuilder`, then passed through minivm `optimize.New(level)` and `program.Verify`. Opcode names below are minivm's (`instr/opcode.go`; see the [minivm instruction set](https://github.com/siyul-park/minivm/blob/main/docs/instruction-set.md)).
 
 ## Pipeline Inside compiler
 

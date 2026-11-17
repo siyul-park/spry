@@ -18,7 +18,7 @@ Scope: design docs, ADRs, tooling (Makefile, CI, lighthouse), package stubs with
 Exit criteria:
 
 - `make check` is green.
-- `spry -V`, `--help`, `--help-xoptions` work; usage errors and exit codes match recorded `python3.14` goldens.
+- `spry -V` and `--help` work (`--help-xoptions` pending); usage errors and exit codes match recorded `python3.14` goldens.
 - `spry nonexist.py` matches CPython's message and exits 2; `spry -c 'print(1)'` exits 1 naming the missing phase.
 - Lighthouse decisions encode the dependency rules and pass `lighthouse decision test`.
 - `benchmarks` runs the cpython runner on one fixture; unavailable runners are reported as skipped.
@@ -46,7 +46,7 @@ Exit criteria:
 
 ## P3 Backend
 
-Scope: `compiler`, `builtins`, root `spry` (`Compile`, `Run`); CLI executes files.
+Scope: `compiler`, `builtins`, `cli` connects the stages; CLI executes files.
 
 Exit criteria:
 

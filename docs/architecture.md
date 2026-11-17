@@ -21,8 +21,7 @@ Module: `github.com/siyul-park/spry`.
 | `optimize` | Pass manager, `O0`..`O3`, SSA→SSA passes | minivm `optimize` |
 | `compiler` | SSA → minivm bytecode (the only backend); then minivm `optimize` + `program.Verify` | n/a |
 | `builtins` | Python object model on minivm: int (bigint slow path), str, list, dict, tuple, set, exception hierarchy, builtin functions as host functions; mirrors Python's `builtins` module | Python `builtins` |
-| `spry` (root) | Public embedding API and pipeline driver: `spry.Compile(fsys, entry, opts) (*program.Program, error)`, `spry.Run(ctx, ...)`, stage dumps | n/a |
-| `cli` | CPython-compatible command line: cobra command driven without `Execute`, assembled from independent components (help, version, interpreter options, `-X`, `-c`, `-m`, file, stdin); no `os.Exit` | CPython `Modules/main.c` |
+| `cli` | CPython-compatible command layer: cobra command units (help, version, `-c`, file, stdin) composed under a root, CPython `getopt` port; calls the stages in order and maps results to output and exit codes; no `os.Exit` | CPython `Modules/main.c` |
 | `cmd/spry` | Thin `main` calling `cli` | n/a |
 | `internal/cpython` | Invokes `python3.14` for golden/conformance generation; tooling only | n/a |
 
@@ -37,10 +36,10 @@ Enforced by lighthouse decisions (ADR 0005).
 3. `ssa` imports `ast` and `types` (builder input) but never minivm.
 4. `optimize` imports `ssa` only.
 5. `compiler` imports `ssa` and `builtins`.
-6. Only `compiler`, `builtins`, the root `spry` package, `cli` and `cmd/spry` import minivm.
+6. Only `compiler`, `builtins`, `cli` and `cmd/spry` import minivm.
 7. `internal/cpython` imports nothing from spry.
 
-Consequences (derived): the root `spry` package orchestrates all stages and is the only place where `optimize` and `compiler` meet; `cli` imports `spry` and `builtins`. There is no package named `runtime` or `codegen`.
+Consequences (derived): `cli` is the only place that connects the stages, so it is where `optimize` and `compiler` meet; it also imports `builtins`. There is no package named `runtime` or `codegen`.
 
 ```text
 token ◄─ scanner ◄─ parser ─► ast ─► token
@@ -48,7 +47,7 @@ token ◄─ scanner ◄─ parser ─► ast ─► token
                                       ▲
                 builtins ◄─ compiler ─┘
                      ▲         ▲
-                     └── spry ◄─ cli ◄─ cmd/spry
+                     └──────── cli ◄─ cmd/spry
 ```
 
 ## Stage Contracts
@@ -63,7 +62,7 @@ token ◄─ scanner ◄─ parser ─► ast ─► token
 | compiler | `*ssa.Program` | minivm `*program.Program` | Passes `program.Verify`; unboxed types stay unboxed |
 | builtins | n/a | host functions + Python object layouts registered into a program | Python-visible semantics match CPython for supported features |
 
-Whole-program means the compiler sees all reachable modules before inference. Imports resolve through a `fs.FS` supplied to `spry.Compile`.
+Whole-program means the compiler sees all reachable modules before inference. Import resolution over the reachable modules is owned by `types` (the `fs.FS` interface is fixed in P2).
 
 ## Zero-Cost Rule
 

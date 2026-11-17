@@ -1,4 +1,4 @@
-exit: 1
+exit: 2
 --- stdout
 --- stderr
-spry: execution not implemented yet (phase P3)
+spry: option -m is not supported yet

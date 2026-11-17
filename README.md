@@ -44,7 +44,7 @@ source (.py, Python 3.14)
   ▼  minivm interp         with `builtins` host functions (bigint, str, list, dict, ...)
 ```
 
-The root `spry` package drives the pipeline (`spry.Compile`, `spry.Run`); `cli` and `cmd/spry` expose it.
+`cli` connects the stages and `cmd/spry` exposes it.
 
 ## Quickstart
 

@@ -3,177 +3,178 @@ package cli
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
-	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
-// Root assembles components into one cobra command and drives its lifecycle:
-// flag parsing, argument validation, PreRunE (component validation) and RunE
-// (dispatch to the selected handler).
+// Root composes command units and runs one command line against them.
 //
-// Root deliberately never calls cobra's Execute. Execute always registers the
-// hidden "__complete" command and, with it, would treat a script named
-// "__complete" as a completion request (and read COBRA_* variables); no option
-// turns that off, and a CPython-compatible command line has no subcommands.
-// Driving ParseFlags, ValidateArgs, PreRunE and RunE ourselves keeps cobra's
-// flag, IO, context and hook machinery without its subcommand machinery.
+// Root never calls cobra's Execute: Execute always registers the hidden
+// "__complete" command, which would capture a script of that name. It uses
+// cobra for composition (AddCommand, IO and context inherited from the parent,
+// Args validators, RunE) and pflag for flag registration and typed values, while
+// getopt does the parsing. A Root runs one command line.
 type Root struct {
-	cmd        *cobra.Command
-	state      *State
-	components []Component
-	terminals  map[byte]Mode
-	getwd      func() (string, error)
-	exit       int
+	cmd    *cobra.Command
+	units  []*cobra.Command // composition order is selection priority
+	flags  *pflag.FlagSet
+	owners map[*pflag.Flag]*cobra.Command
 }
 
-// DefaultComponents is the full python3.14 command line. Adding or removing a
-// mode is a one-line change here. Handlers are tried in this order, so the
-// actions that preempt a run (help, version) come first.
-func DefaultComponents() []Component {
-	return []Component{
-		Help{},
-		Version{},
-		Interpreter{},
-		XOptions{},
-		Command{},
-		Module{},
-		File{},
-		Stdin{},
-	}
+type exitError struct {
+	code int
+	err  error
 }
 
-// Parse interprets args (the command line without the program name) the way
-// CPython 3.14 does, ignoring the environment. See ParseEnv.
-func Parse(args []string) (Options, error) {
-	return ParseEnv(args, nil)
+var (
+	// ErrUnsupported marks an option the grammar knows and no unit implements yet.
+	ErrUnsupported = errors.New("is not supported yet")
+
+	// ErrNoCommand means no composed unit selects the command line.
+	ErrNoCommand = errors.New("no command selected")
+)
+
+// Default is the supported python3.14 command line, one unit per action.
+func Default() []*cobra.Command {
+	return []*cobra.Command{Help(), Version(), Command(), File(), Stdin()}
 }
 
-// ParseEnv interprets args like Parse and merges the PYTHON* variables of
-// environ (KEY=value entries) into the options. Flags win over the environment,
-// and -E or -I ignore it.
-func ParseEnv(args, environ []string) (Options, error) {
-	return NewRoot(Process{Env: environ}, DefaultComponents()...).Parse(args)
+// New composes units, in selection priority order, under one root.
+func New(units ...*cobra.Command) *Root {
+	r := &Root{
+		cmd:    &cobra.Command{Use: programName},
+		units:  units,
+		flags:  pflag.NewFlagSet(programName, pflag.ContinueOnError),
+		owners: map[*pflag.Flag]*cobra.Command{},
+	}
+	for _, unit := range units {
+		r.cmd.AddCommand(unit)
+		unit.Flags().VisitAll(func(flag *pflag.Flag) {
+			r.flags.AddFlag(flag)
+			r.owners[flag] = unit
+		})
+	}
+	return r
 }
 
-// NewRoot builds a root over the given components for one command line.
-func NewRoot(p Process, components ...Component) *Root {
-	cmd := &cobra.Command{Use: programName, Args: cobra.ArbitraryArgs}
-	cmd.Flags().SetInterspersed(false)
-	cmd.SetIn(p.Stdin)
-	cmd.SetOut(p.Stdout)
-	cmd.SetErr(p.Stderr)
-	cmd.SetFlagErrorFunc(func(_ *cobra.Command, err error) error {
-		return usageFromFlagError(err)
-	})
-
-	root := &Root{
-		cmd:        cmd,
-		state:      &State{Flags: cmd.Flags(), Environ: p.Env, Options: Options{Spry: SpryOptions{Opt: OptDefault}}},
-		components: components,
-		terminals:  map[byte]Mode{},
-		getwd:      workDir(p.Dir),
-	}
-	for _, c := range components {
-		c.Register(cmd.Flags(), root.state)
-		if t, ok := c.(Terminator); ok {
-			letter, mode := t.Terminal()
-			root.terminals[letter] = mode
-		}
-	}
-	cmd.PreRunE = root.prepare
-	cmd.RunE = root.dispatch
-	return root
+// Run executes the command line of p and returns the exit status. Grammar
+// errors print the usage reminder; other errors print "spry: <error>".
+func (r *Root) Run(ctx context.Context, p Process) int {
+	r.cmd.SetIn(p.Stdin)
+	r.cmd.SetOut(p.Stdout)
+	r.cmd.SetErr(p.Stderr)
+	return r.report(r.run(context.WithValue(ctx, processKey{}, p), p.Args))
 }
 
-// Parse interprets args (the command line without the program name) and
-// returns the options without running anything.
-func (r *Root) Parse(args []string) (Options, error) {
-	cut := splitArgs(args, r.state.Flags, r.terminals)
-	r.state.Terminal = cut.terminal
-	err := r.cmd.ParseFlags(cut.options)
-	r.state.Positional = r.cmd.Flags().Args()
-	for _, c := range r.components {
-		if p, ok := c.(Preempter); ok && p.Preempts(r.state) {
-			return r.state.Options, p.Prepare(r.state)
-		}
-	}
-	if err != nil {
-		return r.state.Options, r.cmd.FlagErrorFunc()(r.cmd, err)
-	}
-	if cut.err != nil {
-		return r.state.Options, cut.err
-	}
-	if err := r.cmd.ValidateArgs(r.state.Positional); err != nil {
-		return r.state.Options, err
-	}
-	if err := r.cmd.PreRunE(r.cmd, r.state.Positional); err != nil {
-		return r.state.Options, err
-	}
-	return r.state.Options, nil
-}
-
-// Run parses args and runs the selected handler, returning the exit status.
-// Command line errors are printed in CPython's format.
-func (r *Root) Run(ctx context.Context, args []string) int {
-	r.cmd.SetContext(ctx)
-	if _, err := r.Parse(args); err != nil {
-		return r.report(err)
-	}
-	if err := r.cmd.RunE(r.cmd, r.state.Positional); err != nil {
-		return r.report(err)
-	}
-	return r.exit
-}
-
-// prepare is the PreRunE hook: every component validates its part.
-func (r *Root) prepare(*cobra.Command, []string) error {
-	for _, c := range r.components {
-		if err := c.Prepare(r.state); err != nil {
+// run reads options in order. The first unsupported option is held back so
+// that a grammar error later on the command line, or an immediate unit such as
+// help, still wins.
+func (r *Root) run(ctx context.Context, args []string) error {
+	g := newGetopt(args)
+	selected := map[*cobra.Command]bool{}
+	var unsupported *option
+	for {
+		opt, ok, err := g.Next()
+		if err != nil {
 			return err
+		}
+		if !ok {
+			break
+		}
+		flag := r.lookup(opt)
+		switch {
+		case flag == nil && unsupported == nil:
+			unsupported = &opt
+		case flag != nil:
+			unit := r.owners[flag]
+			if err := record(flag, opt); err != nil {
+				return err
+			}
+			selected[unit] = true
+			if unit.Annotations[annotationImmediate] != "" {
+				return r.exec(ctx, unit, g.Operands())
+			}
+		}
+		if opt.Terminal() {
+			break
+		}
+	}
+	if unsupported != nil {
+		return &exitError{code: ExitUsage, err: fmt.Errorf("option %s %w", unsupported, ErrUnsupported)}
+	}
+	unit := r.pick(selected, g.Operands())
+	if unit == nil {
+		return ErrNoCommand
+	}
+	return r.exec(ctx, unit, g.Operands())
+}
+
+// pick chooses what to run: the first unit whose flag was met, else the first
+// flagless unit whose Args validator accepts the operands.
+func (r *Root) pick(selected map[*cobra.Command]bool, operands []string) *cobra.Command {
+	for _, unit := range r.units {
+		if selected[unit] && unit.RunE != nil {
+			return unit
+		}
+	}
+	for _, unit := range r.units {
+		if !unit.Flags().HasFlags() && unit.RunE != nil && unit.ValidateArgs(operands) == nil {
+			return unit
 		}
 	}
 	return nil
 }
 
-// dispatch is the RunE hook: the first handler that applies runs.
-func (r *Root) dispatch(cmd *cobra.Command, _ []string) error {
-	env := Env{
-		Stdin:   cmd.InOrStdin(),
-		Stdout:  cmd.OutOrStdout(),
-		Stderr:  cmd.ErrOrStderr(),
-		Environ: r.state.Environ,
-		Getwd:   r.getwd,
+func (r *Root) lookup(opt option) *pflag.Flag {
+	if opt.long {
+		return r.flags.Lookup(opt.name)
 	}
-	for _, c := range r.components {
-		if h, ok := c.(Handler); ok && h.Applies(r.state) {
-			r.exit = h.Run(cmd.Context(), env, r.state)
-			return nil
-		}
-	}
-	return &UsageError{Message: programName + ": no mode selected for this command line", NoUsage: true}
+	return r.flags.ShorthandLookup(opt.name)
 }
 
-// report prints a command line error and returns the usage exit status.
+func (r *Root) exec(ctx context.Context, unit *cobra.Command, args []string) error {
+	unit.SetContext(ctx)
+	return unit.RunE(unit, args)
+}
+
 func (r *Root) report(err error) int {
-	var usage *UsageError
-	if !errors.As(err, &usage) {
-		usage = &UsageError{Message: err.Error()}
+	if err == nil {
+		return ExitOK
 	}
 	stderr := r.cmd.ErrOrStderr()
-	_, _ = io.WriteString(stderr, usage.Message+"\n")
-	if !usage.NoUsage {
+	if errors.Is(err, ErrUsage) {
+		_, _ = fmt.Fprintln(stderr, err)
 		_, _ = io.WriteString(stderr, usageLine+usageHint)
+		return ExitUsage
 	}
-	return ExitUsage
+	_, _ = fmt.Fprintf(stderr, "%s: %v\n", programName, err)
+	var exit *exitError
+	if errors.As(err, &exit) {
+		return exit.code
+	}
+	return ExitFailure
 }
 
-// workDir returns a lazy working-directory resolver: dir when given, else the
-// process's current directory, looked up only when asked.
-func workDir(dir string) func() (string, error) {
-	if dir != "" {
-		return func() (string, error) { return dir, nil }
+func (e *exitError) Error() string {
+	return e.err.Error()
+}
+
+func (e *exitError) Unwrap() error {
+	return e.err
+}
+
+// record stores the option in the flag it selected, as pflag's parser would.
+func record(flag *pflag.Flag, opt option) error {
+	value := flag.NoOptDefVal
+	if opt.hasArg {
+		value = opt.value
 	}
-	return os.Getwd
+	if err := flag.Value.Set(value); err != nil {
+		return err
+	}
+	flag.Changed = true
+	return nil
 }

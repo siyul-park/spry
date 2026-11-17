@@ -10,4 +10,5 @@ MADR format. Each record has Status, Context, Decision, Consequences, Alternativ
 | [0004](0004-int-representation.md) | Integer representation | Proposed |
 | [0005](0005-lighthouse-design-enforcement.md) | Lighthouse for design enforcement | Accepted |
 | [0006](0006-baseline-benchmark-harness.md) | Baseline and benchmark harness | Accepted |
-| [0007](0007-cpython-compatible-cli.md) | CPython-compatible CLI | Accepted |
+| [0007](0007-cpython-compatible-cli.md) | CPython-compatible CLI | Accepted; superseded in part by 0010 |
+| [0010](0010-cli-command-layer.md) | CLI command layer | Accepted |

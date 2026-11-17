@@ -1,18 +1,10 @@
 package cli
 
 import (
-	"context"
 	"io"
-	"runtime"
-	"strings"
 
-	"github.com/spf13/pflag"
+	"github.com/spf13/cobra"
 )
-
-// Help is -h, -?, --help, --help-env, --help-xoptions and --help-all. The
-// first one on the command line wins, and it wins immediately, even over an
-// invalid option that follows.
-type Help struct{}
 
 const (
 	programName = "spry"
@@ -20,77 +12,67 @@ const (
 	usageLine = "usage: " + programName + " [option] ... [-c cmd | -m mod | file | -] [arg] ...\n"
 	usageHint = "Try `" + programName + " -h' for more information.\n"
 
-	xOptionsHeader   = "The following implementation-specific options are available:\n"
-	spryXOptionsBody = `-X spry.dump=STAGE: print an intermediate form (tokens, ast, types, ssa or asm)
-         and stop before running
--X spry.emit=PATH: write the compiled minivm program to PATH
--X spry.fallback=MODE: warn (default) or forbid (error) dynamic Any fallbacks
--X spry.opt=N: optimization level 0, 1, 2 or 3
-`
+	annotationImmediate = programName + ".immediate"
 )
 
-var helpFlags = []struct {
-	name, short string
-	action      Action
-}{
-	{"help", "h", ActionHelp},
-	{"?", "?", ActionHelp},
-	{"help-env", "", ActionHelpEnv},
-	{"help-xoptions", "", ActionHelpXOptions},
-	{"help-all", "", ActionHelpAll},
-}
+// optionsHelp is the body of `python3.14 -h` (3.14.9) after the usage line.
+const optionsHelp = `Options (and corresponding environment variables):
+-b     : issue warnings about converting bytes/bytearray to str and comparing
+         bytes/bytearray with str or bytes with int. (-bb: issue errors)
+-B     : don't write .pyc files on import; also PYTHONDONTWRITEBYTECODE=x
+-c cmd : program passed in as string (terminates option list)
+-d     : turn on parser debugging output (for experts only, only works on
+         debug builds); also PYTHONDEBUG=x
+-E     : ignore PYTHON* environment variables (such as PYTHONPATH)
+-h     : print this help message and exit (also -? or --help)
+-i     : inspect interactively after running script; forces a prompt even
+         if stdin does not appear to be a terminal; also PYTHONINSPECT=x
+-I     : isolate Python from the user's environment (implies -E, -P and -s)
+-m mod : run library module as a script (terminates option list)
+-O     : remove assert and __debug__-dependent statements; add .opt-1 before
+         .pyc extension; also PYTHONOPTIMIZE=x
+-OO    : do -O changes and also discard docstrings; add .opt-2 before
+         .pyc extension
+-P     : don't prepend a potentially unsafe path to sys.path; also
+         PYTHONSAFEPATH
+-q     : don't print version and copyright messages on interactive startup
+-s     : don't add user site directory to sys.path; also PYTHONNOUSERSITE=x
+-S     : don't imply 'import site' on initialization
+-u     : force the stdout and stderr streams to be unbuffered;
+         this option has no effect on stdin; also PYTHONUNBUFFERED=x
+-v     : verbose (trace import statements); also PYTHONVERBOSE=x
+         can be supplied multiple times to increase verbosity
+-V     : print the Python version number and exit (also --version)
+         when given twice, print more information about the build
+-W arg : warning control; arg is action:message:category:module:lineno
+         also PYTHONWARNINGS=arg
+-x     : skip first line of source, allowing use of non-Unix forms of #!cmd
+-X opt : set implementation-specific option
+--check-hash-based-pycs always|default|never:
+         control how Python invalidates hash-based .pyc files
+--help-env: print help about Python environment variables and exit
+--help-xoptions: print help about implementation-specific -X options and exit
+--help-all: print complete help information and exit
 
-func (Help) Register(fs *pflag.FlagSet, st *State) {
-	for _, h := range helpFlags {
-		flag := fs.VarPF(actionValue{state: st, action: h.action}, h.name, h.short, "")
-		flag.NoOptDefVal = "true"
+Arguments:
+file   : program read from script file
+-      : program read from stdin (default; interactive mode if a tty)
+arg ...: arguments passed to program in sys.argv[1:]
+`
+
+// Help is -h, -? and --help. It runs the moment the flag is met, so it wins
+// over an invalid option that follows, like CPython.
+func Help() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:         "help",
+		Args:        cobra.ArbitraryArgs,
+		Annotations: map[string]string{annotationImmediate: "true"},
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			_, err := io.WriteString(cmd.OutOrStdout(), usageLine+optionsHelp)
+			return err
+		},
 	}
-}
-
-func (Help) Preempts(st *State) bool {
-	return st.help != ActionRun
-}
-
-func (Help) Prepare(st *State) error {
-	if st.help != ActionRun {
-		st.Options.Action = st.help
-	}
-	return nil
-}
-
-func (Help) Applies(st *State) bool {
-	switch st.Options.Action {
-	case ActionHelp, ActionHelpEnv, ActionHelpXOptions, ActionHelpAll:
-		return true
-	}
-	return false
-}
-
-func (Help) Run(_ context.Context, env Env, st *State) int {
-	_, _ = io.WriteString(env.Stdout, helpText(st.Options.Action))
-	return ExitOK
-}
-
-func helpText(action Action) string {
-	switch action {
-	case ActionHelpEnv:
-		return envHelpText()
-	case ActionHelpXOptions:
-		return xOptionsHelp()
-	case ActionHelpAll:
-		return usageLine + optionsHelp + "\n" + envHelpText() + "\n" + xOptionsHelp()
-	}
-	return usageLine + optionsHelp
-}
-
-// envHelpText drops PYTHONEXECUTABLE off macOS, as CPython does (#ifdef __APPLE__).
-func envHelpText() string {
-	if runtime.GOOS == "darwin" {
-		return envHelp
-	}
-	return strings.Replace(envHelp, "PYTHONEXECUTABLE: set sys.argv[0] to this value (macOS only)\n", "", 1)
-}
-
-func xOptionsHelp() string {
-	return xOptionsHeader + spryXOptionsBody + cpythonXOptionsBody
+	cmd.Flags().BoolP("help", "h", false, "print this help message and exit")
+	cmd.Flags().BoolP("?", "?", false, "print this help message and exit")
+	return cmd
 }

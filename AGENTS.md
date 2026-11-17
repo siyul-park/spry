@@ -40,7 +40,6 @@ Delegation: agents SHOULD delegate broad investigation and multi-file or large c
 | Optimization passes | docs/ssa.md, docs/architecture.md | `optimize` | `go test ./optimize/...` |
 | Bytecode emission | docs/compiler.md | `compiler` | `go test ./compiler/...` |
 | Python object model, builtins | docs/compiler.md, docs/subset.md | `builtins` | `go test ./builtins/...` |
-| Driver API (`Compile`, `Run`), stage dumps | docs/architecture.md | `spry` (root) | `go test .` |
 | Command line | docs/cli.md | `cli`, `cmd/spry` | `go test ./cli/... ./cmd/...` |
 | Conformance corpus | docs/testing.md | `conformance` | `make conformance` |
 | Benchmarks | docs/benchmarks.md | `benchmarks` | `make bench` |
@@ -55,7 +54,7 @@ Enforced by lighthouse decisions; see docs/architecture.md.
 - `ssa` imports `ast` and `types` (builder input) and never minivm.
 - `optimize` imports `ssa` only.
 - `compiler` imports `ssa` and `builtins`.
-- Only `compiler`, `builtins`, the root `spry` package, `cli` and `cmd/spry` import minivm.
+- Only `compiler`, `builtins`, `cli` and `cmd/spry` import minivm.
 - Code importing both spry `types` and minivm `types` aliases minivm as `vmtypes`.
 - `internal/cpython` is a test/tooling helper and imports nothing from spry.
 

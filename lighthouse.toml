@@ -46,7 +46,6 @@ options.forbidden = [
 options.layers = [
   ["cmd/spry/**"],
   ["cli/**"],
-  ["spry"],
   ["compiler/**"],
   ["builtins/**", "optimize/**"],
   ["ssa/**"],

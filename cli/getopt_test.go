@@ -26,7 +26,7 @@ func (v trace) Set(value string) error {
 }
 
 func register(flags *pflag.FlagSet, items *[]string) {
-	for _, letter := range "bBdEhiIOPqsSuvVxX?" {
+	for _, letter := range "bBdEhiIOPqRsStuvVxX?" {
 		name := string(letter)
 		flags.VarPF(trace{name: name, items: items}, name, name, "").NoOptDefVal = "1"
 	}
@@ -54,6 +54,7 @@ func TestGetopt(t *testing.T) {
 		{"combined", []string{"-Ec", "x"}, []string{"E=1", "c=x"}, nil, ""},
 		{"attached value", []string{"-cprint(1)"}, []string{"c=print(1)"}, nil, ""},
 		{"count", []string{"-OOW", "x"}, []string{"O=1", "O=1", "W=x"}, nil, ""},
+		{"R and t are in the grammar", []string{"-Rt"}, []string{"R=1", "t=1"}, nil, ""},
 		{"equals stays in value", []string{"-W=x"}, []string{"W==x"}, nil, ""},
 		{"c takes the rest", []string{"-c", "pass", "-h", "-z"}, []string{"c=pass"}, []string{"-h", "-z"}, ""},
 		{"m takes the rest", []string{"-m", "mod", "-z"}, []string{"m=mod"}, []string{"-z"}, ""},

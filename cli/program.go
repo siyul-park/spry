@@ -72,9 +72,16 @@ func runFile(cmd *cobra.Command, args []string) error {
 				return fmt.Errorf("cannot determine working directory: %w", err)
 			}
 		}
-		path = filepath.Join(dir, path)
+		// Not filepath.Join: cleaning would drop a trailing separator and
+		// with it ENOTDIR for a regular file, which CPython reports.
+		path = dir + string(filepath.Separator) + path
 	}
-	info, err := os.Stat(path)
+	file, err := os.Open(path)
+	if err != nil {
+		return &exitError{code: ExitUsage, err: fmt.Errorf("can't open file '%s': %s", path, errnoText(err))}
+	}
+	defer file.Close()
+	info, err := file.Stat()
 	if err != nil {
 		return &exitError{code: ExitUsage, err: fmt.Errorf("can't open file '%s': %s", path, errnoText(err))}
 	}

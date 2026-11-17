@@ -27,7 +27,7 @@ type getopt struct {
 
 // shortOptions lists the short options; a following ':' marks one that takes
 // a value.
-const shortOptions = "bBc:dEhiIm:OPqsSuvVW:xX:?"
+const shortOptions = "bBc:dEhiIm:OPqRsStuvVW:xX:?"
 
 // ErrUsage is the category of command line grammar errors.
 var ErrUsage = errors.New("usage error")

@@ -32,6 +32,9 @@ func TestFile(t *testing.T) {
 	dir := t.TempDir()
 	require.NoError(t, os.WriteFile(filepath.Join(dir, "ok.py"), []byte("pass\n"), 0o644))
 	require.NoError(t, os.Mkdir(filepath.Join(dir, "pkg"), 0o755))
+	unreadable := filepath.Join(dir, "unreadable.py")
+	require.NoError(t, os.WriteFile(unreadable, []byte("pass\n"), 0o000))
+	t.Cleanup(func() { _ = os.Chmod(unreadable, 0o644) })
 	locked := filepath.Join(dir, "locked")
 	require.NoError(t, os.Mkdir(locked, 0o000))
 	t.Cleanup(func() { _ = os.Chmod(locked, 0o755) })
@@ -48,11 +51,13 @@ func TestFile(t *testing.T) {
 		{"missing", []string{"no.py"}, cli.ExitUsage, "spry: can't open file '" + filepath.Join(dir, "no.py") + "': [Errno 2] No such file or directory\n"},
 		{"directory", []string{"pkg"}, cli.ExitFailure, "spry: can't find '__main__' module in '" + filepath.Join(dir, "pkg") + "'\n"},
 		{"not a directory", []string{"ok.py/x"}, cli.ExitUsage, "spry: can't open file '" + filepath.Join(dir, "ok.py", "x") + "': [Errno 20] Not a directory\n"},
+		{"trailing separator on a file", []string{"ok.py/"}, cli.ExitUsage, "spry: can't open file '" + dir + string(filepath.Separator) + "ok.py/': [Errno 20] Not a directory\n"},
+		{"unreadable file", []string{"unreadable.py"}, cli.ExitUsage, "spry: can't open file '" + unreadable + "': [Errno 13] Permission denied\n"},
 		{"permission", []string{"locked/x.py"}, cli.ExitUsage, "spry: can't open file '" + filepath.Join(locked, "x.py") + "': [Errno 13] Permission denied\n"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.name == "permission" && os.Geteuid() == 0 {
+			if (tt.name == "permission" || tt.name == "unreadable file") && os.Geteuid() == 0 {
 				t.Skip("root ignores directory permissions")
 			}
 			var stdout, stderr bytes.Buffer

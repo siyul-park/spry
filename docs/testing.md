@@ -20,7 +20,7 @@
 | Compiler golden | `compiler/testdata/` | instruction listing for key patterns | no |
 | Conformance | `conformance/testdata/<category>/*.py` + `.expected` | CPython stdout/exit code | only to regenerate |
 | Fuzz | `scanner`, `parser`, `ssa` | invariants | no |
-| CLI golden | `cli/testdata/` | `python3.14` usage output and exit codes | only to regenerate |
+| CLI golden | `cli/testdata/golden/` | `python3.14` usage output and exit codes | only to regenerate |
 
 ## AST Golden Tests
 
@@ -72,7 +72,7 @@ Go native fuzz targets:
 
 ## CLI Goldens
 
-`cli/testdata/*.golden` hold stdout, stderr and exit code for `python3.14` invocations that spry must match (usage errors, `-V` shape, missing file). Cases that depend on an option spry does not support yet are recorded from spry and move to CPython-recorded goldens when the option lands. Table tests cover the getopt grammar (option combining, `--`, `-c`/`-m` argv handling) and each command unit alone. Goldens are recorded with `-update`.
+`cli/testdata/golden/*.golden` hold stdout, stderr and exit code for `python3.14` invocations that spry must match (usage errors, `-V` shape, missing file). Cases that depend on an option spry does not support yet are recorded from spry and move to CPython-recorded goldens when the option lands. Table tests cover the getopt grammar (option combining, `--`, `-c`/`-m` argv handling) and each command unit alone. Goldens are recorded with `-update`.
 
 ## Coverage
 

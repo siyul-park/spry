@@ -33,7 +33,7 @@ Each action a python3.14 command line can select is one `*cobra.Command` unit th
 
 ## Option Grammar
 
-`getopt.go` accepts the full CPython 3.14 grammar: short options `bBc:dEhiIm:OPqsSuvVW:xX:?`, and long options `help`, `version`, `help-env`, `help-xoptions`, `help-all`, `check-hash-based-pycs` (needs a value). Long options match exactly (no abbreviations, no `--name=value`). `-c` and `-m` take the rest of the command line, `-W=x` has the value `=x`, `--` ends options and `-` is an operand. Errors use CPython's text and exit 2: `Unknown option: -z`, `Argument expected for the -W option`, `Argument expected for the --check-hash-based-pycs options`, followed by the usage line and `Try \`spry -h' for more information.`
+`getopt.go` accepts the full CPython 3.14 grammar: short options `bBc:dEhiIm:OPqRsStuvVW:xX:?`, and long options `help`, `version`, `help-env`, `help-xoptions`, `help-all`, `check-hash-based-pycs` (needs a value). Long options match exactly (no abbreviations, no `--name=value`). `-c` and `-m` take the rest of the command line, `-W=x` has the value `=x`, `--` ends options and `-` is an operand. Errors use CPython's text and exit 2: `Unknown option: -z`, `Argument expected for the -W option`, `Argument expected for the --check-hash-based-pycs options`, followed by the usage line and `Try \`spry -h' for more information.`
 
 ## Run Order
 
@@ -72,8 +72,10 @@ Execution is not implemented yet: running a program prints `spry: execution not 
 | `-O`, `-OO` | pending | Optimize: strip `assert` / also docstrings |
 | `-P` | pending | Do not prepend script dir / cwd to `sys.path` |
 | `-q` | pending | Quiet interactive banner |
+| `-R` | pending | Hash randomization (accepted; spry has no hash seed to set) |
 | `-s` | pending | No user site directory |
 | `-S` | pending | Do not import `site` |
+| `-t` | pending | Accepted by CPython 3.14 as a no-op (obsolete tab check) |
 | `-u` | pending | Unbuffered stdout/stderr |
 | `-v` | pending | Verbose imports (`-vv` more) |
 | `-W arg` | pending | Warning filter (`action:message:category:module:lineno`) |

@@ -2,11 +2,18 @@
 package main
 
 import (
+	"context"
 	"os"
 
 	"github.com/siyul-park/spry/cli"
 )
 
 func main() {
-	os.Exit(cli.Main(os.Args, os.Stdin, os.Stdout, os.Stderr, os.Environ()))
+	os.Exit(cli.Run(context.Background(), cli.Process{
+		Args:   os.Args[1:],
+		Stdin:  os.Stdin,
+		Stdout: os.Stdout,
+		Stderr: os.Stderr,
+		Env:    os.Environ(),
+	}))
 }

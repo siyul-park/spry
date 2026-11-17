@@ -1,6 +1,6 @@
 # 0007: CPython-compatible CLI
 
-- Status: Accepted
+- Status: Accepted; superseded in part by [0010](0010-cli-command-layer.md) (implementation)
 
 ## Context
 

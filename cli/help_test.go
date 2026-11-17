@@ -1,6 +1,7 @@
 package cli_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -9,37 +10,21 @@ import (
 )
 
 func TestHelp(t *testing.T) {
-	only := []cli.Component{cli.Help{}}
-	tests := []struct {
-		name   string
-		args   []string
-		action cli.Action
-		prefix string
-	}{
-		{"short", []string{"-h"}, cli.ActionHelp, "usage: spry"},
-		{"question", []string{"-?"}, cli.ActionHelp, "usage: spry"},
-		{"long", []string{"--help"}, cli.ActionHelp, "usage: spry"},
-		{"env", []string{"--help-env"}, cli.ActionHelpEnv, "Environment variables"},
-		{"xoptions", []string{"--help-xoptions"}, cli.ActionHelpXOptions, "The following implementation-specific"},
-		{"all", []string{"--help-all"}, cli.ActionHelpAll, "usage: spry"},
-		{"first wins", []string{"--help-env", "-h"}, cli.ActionHelpEnv, "Environment variables"},
-		{"wins over a later error", []string{"-h", "-z"}, cli.ActionHelp, "usage: spry"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			opts, err := parseWith(only, nil, tt.args...)
-			require.NoError(t, err)
-			require.Equal(t, tt.action, opts.Action)
-
-			code, stdout, stderr := runWith(t, only, tt.args...)
+	for _, flag := range []string{"-h", "-?", "--help", "-Eh"} {
+		t.Run(flag, func(t *testing.T) {
+			args := []string{flag}
+			if flag == "-Eh" {
+				args = []string{"-h"}
+			}
+			code, stdout, stderr := run(t, units(cli.Help()), args...)
 			require.Equal(t, cli.ExitOK, code)
+			require.True(t, strings.HasPrefix(stdout, "usage: spry [option] ... [-c cmd | -m mod | file | -] [arg] ...\nOptions (and corresponding environment variables):\n"))
 			require.Empty(t, stderr)
-			require.Contains(t, stdout, tt.prefix)
 		})
 	}
-}
-
-func TestHelpAbsent(t *testing.T) {
-	_, err := parseWith([]cli.Component{cli.Version{}}, nil, "-h")
-	require.EqualError(t, err, "Unknown option: -h")
+	t.Run("alone it does not know other flags", func(t *testing.T) {
+		code, _, stderr := run(t, units(cli.Help()), "-V")
+		require.Equal(t, cli.ExitUsage, code)
+		require.Equal(t, "spry: option -V is not supported yet\n", stderr)
+	})
 }

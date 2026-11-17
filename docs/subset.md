@@ -64,7 +64,7 @@ Status values:
 
 | Feature | Status | Notes / Rationale |
 |---|---|---|
-| `import` of modules reachable at compile time | Supported | Whole-program: all modules known to `spry.Compile` |
+| `import` of modules reachable at compile time | Supported | Whole-program: all modules reachable from the entry module |
 | `importlib`, `__import__` with non-constant names | Rejected | `TYP120` |
 | Conditional imports (`try: import x except ImportError`) | Restricted | Supported when the module set is decidable at compile time |
 | Builtins (`print`, `len`, `range`, `enumerate`, `zip`, `sorted`, `min`, `max`, `sum`, `isinstance`, ...) | Supported | Host functions or inlined |

@@ -1,6 +1,7 @@
 package cli_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -9,32 +10,21 @@ import (
 )
 
 func TestVersion(t *testing.T) {
-	only := []cli.Component{cli.Version{}}
-	tests := []struct {
-		name   string
-		args   []string
-		action cli.Action
-		want   string
-	}{
-		{"short", []string{"-V"}, cli.ActionVersion, "Python 3.14.0 (spry " + cli.Release + ")\n"},
-		{"long", []string{"--version"}, cli.ActionVersion, "Python 3.14.0 (spry " + cli.Release + ")\n"},
-		{"verbose", []string{"-VV"}, cli.ActionVersionVerbose, "Python 3.14.0 (spry " + cli.Release + ") [Go go"},
-		{"twice", []string{"-V", "--version"}, cli.ActionVersionVerbose, "Python 3.14.0 (spry " + cli.Release + ") [Go go"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			opts, err := parseWith(only, nil, tt.args...)
-			require.NoError(t, err)
-			require.Equal(t, tt.action, opts.Action)
-
-			code, stdout, _ := runWith(t, only, tt.args...)
+	line := "Python 3.14.0 (spry " + cli.Release + ")"
+	for _, flag := range []string{"-V", "--version"} {
+		t.Run(flag, func(t *testing.T) {
+			code, stdout, stderr := run(t, units(cli.Version()), flag)
 			require.Equal(t, cli.ExitOK, code)
-			require.Contains(t, stdout, tt.want)
+			require.Equal(t, line+"\n", stdout)
+			require.Empty(t, stderr)
 		})
 	}
-}
-
-func TestVersionDeferred(t *testing.T) {
-	_, err := parseWith([]cli.Component{cli.Version{}}, nil, "-V", "-z")
-	require.EqualError(t, err, "Unknown option: -z")
+	t.Run("-VV is verbose", func(t *testing.T) {
+		_, stdout, _ := run(t, units(cli.Version()), "-VV")
+		require.True(t, strings.HasPrefix(stdout, line+" [Go go"), stdout)
+	})
+	t.Run("-V -V is verbose", func(t *testing.T) {
+		_, stdout, _ := run(t, units(cli.Version()), "-V", "-V")
+		require.True(t, strings.HasPrefix(stdout, line+" [Go go"), stdout)
+	})
 }

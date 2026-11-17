@@ -1,4 +1,4 @@
-exit: 0
+exit: 2
 --- stdout
-Python 3.14.0 (spry 0.0.0-dev)
 --- stderr
+spry: option -W is not supported yet

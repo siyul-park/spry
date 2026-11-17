@@ -1,71 +1,100 @@
 # CLI
 
-`spry` is a drop-in for `python3.14` at the command line. Package `cli` parses and dispatches (no `os.Exit`, fully testable); `cmd/spry` is a thin `main`. spry-only features use `-X spry.*` so they cannot collide with CPython options (ADR 0007).
+`spry` is a drop-in for `python3.14` at the command line. Package `cli` is the command layer (no `os.Exit`, fully testable); `cmd/spry` is a thin `main`. spry-only features will use `-X spry.*` so they cannot collide with CPython options (ADR 0007, ADR 0010).
 
 ```text
 spry [option] ... [-c cmd | -m mod | file | -] [arg] ...
 ```
 
-Implementation: `cli` builds one `*cobra.Command` (github.com/spf13/cobra, flags by pflag) with no subcommands and assembles it from independent components. `Root` never calls cobra's `Execute`: `Execute` always registers the hidden `__complete` command, which would capture a script named `__complete`, and no option disables it. Instead `Root` drives the lifecycle itself, which still uses cobra for flag definitions (`SetInterspersed(false)` stops parsing at the script path or `-`), IO (`SetIn`/`SetOut`/`SetErr`), context (`SetContext`), and the hooks `ParseFlags`, `ValidateArgs`, `PreRunE` (component validation) and `RunE` (dispatch). A script named `__complete`, `__completeNoDesc`, `completion` or `help` is therefore just a script.
+## Structure
 
-## Components
+Each action a python3.14 command line can select is one `*cobra.Command` unit that owns its pflag flags. `cli.New(units...)` composes them under a `Root` with `AddCommand`; `cli.Default()` is the supported command line, one line per unit.
 
-`DefaultComponents()` is the ordered slice the root is built from; adding or removing a mode is a one-line change there, and a root can be built from any subset (`NewRoot(process, cli.Version{}, cli.Command{})`).
-
-| Component | Owns | Notes |
+| Unit | Selected by | Behavior |
 |---|---|---|
-| `Help` | `-h`, `-?`, `--help`, `--help-env`, `--help-xoptions`, `--help-all` | First one wins and preempts later flag errors |
-| `Version` | `-V`, `--version` | Deferred, so later errors win; `-VV` is verbose |
-| `Interpreter` | `-b -B -d -E -i -I -O -P -q -s -S -u -v -W -x`, `--check-hash-based-pycs`, and the `PYTHON*` environment | `-I` implies `-E -P -s`; flags win over the environment; `-E`/`-I` ignore it |
-| `XOptions` | `-X` | Validates `spry.dump`, `spry.opt`, `spry.fallback`, `spry.emit` |
-| `Command` | `-c` | Terminal flag |
-| `Module` | `-m` | Terminal flag |
-| `File` | the script path | Prints CPython's open-file errors |
-| `Stdin` | `-` or no argument | |
+| `Help()` | `-h`, `-?`, `--help` | Immediate: runs the moment the flag is met |
+| `Version()` | `-V`, `--version` | `-VV` prints build details |
+| `Command()` | `-c cmd` | Everything after the value is `sys.argv[1:]` |
+| `File()` | first operand other than `-` | Prints CPython's open-file errors |
+| `Stdin()` | no operand, or `-` | |
 
-A component implements `Component` (`Register` its flags, `Prepare` its part of `Options`); a mode or action also implements `Handler` (`Applies`, `Run(ctx, env, state)` with injected IO, environment and a lazy working-directory resolver). `Preempter` marks components that act immediately (help); `Terminator` marks flags that end option parsing (`-c`, `-m`). Every handler is unit-tested alone against a root built from just that component.
+| Need | Library use |
+|---|---|
+| Unit and composition | `*cobra.Command`, `root.AddCommand(unit)`; IO and context are inherited from the parent. Selection priority is the composition order kept by `Root` (cobra sorts subcommands by name) |
+| Flags a unit owns | `unit.Flags()` (pflag): Count (`-V`, later `-O`, `-v`, `-b`), String (`-c`), StringArray (later `-W`, `-X`) |
+| Recording values | The parser passes each `(flag, value)` to `Flag.Value.Set` (`"+1"` for Count). pflag's parser is not called |
+| Is an option supported | `ShorthandLookup`/`Lookup` on the flags of all composed units |
+| Operand units | `Command.Args` (PositionalArgs) validator; `nil` selects the unit |
+| Running | `unit.RunE(unit, args)`; `args` are the operands after the options |
+| Immediate units | `Annotations["spry.immediate"]` |
+| Written here | `getopt.go` (port of CPython `Python/getopt.c`) and the CPython help text |
 
-Custom code is limited to (1) `splitArgs`, the pre-split implementing CPython's rule that everything after `-c <cmd>` / `-m <mod>` goes to `sys.argv` (also keeps `-W=x` as the value `=x`, which pflag would shorten, and rejects every long option CPython does not have), (2) the translation of pflag errors into CPython's message text, (3) the static CPython help text, and (4) the `PYTHON*` environment merge (`caarlos0/env` was considered and rejected: it parses booleans with `strconv.ParseBool`, but CPython treats any non-empty string as true).
+`Root` never calls cobra's `Execute`: `Execute` always registers the hidden `__complete` command, which would capture a script of that name, and no option disables it. A script named `__complete`, `completion` or `help` is therefore just a script.
+
+## Option Grammar
+
+`getopt.go` accepts the full CPython 3.14 grammar: short options `bBc:dEhiIm:OPqRsStuvVW:xX:?`, and long options `help`, `version`, `help-env`, `help-xoptions`, `help-all`, `check-hash-based-pycs` (needs a value). Long options match exactly (no abbreviations, no `--name=value`). `-c` and `-m` take the rest of the command line, `-W=x` has the value `=x`, `--` ends options and `-` is an operand. Errors use CPython's text and exit 2: `Unknown option: -z`, `Argument expected for the -W option`, `Argument expected for the --check-hash-based-pycs options`, followed by the usage line and `Try \`spry -h' for more information.`
+
+## Run Order
+
+1. Read options. A grammar error prints the message and usage, exit 2. A registered flag is recorded and marks its unit selected; an immediate unit (help) runs at once, so `-h -z` prints help while `-z -h` is an error. An option in the grammar that no unit registers is held as unsupported.
+2. If an option was unsupported: `spry: option -O is not supported yet` (long: `spry: option --help-env is not supported yet`), exit 2, no usage line.
+3. Run the first selected flag unit in composition order (`-V -c x` prints the version, as CPython does). Otherwise run the first operand unit whose validator accepts the operands.
+4. `RunE` errors become exit codes: an `exitError` keeps its code, any other error prints `spry: <error>` and exits 1.
+
+Execution is not implemented yet: running a program prints `spry: execution not implemented yet (phase P3)` and exits 1.
+
+## Boundary
+
+- cli owns: argv grammar, unit composition, flag to stage-option mapping, help, usage and version text, opening the source and the `can't open file` messages (as in CPython `Modules/main.c`), mapping stage errors to output and exit codes, and the order stages are called in.
+- cli does not own: the meaning of grammar, types, optimization or execution, nor the meaning of an option value (for example what `-O` removes). A policy that spans stages (such as import resolution over several modules) belongs to the stage that owns it (for example `types`).
 
 ## Options
 
-| Option | Behavior |
-|---|---|
-| `-c cmd` | Run `cmd`; `sys.argv[0] = '-c'`. `-cprint(1)` (attached) works |
-| `-m mod` | Run a module as a script; `sys.argv[0]` is the module path. `-m ast` and `-m tokenize` are reserved to match CPython's stdlib CLIs when those modules exist |
-| `file` | Run a script file |
-| `-` | Read the program from stdin |
-| `-V`, `--version` | Print `Python 3.14.0 (spry <version>)`; `-VV` prints extended build info. First token stays `Python` for tools that parse it |
-| `-h`, `-?`, `--help` | Usage |
-| `--help-env` | Environment variable help |
-| `--help-xoptions` | `-X` option help, including `spry.*` |
-| `--help-all` | All help |
-| `-B` | Do not write `.pyc` (no-op: spry writes none) |
-| `-b` | Warn on str/bytes comparison (`-bb`: error) |
-| `-d` | Debug flag (accepted; no effect initially) |
-| `-E` | Ignore `PYTHON*` environment variables |
-| `-I` | Isolated mode: implies `-E -P -s` |
-| `-i` | Inspect interactively after running |
-| `-O`, `-OO` | Optimize: strip `assert` / also docstrings; `sys.flags.optimize` |
-| `-P` | Do not prepend script dir / cwd to `sys.path` |
-| `-q` | Quiet interactive banner |
-| `-s` | No user site directory |
-| `-S` | Do not import `site` |
-| `-u` | Unbuffered stdout/stderr |
-| `-v` | Verbose imports (`-vv` more) |
-| `-W arg` | Warning filter (`action:message:category:module:lineno`); `-Wd`, `-We` etc. |
-| `-X opt` | Implementation option (below) |
-| `-x` | Skip first source line (non-Unix shebang) |
-| `--check-hash-based-pycs mode` | Accepted; `default`, `always`, `never` |
-| `--` | End of options (interpreter-level) |
-
-Combining follows CPython: `-OO`, `-Wd`, `-bu`, `-cprint(1)` (the rest of the argument is the option value). Unknown options print `Unknown option: -Z` plus the short usage hint to stderr and exit 2. Missing option values print `Argument expected for the -W option` and exit 2.
+| Option | Status | Behavior |
+|---|---|---|
+| `-c cmd` | supported | Run `cmd`; `sys.argv[0] = '-c'`. `-cprint(1)` (attached) works |
+| `file` | supported | Run a script file |
+| `-` | supported | Read the program from stdin |
+| `-V`, `--version` | supported | Print `Python 3.14.0 (spry <version>)`; `-VV` prints extended build info. First token stays `Python` for tools that parse it |
+| `-h`, `-?`, `--help` | supported | Usage |
+| `--` | supported | End of options |
+| `-m mod` | pending | Run a module as a script; `-m ast` and `-m tokenize` are reserved for CPython's stdlib CLIs |
+| `--help-env` | pending | Environment variable help |
+| `--help-xoptions` | pending | `-X` option help, including `spry.*` |
+| `--help-all` | pending | All help |
+| `-B` | pending | Do not write `.pyc` (no-op: spry writes none) |
+| `-b` | pending | Warn on str/bytes comparison (`-bb`: error) |
+| `-d` | pending | Debug flag (accepted; no effect initially) |
+| `-E` | pending | Ignore `PYTHON*` environment variables |
+| `-I` | pending | Isolated mode: implies `-E -P -s` |
+| `-i` | pending | Inspect interactively after running |
+| `-O`, `-OO` | pending | Optimize: strip `assert` / also docstrings |
+| `-P` | pending | Do not prepend script dir / cwd to `sys.path` |
+| `-q` | pending | Quiet interactive banner |
+| `-R` | pending | Hash randomization (accepted; spry has no hash seed to set) |
+| `-s` | pending | No user site directory |
+| `-S` | pending | Do not import `site` |
+| `-t` | pending | Accepted by CPython 3.14 as a no-op (obsolete tab check) |
+| `-u` | pending | Unbuffered stdout/stderr |
+| `-v` | pending | Verbose imports (`-vv` more) |
+| `-W arg` | pending | Warning filter (`action:message:category:module:lineno`) |
+| `-X opt` | pending | Implementation option (below) |
+| `-x` | pending | Skip first source line |
+| `--check-hash-based-pycs mode` | pending | `default`, `always`, `never` |
 
 Everything after the script, `-c cmd` or `-m mod` goes to `sys.argv`.
 
+## Adding an Option
+
+1. Add a `*cobra.Command` unit, or a flag on an existing unit, that registers the flag and (if it selects an action) a `RunE`. A unit that only changes settings (`-O`, `-W`, `-E`) has no `RunE`: it contributes its flags and is never selected; the unit that runs reads the value from the flags and maps it to a stage option.
+2. Add the unit to `Default()` at its priority.
+3. Add a unit test composed from that unit alone, and move its cases from `spryOnlyCases` to `goldenCases` in `cli/cli_test.go`, re-recorded from `python3.14`.
+4. Change its row above to `supported`.
+
 ## -X Options
 
-CPython options are accepted and stored in `sys._xoptions` (`dev`, `utf8`, `faulthandler`, `importtime`, `warn_default_encoding`, `int_max_str_digits=N`, ...); those with no meaning in spry are no-ops. spry-only:
+Pending. CPython options will be accepted and stored in `sys._xoptions`; spry-only:
 
 | Option | Values | Meaning |
 |---|---|---|
@@ -75,9 +104,9 @@ CPython options are accepted and stored in `sys._xoptions` (`dev`, `utf8`, `faul
 | `spry.emit` | path | Write the minivm program to the path |
 | `spry.verify` | (flag) | Run `ssa.Verify` after every optimization pass |
 
-`-X spry.<unknown>` is a usage error (exit 2). All `spry.*` options appear in `--help-xoptions`.
-
 ## Environment Variables
+
+Pending, together with `-E` and `-I`.
 
 | Variable | Handling |
 |---|---|
@@ -92,25 +121,17 @@ CPython options are accepted and stored in `sys._xoptions` (`dev`, `utf8`, `faul
 | `PYTHONHASHSEED` | Hash randomization seed (`random` or integer) |
 | `PYTHONINSPECT` | Same as `-i` |
 | `PYTHONNOUSERSITE` | Same as `-s` |
-| `PYTHONVERBOSE`, `PYTHONDEBUG`, `PYTHONDEVMODE`, `PYTHONX`-style `PYTHON_*` options | Accepted as in CPython |
-| `PYTHONSTARTUP` | Interactive only |
-| `NO_COLOR`, `FORCE_COLOR`, `PYTHON_COLORS` | Tracebacks/help color |
 | `SPRY_PYTHON` | Not read by `spry`; used by tooling to locate the python3.14 oracle |
-| `SPRY_OPT`, `SPRY_FALLBACK` | Optional environment forms of `-X spry.opt` / `spry.fallback` (the `-X` option wins) |
-
-`-E`/`-I` ignore all `PYTHON*` variables but not `SPRY_*`.
 
 ## Exit Codes
 
 | Code | Meaning |
 |---|---|
 | 0 | Success (`SystemExit(0)`/`None`, normal end) |
-| 1 | Uncaught exception (traceback on stderr); also `SystemExit` with other nonzero int / string messages per CPython (string printed to stderr, exit 1); spry-specific: feature not implemented in this phase, or compile error from the subset checker |
-| 2 | Usage error, or script/module file cannot be opened: `spry: can't open file '/abs/path.py': [Errno 2] No such file or directory` |
+| 1 | Uncaught exception; spry-specific: feature not implemented in this phase, or compile error from the subset checker |
+| 2 | Usage error, unsupported option, or script file cannot be opened: `spry: can't open file '/abs/path.py': [Errno 2] No such file or directory` |
 | `n` | `SystemExit(n)` for integer `n` is honored (mod 256) |
 | 130/143-style | Termination by signal follows the OS convention (128+signal) |
-
-Compile errors (syntax, subset violations) print a CPython-format `SyntaxError` traceback for syntax errors (`File "x.py", line N` plus caret) and `file:line:col: error TYPnnn: message` for subset diagnostics, then exit 1.
 
 ## Identity
 
@@ -121,7 +142,7 @@ Compile errors (syntax, subset violations) print a CPython-format `SyntaxError` 
 
 | Phase | Behavior |
 |---|---|
-| P0 | Parsing of all options, help, version, usage errors, file-not-found are final. Executing code prints `spry: execution is not implemented (planned for P3)` and exits 1 |
+| P0 | Grammar, help, version, usage errors, file-not-found are final; options other than the supported ones report "not supported yet" |
 | P1 | `-X spry.dump=tokens\|ast` works; `-m ast` reserved |
 | P2 | `-X spry.dump=types\|ssa` works; type diagnostics are produced |
 | P3 | Execution of files, `-c`, `-`, `-m` of compiled modules |
@@ -129,4 +150,4 @@ Compile errors (syntax, subset violations) print a CPython-format `SyntaxError` 
 
 ## Testing
 
-`cli/testdata` goldens are recorded from `python3.14` for usage errors, unknown options, missing arguments and missing files; table tests assert the exit code and stderr text. See docs/testing.md.
+`cli/testdata/golden` holds stdout, stderr and exit code. Cases whose behavior equals `python3.14` (usage errors, help, missing files) are recorded from it and compared live when it is installed; cases that depend on an unsupported option or print spry-only text are recorded from spry. Unit tests compose a root from one unit. See docs/testing.md.

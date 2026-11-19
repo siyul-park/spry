@@ -1,0 +1,235 @@
+class @__main__.Ctx {
+  field log : list<any>
+}
+
+class @__main__.Quiet {
+}
+
+extern class @ValueError : @Exception {
+}
+
+extern class @Exception : @BaseException {
+}
+
+extern class @BaseException {
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'with.py'
+  %1 = newlist : list<any>
+  %2 = call @run(%1) : list<any>
+  %3 = call @swallowed() : int
+  %4 = newlist : list<any>
+  %5 = call @leave(%4, 5) : list<any>?
+  %6 = newlist : list<any>
+  %7 = call @two(%6) : list<any>
+  %8 = box %2 : any
+  %9 = box %3 : any
+  %10 = box %5 : any
+  %11 = box %7 : any
+  %12 = newtuple %8, %9, %10, %11 : tuple<any...>
+  %13 = call @builtins:print(%12, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @Ctx.__init__(%self: @__main__.Ctx, %log: list<any>) -> none source "Ctx.__init__" {
+b0:
+  storefield %self.log, %log
+  ret
+}
+
+func @Ctx.__enter__(%self: @__main__.Ctx) -> @__main__.Ctx source "Ctx.__enter__" {
+b0:
+  %0 = loadfield %self.log : list<any>
+  append %0, 'enter':any
+  ret %self
+}
+
+func @Ctx.__exit__#0(%self: @__main__.Ctx, %kind: none, %exc: none, %tb: none) -> i1 source "Ctx.__exit__" {
+b0:
+  %0 = loadfield %self.log : list<any>
+  append %0, 'exit':any
+  ret False
+}
+
+func @Ctx.__exit__#1(%self: @__main__.Ctx, %kind: any, %exc: any, %tb: any) -> i1 source "Ctx.__exit__" {
+b0:
+  %0 = loadfield %self.log : list<any>
+  append %0, 'exit':any
+  ret False
+}
+
+func @Quiet.__enter__(%self: @__main__.Quiet) -> int source "Quiet.__enter__" {
+b0:
+  ret 1
+}
+
+func @Quiet.__exit__#0(%self: @__main__.Quiet, %kind: none, %exc: none, %tb: none) -> i1 source "Quiet.__exit__" {
+b0:
+  ret True
+}
+
+func @Quiet.__exit__#1(%self: @__main__.Quiet, %kind: any, %exc: any, %tb: any) -> i1 source "Quiet.__exit__" {
+b0:
+  ret True
+}
+
+func @run(%log: list<any>) -> list<any> source "run" {
+b0:
+  %0 = alloc @__main__.Ctx : @__main__.Ctx
+  %1 = call @Ctx.__init__(%0, %log) : none
+  %2 = call @Ctx.__enter__(%0) : @__main__.Ctx
+  append %log, 'body':any
+  %3 = call @Ctx.__exit__#0(%0, None, None, None) : i1
+  jump b1
+b1:
+  ret %log
+}
+
+func @swallowed() -> int source "swallowed" {
+b0:
+  %0 = alloc @__main__.Quiet : @__main__.Quiet
+  %1 = call @Quiet.__enter__(%0) : int
+  %2 = newtuple 'lost':any : tuple<any...>
+  %3 = call @builtins:BaseException.__init__(%2) : @ValueError -> normal b4, except b1
+b1:
+  %4 = landingpad : any
+  jump b2(%4)
+b2(%p0: any):
+  %5 = typeof %p0 : any
+  %6 = dyngetattr %p0.__traceback__ : any
+  %7 = call @Quiet.__exit__#1(%0, %5, %p0, %6) : i1
+  br %7, b5, b6
+b3:
+  ret 1
+b4:
+  %8 = box %3 : any
+  jump b2(%8)
+b5:
+  jump b3
+b6:
+  reraise %p0
+}
+
+func @leave(%log: list<any>, %n: int) -> list<any>? source "leave" {
+b0:
+  %0 = call @builtins:range(0, %n, 1) : iter<int>
+  jump b1
+b1:
+  %1 = next %0 : i1
+  br %1, b2, b3
+b2:
+  %2 = current %0 : int
+  %3 = alloc @__main__.Ctx : @__main__.Ctx
+  %4 = call @Ctx.__init__(%3, %log) : none
+  %5 = call @Ctx.__enter__(%3) : @__main__.Ctx
+  %6 = eq %2, 1 : i1
+  br %6, b6, b7
+b3:
+  jump b4
+b4:
+  %7 = alloc @__main__.Ctx : @__main__.Ctx
+  %8 = call @Ctx.__init__(%7, %log) : none
+  %9 = call @Ctx.__enter__(%7) : @__main__.Ctx
+  %10 = cast %log : list<any>? -> normal b17, except b14
+b5:
+  jump b1
+b6:
+  jump b9
+b7:
+  jump b8
+b8:
+  %11 = eq %2, 3 : i1
+  br %11, b10, b11
+b9:
+  %12 = call @Ctx.__exit__#0(%3, None, None, None) : i1
+  jump b1
+b10:
+  jump b13
+b11:
+  jump b12
+b12:
+  %13 = box %2 : any
+  append %log, %13
+  %14 = call @Ctx.__exit__#0(%3, None, None, None) : i1
+  jump b5
+b13:
+  %15 = call @Ctx.__exit__#0(%3, None, None, None) : i1
+  jump b4
+b14:
+  %16 = landingpad : any
+  jump b15
+b15:
+  %17 = typeof %16 : any
+  %18 = dyngetattr %16.__traceback__ : any
+  %19 = call @Ctx.__exit__#1(%7, %17, %16, %18) : i1
+  br %19, b19, b20
+b16:
+  ret None:list<any>?
+b17:
+  jump b18
+b18:
+  %20 = call @Ctx.__exit__#0(%7, None, None, None) : i1
+  ret %10
+b19:
+  jump b16
+b20:
+  reraise %16
+}
+
+func @two(%log: list<any>) -> list<any> source "two" {
+b0:
+  %0 = alloc @__main__.Ctx : @__main__.Ctx
+  %1 = call @Ctx.__init__(%0, %log) : none
+  %2 = call @Ctx.__enter__(%0) : @__main__.Ctx
+  %3 = alloc @__main__.Ctx : @__main__.Ctx
+  %4 = call @Ctx.__init__(%3, %log) : none -> normal b4, except b1
+b1:
+  %5 = landingpad : any
+  jump b2
+b2:
+  %6 = typeof %5 : any
+  %7 = dyngetattr %5.__traceback__ : any
+  %8 = call @Ctx.__exit__#1(%0, %6, %5, %7) : i1
+  br %8, b8, b9
+b3:
+  ret %log
+b4:
+  %9 = call @Ctx.__enter__(%3) : @__main__.Ctx -> normal b5, except b1
+b5:
+  append %log, 'inner':any
+  %10 = call @Ctx.__exit__#0(%3, None, None, None) : i1 -> normal b7, except b1
+b6:
+  %11 = call @Ctx.__exit__#0(%0, None, None, None) : i1
+  jump b3
+b7:
+  jump b6
+b8:
+  jump b3
+b9:
+  reraise %5
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+extern func @BaseException.__init__(%args: tuple<any...>) -> @ValueError source "BaseException.__init__"
+
+extern func @range(%start: int, %stop: int, %step: int) -> iter<int> source "range"
+
+entry @__main__:<module>

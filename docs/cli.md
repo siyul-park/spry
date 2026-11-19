@@ -43,7 +43,12 @@ Each action a python3.14 command line can select is one `*cobra.Command` unit th
 3. Run the first selected flag unit in composition order (`-V -c x` prints the version, as CPython does). Otherwise run the first operand unit whose validator accepts the operands.
 4. `RunE` errors become exit codes: an `exitError` keeps its code, any other error prints `spry: <error>` and exits 1.
 
-A program unit (`-c`, file, stdin) reads its source, then runs the front end on it in exec mode with the filename CPython shows: `<string>` for `-c`, `<stdin>` for stdin, and for a file the path made absolute against the working directory (CPython prints it absolute too). A failure is reported as CPython prints a `SyntaxError` (below) and exits 1. When the source parses, the `-X spry.dump` output is printed and execution would follow; it is not implemented yet, so the program prints `spry: execution not implemented yet (phase P3)` and exits 1.
+A program unit (`-c`, file, stdin) reads its source, then runs the stages in order with the filename CPython shows: `<string>` for `-c`, `<stdin>` for stdin, and for a file the path made absolute against the working directory (CPython prints it absolute too).
+
+1. Parse (`parser.ParseFile`). A `SyntaxError` is printed as CPython does (below), exit 1. Dumps of `tokens` (before parsing) and `ast` (after a successful parse) are printed here. With `spry.dump.exit` and no later stage dumped (including no `spry.dump` at all), the program stops here with exit 0.
+2. Check (`types.Check` with `WithFS`). The import directory is the directory of the script for a file, and the working directory of the process for `-c` and stdin. The `types` dump is printed even when checking failed, if the result is partial. A compile-stage `SyntaxError` of the main module (for example `nonlocal x` at module level) is printed like a parse error; for `-c` and stdin it has no source line, as in CPython. Type diagnostics print one per line as `file:line:col: error TYPnnn: message`, with no `spry:` prefix, exit 1. A type error stops the run before the build whatever `spry.dump.exit` says. With `spry.dump.exit` and `types` as the last dumped stage, the program stops here with exit 0.
+3. Build (`ssa.Build`, which runs `ssa.Verify`). A failure is a bug in spry and prints `spry: internal error: <error>`, exit 1. The `ssa` dump (without positions) is printed here; with `spry.dump.exit` the program then exits 0.
+4. Execution is not implemented yet: the program prints `spry: execution not implemented yet (phase P3)` and exits 1.
 
 ## Syntax Errors
 
@@ -99,7 +104,7 @@ The wording of a message belongs to the stage that produced it (docs/frontend.md
 | `-u` | pending | Unbuffered stdout/stderr |
 | `-v` | pending | Verbose imports (`-vv` more) |
 | `-W arg` | pending | Warning filter (`action:message:category:module:lineno`) |
-| `-X opt` | partial | Implementation option (below). Only `spry.dump=tokens\|ast` and `spry.dump.exit` are accepted; any other `-X` value prints `spry: option -X is not supported yet` and exits 2 |
+| `-X opt` | partial | Implementation option (below). Only `spry.dump=tokens\|ast\|types\|ssa` and `spry.dump.exit` are accepted; any other `-X` value prints `spry: option -X is not supported yet` and exits 2 |
 | `-x` | pending | Skip first source line |
 | `--check-hash-based-pycs mode` | pending | `default`, `always`, `never` |
 
@@ -118,8 +123,8 @@ CPython options will be accepted and stored in `sys._xoptions` later. Today `-X`
 
 | Option | Values | Status | Meaning |
 |---|---|---|---|
-| `spry.dump` | `tokens`, `ast` (comma list); later `types`, `ssa`, `asm` | `tokens`, `ast` supported | Print the stage output to stderr, then continue. The last `spry.dump` wins; stages print in pipeline order (tokens, then ast) whatever the order in the list |
-| `spry.dump.exit` | (flag) | supported | After the dumps, exit 0 instead of continuing to execution |
+| `spry.dump` | `tokens`, `ast`, `types`, `ssa` (comma list); later `asm` | `tokens`, `ast`, `types`, `ssa` supported | Print the stage output to stderr, then continue. The last `spry.dump` wins; stages print in pipeline order (tokens, ast, types, ssa) whatever the order in the list |
+| `spry.dump.exit` | (flag) | supported | Stop after the last stage that was dumped (after parse when none was) and exit 0 instead of continuing. A syntax or type error still exits 1 |
 | `spry.opt` | `0`..`3` | pending | Optimization level for `optimize` and minivm `optimize` (default 2) |
 | `spry.fallback` | `warn`, `error` | pending | Report or forbid `Any` fallbacks (docs/typing.md) |
 | `spry.emit` | path | pending | Write the minivm program to the path |
@@ -129,8 +134,10 @@ Dump formats follow the CPython command line tools so that the oracle is `python
 
 - `tokens` is the output of `python3.14 -m tokenize < file` (the stdin form, so no `ENCODING` row): one line per token, `start-end:` padded to 20 columns, the tokenize type name (`NAME`, `OP`, `NEWLINE`, `NL`, `COMMENT`, `INDENT`, ...) padded to 15 and the `repr` of the text padded to 15, with 1-based lines and 0-based code point columns. The scanner runs with `WithExtraTokens` on the decoded text, line breaks untranslated. A scanner error ends the dump; the syntax error follows.
 - `ast` is the output of `python3.14 -m ast file`: `ast.Dump` with a 3-space indent and no attributes, plus a newline. It is printed only when the parse succeeds.
+- `types` is `types.Dump` (docs/typing.md): modules in import order with globals, classes and the specializations of each function, then `fallbacks N`. It is printed even when the check found errors.
+- `ssa` is `ssa.Print` without positions (docs/ssa.md). CPython has no such stages, so there is no oracle; the format is stable and covered by goldens.
 
-Goldens for both are in `cli/testdata/dump` (`*.tokens`, `*.ast`), recorded from those commands (`go test ./cli -run TestXOptions -update`) and compared live when `python3.14` is installed.
+Goldens for `tokens` and `ast` are in `cli/testdata/dump` (`*.tokens`, `*.ast`), recorded from those commands (`go test ./cli -run TestXOptions -update`) and compared live when `python3.14` is installed.
 
 ## Environment Variables
 
@@ -156,7 +163,7 @@ Pending, together with `-E` and `-I`.
 | Code | Meaning |
 |---|---|
 | 0 | Success (`SystemExit(0)`/`None`, normal end) |
-| 1 | Uncaught exception; spry-specific: feature not implemented in this phase, or compile error from the subset checker |
+| 1 | Uncaught exception; spry-specific: feature not implemented in this phase, a `TYP` diagnostic (the subset checker or an annotation mismatch), or `spry: internal error:` from the builder |
 | 2 | Usage error, unsupported option, or script file cannot be opened: `spry: can't open file '/abs/path.py': [Errno 2] No such file or directory` |
 | `n` | `SystemExit(n)` for integer `n` is honored (mod 256) |
 | 130/143-style | Termination by signal follows the OS convention (128+signal) |
@@ -172,10 +179,10 @@ Pending, together with `-E` and `-I`.
 |---|---|
 | P0 | Grammar, help, version, usage errors, file-not-found are final; options other than the supported ones report "not supported yet" |
 | P1 | `-X spry.dump=tokens\|ast` works (done), with `spry.dump.exit`; files, `-c` and stdin are parsed and report `SyntaxError` as CPython does (done); `-m ast` reserved |
-| P2 | `-X spry.dump=types\|ssa` works; type diagnostics are produced |
+| P2 | Done: `-X spry.dump=types\|ssa` works; type diagnostics are produced and exit 1; imports resolve against the script directory |
 | P3 | Execution of files, `-c`, `-`, `-m` of compiled modules |
 | P5 | Interactive mode (`-i`, REPL) and stdlib `-m` entry points |
 
 ## Testing
 
-`cli/testdata/golden` holds stdout, stderr and exit code. Cases whose behavior equals `python3.14` (usage errors, help, missing files) are recorded from it and compared live when it is installed; cases that depend on an unsupported option or print spry-only text are recorded from spry. `syntax-*` cases (files, `-c`, stdin with a syntax error from the scanner) run both in a work directory and are compared live with `python3.14`; their messages come from the scanner, so they do not depend on parser wording. Unit tests compose a root from one unit. See docs/testing.md.
+`cli/testdata/golden` holds stdout, stderr and exit code. Cases whose behavior equals `python3.14` (usage errors, help, missing files) are recorded from it and compared live when it is installed; cases that depend on an unsupported option or print spry-only text are recorded from spry. `syntax-*` cases (files, `-c`, stdin with a syntax error from the scanner) run both in a work directory and are compared live with `python3.14`; their messages come from the scanner, so they do not depend on parser wording. `cli/testdata/stages/*.py` hold programs with `.types` and `.ssa` goldens recorded from spry itself (`go test ./cli -update`), since CPython has no such stages; the absolute directory is written as `$DIR`. The test also requires that `-X spry.dump=ssa,types` prints the two goldens in pipeline order. The `type-error-*`, `import-unknown-module` and `dump-ssa-exit` cases in `golden` print spry-only text and are recorded from spry. The `syntax-command-nonlocal` and `syntax-file-nonlocal` cases are compile-stage `SyntaxError`s recorded from `python3.14`; for `-c` and stdin they have no source line. Unit tests compose a root from one unit. See docs/testing.md.

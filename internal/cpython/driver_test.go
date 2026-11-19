@@ -58,6 +58,11 @@ func TestRunDriver(t *testing.T) {
 		require.NoError(t, err)
 		require.Contains(t, res.Stdout, `"kwlist"`)
 	})
+	t.Run("typerepr", func(t *testing.T) {
+		res, err := cpython.RunDriver(ctx, python, "typerepr.py", nil)
+		require.NoError(t, err)
+		require.Contains(t, res.Stdout, `"repr": "collections.abc.Callable[[int], str]"`)
+	})
 	t.Run("failure", func(t *testing.T) {
 		_, err := cpython.RunDriver(ctx, python, "tables.py", nil, "bogus")
 		require.ErrorIs(t, err, cpython.ErrDriver)

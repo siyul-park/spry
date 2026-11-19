@@ -1,0 +1,733 @@
+class @__main__.P {
+  field n : int
+}
+
+extern class @ValueError : @Exception {
+}
+
+extern class @Exception : @BaseException {
+}
+
+extern class @BaseException {
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+global @ps : list<@__main__.P>
+global @a : list<@__main__.P>
+global @b : list<@__main__.P>
+global @c : list<int>
+global @d : @__main__.P
+global @e : @__main__.P
+global @f : @__main__.P
+global @g : @__main__.P
+global @h : list<int>
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'prelude.py'
+  %1 = alloc @__main__.P : @__main__.P
+  %2 = call @P.__init__(%1, 3) : none
+  %3 = alloc @__main__.P : @__main__.P
+  %4 = call @P.__init__(%3, 1) : none
+  %5 = alloc @__main__.P : @__main__.P
+  %6 = call @P.__init__(%5, 2) : none
+  %7 = newlist %1, %3, %5 : list<@__main__.P>
+  storeglobal @ps, %7
+  %8 = loadglobal @ps : list<@__main__.P>
+  %9 = call @builtins:__sorted__#0(%8, None, False) : list<@__main__.P>
+  storeglobal @a, %9
+  %10 = loadglobal @ps : list<@__main__.P>
+  %11 = makeclosure @<lambda> [] : func(@__main__.P) -> int
+  %12 = call @builtins:__sorted__#1(%10, %11, True) : list<@__main__.P>
+  storeglobal @b, %12
+  %13 = newlist 3, 1, 2 : list<int>
+  %14 = makeclosure @<lambda>$1 [] : func(int) -> int
+  %15 = call @builtins:__sorted__#2(%13, %14, False) : list<int>
+  storeglobal @c, %15
+  %16 = loadglobal @ps : list<@__main__.P>
+  %17 = call @builtins:__min__(%16, None) : @__main__.P
+  storeglobal @d, %17
+  %18 = loadglobal @ps : list<@__main__.P>
+  %19 = makeclosure @<lambda>$2 [] : func(@__main__.P) -> int
+  %20 = call @builtins:__max__(%18, %19) : @__main__.P
+  storeglobal @e, %20
+  %21 = loadglobal @ps : list<@__main__.P>
+  %22 = index %21, 0 : @__main__.P
+  %23 = loadglobal @ps : list<@__main__.P>
+  %24 = index %23, 1 : @__main__.P
+  %25 = call @builtins:__max2__(%22, %24, None) : @__main__.P
+  storeglobal @f, %25
+  %26 = loadglobal @ps : list<@__main__.P>
+  %27 = alloc @__main__.P : @__main__.P
+  %28 = call @P.__init__(%27, 0) : none
+  %29 = call @builtins:__sum__(%26, %27) : @__main__.P
+  storeglobal @g, %29
+  %30 = newlist 3, 1, 2 : list<int>
+  %31 = box %30 : any
+  %32 = call @builtins:sorted(%31, None:any, False) : list<any>
+  %33 = cast %32 : list<int>
+  storeglobal @h, %33
+  %34 = loadglobal @a : list<@__main__.P>
+  %35 = index %34, 0 : @__main__.P
+  %36 = loadfield %35.n : int
+  %37 = loadglobal @b : list<@__main__.P>
+  %38 = index %37, 0 : @__main__.P
+  %39 = loadfield %38.n : int
+  %40 = loadglobal @c : list<int>
+  %41 = loadglobal @d : @__main__.P
+  %42 = loadfield %41.n : int
+  %43 = loadglobal @e : @__main__.P
+  %44 = loadfield %43.n : int
+  %45 = loadglobal @f : @__main__.P
+  %46 = loadfield %45.n : int
+  %47 = loadglobal @g : @__main__.P
+  %48 = loadfield %47.n : int
+  %49 = loadglobal @h : list<int>
+  %50 = box %36 : any
+  %51 = box %39 : any
+  %52 = box %40 : any
+  %53 = box %42 : any
+  %54 = box %44 : any
+  %55 = box %46 : any
+  %56 = box %48 : any
+  %57 = box %49 : any
+  %58 = newtuple %50, %51, %52, %53, %54, %55, %56, %57 : tuple<any...>
+  %59 = call @builtins:print(%58, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @P.__init__(%self: @__main__.P, %n: int) -> none source "P.__init__" {
+b0:
+  storefield %self.n, %n
+  ret
+}
+
+func @P.__lt__(%self: @__main__.P, %o: @__main__.P) -> i1 source "P.__lt__" {
+b0:
+  %0 = loadfield %self.n : int
+  %1 = loadfield %o.n : int
+  %2 = lt %0, %1 : i1
+  ret %2
+}
+
+func @P.__add__(%self: @__main__.P, %o: @__main__.P) -> @__main__.P source "P.__add__" {
+b0:
+  %0 = alloc @__main__.P : @__main__.P
+  %1 = loadfield %self.n : int
+  %2 = loadfield %o.n : int
+  %3 = add %1, %2 : int
+  %4 = call @P.__init__(%0, %3) : none
+  ret %0
+}
+
+func @<lambda>(%p_: @__main__.P) -> int source "<lambda>" {
+b0:
+  %0 = loadfield %p_.n : int
+  ret %0
+}
+
+func @<lambda>$1(%v: int) -> int source "<lambda>" {
+b0:
+  %0 = neg %v : int
+  ret %0
+}
+
+func @<lambda>$2(%p_: @__main__.P) -> int source "<lambda>" {
+b0:
+  %0 = loadfield %p_.n : int
+  ret %0
+}
+
+module builtins
+
+func @__sorted__#0(%iterable: list<@__main__.P>, %key: none, %reverse: i1) -> list<@__main__.P> source "__sorted__" {
+b0:
+  %0 = slice %iterable, None, None, None : list<@__main__.P>
+  %1 = len %0 : int
+  %2 = newlist : list<@__main__.P>
+  %3 = iter %0 : iter<@__main__.P>
+  jump b1
+b1:
+  %4 = next %3 : i1
+  br %4, b2, b3
+b2:
+  %5 = current %3 : @__main__.P
+  %6 = is %key, None : i1
+  br %6, b5, b6
+b3:
+  jump b4
+b4:
+  %7 = call @range(0, %1, 1) : iter<int>
+  %8 = box %7 : any
+  %9 = call @list(%8) : list<int>
+  jump b8(1, %9)
+b5:
+  append %2, %5
+  jump b7
+b6:
+  jump b7
+b7:
+  jump b1
+b8(%p0: int, %p1: list<int>):
+  %10 = lt %p0, %1 : i1
+  br %10, b9, b10
+b9:
+  %11 = newlist : list<int>
+  jump b12(0)
+b10:
+  jump b11
+b11:
+  %12 = newlist : list<@__main__.P>
+  %13 = iter %p1 : iter<int>
+  jump b35
+b12(%p2: int):
+  %14 = lt %p2, %1 : i1
+  br %14, b13, b14
+b13:
+  %15 = add %p2, %p0 : int
+  %16 = box %15 : any
+  %17 = box %1 : any
+  %18 = newtuple : tuple<any...>
+  %19 = call @min#1(%16, %17, %18, None:any) : any
+  %20 = unbox %19 : int
+  %21 = mul 2, %p0 : int
+  %22 = add %p2, %21 : int
+  %23 = box %22 : any
+  %24 = box %1 : any
+  %25 = newtuple : tuple<any...>
+  %26 = call @min#1(%23, %24, %25, None:any) : any
+  %27 = unbox %26 : int
+  jump b16(%p2, %20)
+b14:
+  jump b15
+b15:
+  %28 = mul %p0, 2 : int
+  jump b8(%28, %11)
+b16(%p3: int, %p4: int):
+  %29 = lt %p3, %20 : i1
+  br %29, b20, b18
+b17:
+  br %reverse, b21, b22
+b18:
+  jump b19
+b19:
+  jump b27(%p3)
+b20:
+  %30 = lt %p4, %27 : i1
+  br %30, b17, b18
+b21:
+  %31 = index %p1, %p3 : int
+  %32 = index %2, %31 : @__main__.P
+  %33 = index %p1, %p4 : int
+  %34 = index %2, %33 : @__main__.P
+  %35 = call @__main__:P.__lt__(%32, %34) : i1
+  jump b23(%35)
+b22:
+  %36 = index %p1, %p4 : int
+  %37 = index %2, %36 : @__main__.P
+  %38 = index %p1, %p3 : int
+  %39 = index %2, %38 : @__main__.P
+  %40 = call @__main__:P.__lt__(%37, %39) : i1
+  jump b23(%40)
+b23(%p5: i1):
+  br %p5, b24, b25
+b24:
+  %41 = index %p1, %p4 : int
+  append %11, %41
+  %42 = add %p4, 1 : int
+  jump b26(%p3, %42)
+b25:
+  %43 = index %p1, %p3 : int
+  append %11, %43
+  %44 = add %p3, 1 : int
+  jump b26(%44, %p4)
+b26(%p6: int, %p7: int):
+  jump b16(%p6, %p7)
+b27(%p8: int):
+  %45 = lt %p8, %20 : i1
+  br %45, b28, b29
+b28:
+  %46 = index %p1, %p8 : int
+  append %11, %46
+  %47 = add %p8, 1 : int
+  jump b27(%47)
+b29:
+  jump b30
+b30:
+  jump b31(%p4)
+b31(%p9: int):
+  %48 = lt %p9, %27 : i1
+  br %48, b32, b33
+b32:
+  %49 = index %p1, %p9 : int
+  append %11, %49
+  %50 = add %p9, 1 : int
+  jump b31(%50)
+b33:
+  jump b34
+b34:
+  %51 = mul 2, %p0 : int
+  %52 = add %p2, %51 : int
+  jump b12(%52)
+b35:
+  %53 = next %13 : i1
+  br %53, b36, b37
+b36:
+  %54 = current %13 : int
+  %55 = index %0, %54 : @__main__.P
+  append %12, %55
+  jump b35
+b37:
+  jump b38
+b38:
+  ret %12
+}
+
+func @__sorted__#1(%iterable: list<@__main__.P>, %key: func(@__main__.P) -> int, %reverse: i1) -> list<@__main__.P> source "__sorted__" {
+b0:
+  %0 = slice %iterable, None, None, None : list<@__main__.P>
+  %1 = len %0 : int
+  %2 = newlist : list<int>
+  %3 = iter %0 : iter<@__main__.P>
+  jump b1
+b1:
+  %4 = next %3 : i1
+  br %4, b2, b3
+b2:
+  %5 = current %3 : @__main__.P
+  %6 = is %key, None : i1
+  br %6, b5, b6
+b3:
+  jump b4
+b4:
+  %7 = call @range(0, %1, 1) : iter<int>
+  %8 = box %7 : any
+  %9 = call @list(%8) : list<int>
+  jump b8(1, %9)
+b5:
+  jump b7
+b6:
+  %10 = callclosure %key(%5) : int
+  append %2, %10
+  jump b7
+b7:
+  jump b1
+b8(%p0: int, %p1: list<int>):
+  %11 = lt %p0, %1 : i1
+  br %11, b9, b10
+b9:
+  %12 = newlist : list<int>
+  jump b12(0)
+b10:
+  jump b11
+b11:
+  %13 = newlist : list<@__main__.P>
+  %14 = iter %p1 : iter<int>
+  jump b35
+b12(%p2: int):
+  %15 = lt %p2, %1 : i1
+  br %15, b13, b14
+b13:
+  %16 = add %p2, %p0 : int
+  %17 = box %16 : any
+  %18 = box %1 : any
+  %19 = newtuple : tuple<any...>
+  %20 = call @min#1(%17, %18, %19, None:any) : any
+  %21 = unbox %20 : int
+  %22 = mul 2, %p0 : int
+  %23 = add %p2, %22 : int
+  %24 = box %23 : any
+  %25 = box %1 : any
+  %26 = newtuple : tuple<any...>
+  %27 = call @min#1(%24, %25, %26, None:any) : any
+  %28 = unbox %27 : int
+  jump b16(%p2, %21)
+b14:
+  jump b15
+b15:
+  %29 = mul %p0, 2 : int
+  jump b8(%29, %12)
+b16(%p3: int, %p4: int):
+  %30 = lt %p3, %21 : i1
+  br %30, b20, b18
+b17:
+  br %reverse, b21, b22
+b18:
+  jump b19
+b19:
+  jump b27(%p3)
+b20:
+  %31 = lt %p4, %28 : i1
+  br %31, b17, b18
+b21:
+  %32 = index %p1, %p3 : int
+  %33 = index %2, %32 : int
+  %34 = index %p1, %p4 : int
+  %35 = index %2, %34 : int
+  %36 = lt %33, %35 : i1
+  jump b23(%36)
+b22:
+  %37 = index %p1, %p4 : int
+  %38 = index %2, %37 : int
+  %39 = index %p1, %p3 : int
+  %40 = index %2, %39 : int
+  %41 = lt %38, %40 : i1
+  jump b23(%41)
+b23(%p5: i1):
+  br %p5, b24, b25
+b24:
+  %42 = index %p1, %p4 : int
+  append %12, %42
+  %43 = add %p4, 1 : int
+  jump b26(%p3, %43)
+b25:
+  %44 = index %p1, %p3 : int
+  append %12, %44
+  %45 = add %p3, 1 : int
+  jump b26(%45, %p4)
+b26(%p6: int, %p7: int):
+  jump b16(%p6, %p7)
+b27(%p8: int):
+  %46 = lt %p8, %21 : i1
+  br %46, b28, b29
+b28:
+  %47 = index %p1, %p8 : int
+  append %12, %47
+  %48 = add %p8, 1 : int
+  jump b27(%48)
+b29:
+  jump b30
+b30:
+  jump b31(%p4)
+b31(%p9: int):
+  %49 = lt %p9, %28 : i1
+  br %49, b32, b33
+b32:
+  %50 = index %p1, %p9 : int
+  append %12, %50
+  %51 = add %p9, 1 : int
+  jump b31(%51)
+b33:
+  jump b34
+b34:
+  %52 = mul 2, %p0 : int
+  %53 = add %p2, %52 : int
+  jump b12(%53)
+b35:
+  %54 = next %14 : i1
+  br %54, b36, b37
+b36:
+  %55 = current %14 : int
+  %56 = index %0, %55 : @__main__.P
+  append %13, %56
+  jump b35
+b37:
+  jump b38
+b38:
+  ret %13
+}
+
+func @__sorted__#2(%iterable: list<int>, %key: func(int) -> int, %reverse: i1) -> list<int> source "__sorted__" {
+b0:
+  %0 = slice %iterable, None, None, None : list<int>
+  %1 = len %0 : int
+  %2 = newlist : list<int>
+  %3 = iter %0 : iter<int>
+  jump b1
+b1:
+  %4 = next %3 : i1
+  br %4, b2, b3
+b2:
+  %5 = current %3 : int
+  %6 = is %key, None : i1
+  br %6, b5, b6
+b3:
+  jump b4
+b4:
+  %7 = call @range(0, %1, 1) : iter<int>
+  %8 = box %7 : any
+  %9 = call @list(%8) : list<int>
+  jump b8(1, %9)
+b5:
+  jump b7
+b6:
+  %10 = callclosure %key(%5) : int
+  append %2, %10
+  jump b7
+b7:
+  jump b1
+b8(%p0: int, %p1: list<int>):
+  %11 = lt %p0, %1 : i1
+  br %11, b9, b10
+b9:
+  %12 = newlist : list<int>
+  jump b12(0)
+b10:
+  jump b11
+b11:
+  %13 = newlist : list<int>
+  %14 = iter %p1 : iter<int>
+  jump b35
+b12(%p2: int):
+  %15 = lt %p2, %1 : i1
+  br %15, b13, b14
+b13:
+  %16 = add %p2, %p0 : int
+  %17 = box %16 : any
+  %18 = box %1 : any
+  %19 = newtuple : tuple<any...>
+  %20 = call @min#1(%17, %18, %19, None:any) : any
+  %21 = unbox %20 : int
+  %22 = mul 2, %p0 : int
+  %23 = add %p2, %22 : int
+  %24 = box %23 : any
+  %25 = box %1 : any
+  %26 = newtuple : tuple<any...>
+  %27 = call @min#1(%24, %25, %26, None:any) : any
+  %28 = unbox %27 : int
+  jump b16(%p2, %21)
+b14:
+  jump b15
+b15:
+  %29 = mul %p0, 2 : int
+  jump b8(%29, %12)
+b16(%p3: int, %p4: int):
+  %30 = lt %p3, %21 : i1
+  br %30, b20, b18
+b17:
+  br %reverse, b21, b22
+b18:
+  jump b19
+b19:
+  jump b27(%p3)
+b20:
+  %31 = lt %p4, %28 : i1
+  br %31, b17, b18
+b21:
+  %32 = index %p1, %p3 : int
+  %33 = index %2, %32 : int
+  %34 = index %p1, %p4 : int
+  %35 = index %2, %34 : int
+  %36 = lt %33, %35 : i1
+  jump b23(%36)
+b22:
+  %37 = index %p1, %p4 : int
+  %38 = index %2, %37 : int
+  %39 = index %p1, %p3 : int
+  %40 = index %2, %39 : int
+  %41 = lt %38, %40 : i1
+  jump b23(%41)
+b23(%p5: i1):
+  br %p5, b24, b25
+b24:
+  %42 = index %p1, %p4 : int
+  append %12, %42
+  %43 = add %p4, 1 : int
+  jump b26(%p3, %43)
+b25:
+  %44 = index %p1, %p3 : int
+  append %12, %44
+  %45 = add %p3, 1 : int
+  jump b26(%45, %p4)
+b26(%p6: int, %p7: int):
+  jump b16(%p6, %p7)
+b27(%p8: int):
+  %46 = lt %p8, %21 : i1
+  br %46, b28, b29
+b28:
+  %47 = index %p1, %p8 : int
+  append %12, %47
+  %48 = add %p8, 1 : int
+  jump b27(%48)
+b29:
+  jump b30
+b30:
+  jump b31(%p4)
+b31(%p9: int):
+  %49 = lt %p9, %28 : i1
+  br %49, b32, b33
+b32:
+  %50 = index %p1, %p9 : int
+  append %12, %50
+  %51 = add %p9, 1 : int
+  jump b31(%51)
+b33:
+  jump b34
+b34:
+  %52 = mul 2, %p0 : int
+  %53 = add %p2, %52 : int
+  jump b12(%53)
+b35:
+  %54 = next %14 : i1
+  br %54, b36, b37
+b36:
+  %55 = current %14 : int
+  %56 = index %0, %55 : int
+  append %13, %56
+  jump b35
+b37:
+  jump b38
+b38:
+  ret %13
+}
+
+func @__min__(%iterable: list<@__main__.P>, %key: none) -> @__main__.P source "__min__" {
+b0:
+  %0 = slice %iterable, None, None, None : list<@__main__.P>
+  %1 = len %0 : int
+  %2 = ne %1, 0 : i1
+  br %2, b2, b1
+b1:
+  %3 = newtuple 'min() iterable argument is empty':any : tuple<any...>
+  %4 = call @BaseException.__init__(%3) : @ValueError
+  raise %4
+b2:
+  jump b3
+b3:
+  %5 = index %0, 0 : @__main__.P
+  %6 = slice %0, 1, None, None : list<@__main__.P>
+  %7 = iter %6 : iter<@__main__.P>
+  jump b4(%5)
+b4(%p0: @__main__.P):
+  %8 = next %7 : i1
+  br %8, b5, b6
+b5:
+  %9 = current %7 : @__main__.P
+  %10 = is %key, None : i1
+  br %10, b8, b9
+b6:
+  jump b7
+b7:
+  ret %p0
+b8:
+  %11 = call @__main__:P.__lt__(%9, %p0) : i1
+  br %11, b11, b12
+b9:
+  jump b10(%p0)
+b10(%p1: @__main__.P):
+  jump b4(%p1)
+b11:
+  jump b13(%9)
+b12:
+  jump b13(%p0)
+b13(%p2: @__main__.P):
+  jump b10(%p2)
+}
+
+func @__max__(%iterable: list<@__main__.P>, %key: func(@__main__.P) -> int) -> @__main__.P source "__max__" {
+b0:
+  %0 = slice %iterable, None, None, None : list<@__main__.P>
+  %1 = len %0 : int
+  %2 = ne %1, 0 : i1
+  br %2, b2, b1
+b1:
+  %3 = newtuple 'max() iterable argument is empty':any : tuple<any...>
+  %4 = call @BaseException.__init__(%3) : @ValueError
+  raise %4
+b2:
+  jump b3
+b3:
+  %5 = index %0, 0 : @__main__.P
+  %6 = slice %0, 1, None, None : list<@__main__.P>
+  %7 = iter %6 : iter<@__main__.P>
+  jump b4(%5)
+b4(%p0: @__main__.P):
+  %8 = next %7 : i1
+  br %8, b5, b6
+b5:
+  %9 = current %7 : @__main__.P
+  %10 = is %key, None : i1
+  br %10, b8, b9
+b6:
+  jump b7
+b7:
+  ret %p0
+b8:
+  jump b10(%p0)
+b9:
+  %11 = callclosure %key(%9) : int
+  %12 = callclosure %key(%p0) : int
+  %13 = gt %11, %12 : i1
+  br %13, b11, b12
+b10(%p1: @__main__.P):
+  jump b4(%p1)
+b11:
+  jump b13(%9)
+b12:
+  jump b13(%p0)
+b13(%p2: @__main__.P):
+  jump b10(%p2)
+}
+
+func @__max2__(%a: @__main__.P, %b: @__main__.P, %key: none) -> @__main__.P source "__max2__" {
+b0:
+  %0 = is %key, None : i1
+  br %0, b1, b2
+b1:
+  %1 = call @__main__:P.__lt__(%a, %b) : i1
+  br %1, b4, b5
+b2:
+  jump b3
+b3:
+  ret %a
+b4:
+  ret %b
+b5:
+  jump b6
+b6:
+  jump b3
+}
+
+func @__sum__(%iterable: list<@__main__.P>, %start: @__main__.P) -> @__main__.P source "__sum__" {
+b0:
+  %0 = slice %iterable, None, None, None : list<@__main__.P>
+  %1 = len %0 : int
+  %2 = ne %1, 0 : i1
+  br %2, b2, b1
+b1:
+  ret %start
+b2:
+  jump b3
+b3:
+  %3 = index %0, 0 : @__main__.P
+  %4 = call @__main__:P.__add__(%start, %3) : @__main__.P
+  %5 = slice %0, 1, None, None : list<@__main__.P>
+  %6 = iter %5 : iter<@__main__.P>
+  jump b4(%4)
+b4(%p0: @__main__.P):
+  %7 = next %6 : i1
+  br %7, b5, b6
+b5:
+  %8 = current %6 : @__main__.P
+  %9 = call @__main__:P.__add__(%p0, %8) : @__main__.P
+  jump b4(%9)
+b6:
+  jump b7
+b7:
+  ret %p0
+}
+
+extern func @sorted(%iterable: any, %key: any, %reverse: i1) -> list<any> source "sorted"
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+extern func @range(%start: int, %stop: int, %step: int) -> iter<int> source "range"
+
+extern func @list(%a: any) -> list<int> source "list"
+
+extern func @min#1(%a: any, %b: any, %rest: tuple<any...>, %key: any) -> any source "min"
+
+extern func @BaseException.__init__(%args: tuple<any...>) -> @ValueError source "BaseException.__init__"
+
+entry @__main__:<module>

@@ -39,8 +39,13 @@ Delegation: agents SHOULD delegate broad investigation and multi-file or large c
 | Regenerate AST goldens | docs/testing.md | `internal/cpython`, `parser` | `go test ./parser/... -update` (needs python3.14) |
 | CPython test corpus | docs/testing.md | `internal/cpython` | `make corpus && make corpus-extract` |
 | Structural review | docs/refactoring.md | n/a | n/a |
-| Scopes, inference, specialization | docs/typing.md, docs/subset.md | `types` | `go test ./types/...` |
+| Scopes, inference, specialization, stubs | docs/typing.md, docs/subset.md | `types` | `go test ./types/...` |
+| Regenerate type goldens | docs/testing.md | `types` | `go test ./types/... -update` |
+| Regenerate stdlib module list | docs/adr/0012-whole-program-import-resolution.md | `types` | `cd types && go run gen_stdlib.go` (needs python3.14) |
+| Regenerate `typerepr.jsonl` | docs/testing.md | `internal/cpython`, `types` | `make corpus-extract` (needs python3.14) |
 | SSA IR, builder, verifier, printer | docs/ssa.md | `ssa` | `go test ./ssa/...` |
+| Regenerate SSA goldens | docs/testing.md | `ssa` | `go test ./ssa/... -update` |
+| Fuzz the SSA pipeline | docs/testing.md | `ssa` | `go test ./ssa -run '^$' -fuzz FuzzSSA -fuzztime 30s` |
 | Optimization passes | docs/ssa.md, docs/architecture.md | `optimize` | `go test ./optimize/...` |
 | Bytecode emission | docs/compiler.md | `compiler` | `go test ./compiler/...` |
 | Python object model, builtins | docs/compiler.md, docs/subset.md | `builtins` | `go test ./builtins/...` |
@@ -55,12 +60,13 @@ Enforced by lighthouse decisions; see docs/architecture.md.
 
 - `token`, `scanner`, `ast`, `parser` (frontend) import nothing else in spry besides each other (`scanner`→`token`; `ast`→`token`; `parser`→`token`,`scanner`,`ast`).
 - `types` depends on the frontend only.
-- `ssa` imports `ast` and `types` (builder input) and never minivm.
+- `ssa` imports `ast`, `token` and `types` (builder input) and never minivm.
 - `optimize` imports `ssa` only.
 - `compiler` imports `ssa` and `builtins`.
 - Only `compiler`, `builtins`, `cli` and `cmd/spry` import minivm.
 - Code importing both spry `types` and minivm `types` aliases minivm as `vmtypes`.
 - `internal/cpython` is a test/tooling helper and imports nothing from spry.
+- These rules cover non-test imports: tests of `types` and `ssa` import `parser` (and `ssa` tests import `types`) to build inputs.
 
 ## Verification Gate
 

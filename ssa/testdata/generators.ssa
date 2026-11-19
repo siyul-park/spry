@@ -1,0 +1,239 @@
+class @__main__.Bag {
+  field items : list<int>
+}
+
+extern class @StopIteration : @Exception {
+}
+
+extern class @Exception : @BaseException {
+}
+
+extern class @BaseException {
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'generators.py'
+  %1 = call @sender() : any
+  %2 = call @consume(4) : int
+  %3 = call @collect() : list<int>
+  %4 = alloc @__main__.Bag : @__main__.Bag
+  %5 = newlist 1, 2, 3 : list<int>
+  %6 = call @Bag.__init__(%4, %5) : none
+  %7 = call @method(%4) : tuple<int,int>
+  %8 = box %2 : any
+  %9 = box %3 : any
+  %10 = box %7 : any
+  %11 = newtuple %1, %8, %9, %10 : tuple<any...>
+  %12 = call @builtins:print(%11, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @count(%n: int) -> str yield int send none source "count" {
+b0:
+  jump b1(0)
+b1(%p0: int):
+  %0 = lt %p0, %n : i1
+  br %0, b2, b3
+b2:
+  %1 = yield %p0 : none
+  %2 = add %p0, 1 : int
+  jump b1(%2)
+b3:
+  jump b4
+b4:
+  ret 'done'
+}
+
+func @echo() -> none yield any send any source "echo" {
+b0:
+  jump b1(0:any)
+b1(%p0: any):
+  %0 = dynbinop %p0.__lt__, 10:any : any
+  %1 = unbox %0 : i1
+  br %1, b2, b3
+b2:
+  %2 = yield %p0 : any
+  %3 = dynbinop %p0.__add__, %2 : any
+  jump b1(%3)
+b3:
+  jump b4
+b4:
+  ret
+}
+
+func @pairs(%xs: list<int>) -> none yield tuple<int,int> send none source "pairs" {
+b0:
+  %0 = iter %xs : iter<int>
+  jump b1
+b1:
+  %1 = next %0 : i1
+  br %1, b2, b3
+b2:
+  %2 = current %0 : int
+  %3 = mul %2, 2 : int
+  %4 = newtuple %2, %3 : tuple<int,int>
+  %5 = yield %4 : none
+  jump b1
+b3:
+  jump b4
+b4:
+  ret
+}
+
+func @Bag.__init__(%self: @__main__.Bag, %items: list<int>) -> none source "Bag.__init__" {
+b0:
+  storefield %self.items, %items
+  ret
+}
+
+func @Bag.each(%self: @__main__.Bag) -> none yield int send none source "Bag.each" {
+b0:
+  %0 = loadfield %self.items : list<int>
+  %1 = iter %0 : iter<int>
+  jump b1
+b1:
+  %2 = next %1 : i1
+  br %2, b2, b3
+b2:
+  %3 = current %1 : int
+  %4 = yield %3 : none
+  jump b1
+b3:
+  jump b4
+b4:
+  ret
+}
+
+func @consume(%n: int) -> int source "consume" {
+b0:
+  %0 = makegen @count(%n) : gen<int,none,str>
+  jump b1(0)
+b1(%p0: int):
+  %1 = resume %0, None : i1
+  br %1, b2, b3
+b2:
+  %2 = current %0 : int
+  %3 = add %p0, %2 : int
+  jump b1(%3)
+b3:
+  jump b4
+b4:
+  %4 = makegen @count(3) : gen<int,none,str>
+  %5 = resume %4, None : i1
+  br %5, b5, b6
+b5:
+  %6 = current %4 : int
+  jump b7
+b6:
+  %7 = call @builtins:StopIteration$0() : @StopIteration
+  raise %7
+b7:
+  %8 = newlist : list<int>
+  jump b8
+b8:
+  %9 = resume %4, None : i1
+  br %9, b9, b10
+b9:
+  %10 = current %4 : int
+  append %8, %10
+  jump b8
+b10:
+  %11 = add %p0, %6 : int
+  %12 = len %8 : int
+  %13 = add %11, %12 : int
+  ret %13
+}
+
+func @collect() -> list<int> source "collect" {
+b0:
+  %0 = newlist 1, 2 : list<int>
+  %1 = makegen @pairs(%0) : gen<tuple<int,int>,none,none>
+  %2 = newlist : list<int>
+  jump b1
+b1:
+  %3 = resume %1, None : i1
+  br %3, b2, b3
+b2:
+  %4 = current %1 : tuple<int,int>
+  %5 = index %4, 0 : int
+  %6 = index %4, 1 : int
+  %7 = add %5, %6 : int
+  append %2, %7
+  jump b1
+b3:
+  ret %2
+}
+
+func @method(%b: @__main__.Bag) -> tuple<int,int> source "method" {
+b0:
+  %0 = makegen @Bag.each(%b) : gen<int,none,none>
+  %1 = newlist : list<int>
+  jump b1
+b1:
+  %2 = resume %0, None : i1
+  br %2, b2, b3
+b2:
+  %3 = current %0 : int
+  append %1, %3
+  jump b1
+b3:
+  %4 = box %1 : any
+  %5 = call @builtins:sum#0(%4) : int
+  %6 = makegen @Bag.each(%b) : gen<int,none,none>
+  %7 = resume %6, None : i1
+  br %7, b4, b5
+b4:
+  %8 = current %6 : int
+  jump b6(%8)
+b5:
+  jump b6(0)
+b6(%p0: int):
+  %9 = newtuple %5, %p0 : tuple<int,int>
+  ret %9
+}
+
+func @sender() -> any source "sender" {
+b0:
+  %0 = makegen @echo() : gen<any,any,none>
+  %1 = resume %0, None:any : i1
+  br %1, b1, b2
+b1:
+  %2 = current %0 : any
+  jump b3
+b2:
+  %3 = call @builtins:StopIteration$0() : @StopIteration
+  raise %3
+b3:
+  %4 = resume %0, 4:any : i1
+  br %4, b4, b5
+b4:
+  %5 = current %0 : any
+  ret %5
+b5:
+  %6 = call @builtins:StopIteration$0() : @StopIteration
+  raise %6
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+extern func @StopIteration$0() -> @StopIteration source "StopIteration"
+
+extern func @sum#0(%iterable: any) -> int source "sum"
+
+entry @__main__:<module>

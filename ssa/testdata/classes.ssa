@@ -1,0 +1,113 @@
+class @__main__.Counter {
+  field label : str
+  field value : int
+  field history : list<int>
+}
+
+class @__main__.Slotted {
+  field a : int
+  field b : f64
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+global @c : @__main__.Counter
+global @s : @__main__.Slotted
+global @Counter.step : int
+global @Counter.label : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'classes.py'
+  storeglobal @Counter.step, 2
+  storeglobal @Counter.label, 'n'
+  %1 = alloc @__main__.Counter : @__main__.Counter
+  %2 = loadglobal @Counter.label : str
+  storefield %1.label, %2
+  %3 = call @Counter.__init__(%1, 1) : none
+  storeglobal @c, %1
+  %4 = loadglobal @c : @__main__.Counter
+  %5 = call @Counter.bump(%4) : int
+  %6 = loadglobal @c : @__main__.Counter
+  %7 = call @Counter.reset(%6, 0) : none
+  %8 = loadglobal @c : @__main__.Counter
+  %9 = call @Counter.reset(%8, 5) : none
+  %10 = loadglobal @c : @__main__.Counter
+  %11 = loadfield %10.value : int
+  %12 = loadglobal @Counter.step : int
+  %13 = loadglobal @c : @__main__.Counter
+  %14 = loadfield %13.label : str
+  %15 = box %11 : any
+  %16 = box %12 : any
+  %17 = box %14 : any
+  %18 = newtuple %15, %16, %17 : tuple<any...>
+  %19 = call @builtins:print(%18, ' ':str?, '\n':str?, None:any, False) : none
+  %20 = alloc @__main__.Slotted : @__main__.Slotted
+  %21 = call @Slotted.__init__(%20, 1, 2.5) : none
+  storeglobal @s, %20
+  %22 = loadglobal @s : @__main__.Slotted
+  %23 = call @Slotted.total(%22) : f64
+  %24 = box %23 : any
+  %25 = newtuple %24 : tuple<any...>
+  %26 = call @builtins:print(%25, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @Counter.__init__(%self: @__main__.Counter, %start: int) -> none source "Counter.__init__" {
+b0:
+  storefield %self.value, %start
+  %0 = newlist : list<int>
+  storefield %self.history, %0
+  ret
+}
+
+func @Counter.bump(%self: @__main__.Counter) -> int source "Counter.bump" {
+b0:
+  %0 = loadfield %self.value : int
+  %1 = loadglobal @Counter.step : int
+  %2 = add %0, %1 : int
+  storefield %self.value, %2
+  %3 = loadfield %self.history : list<int>
+  %4 = loadfield %self.value : int
+  append %3, %4
+  %5 = loadfield %self.value : int
+  ret %5
+}
+
+func @Counter.reset(%self: @__main__.Counter, %to: int) -> none source "Counter.reset" {
+b0:
+  storefield %self.value, %to
+  ret
+}
+
+func @Slotted.__init__(%self: @__main__.Slotted, %a: int, %b: f64) -> none source "Slotted.__init__" {
+b0:
+  storefield %self.a, %a
+  storefield %self.b, %b
+  ret
+}
+
+func @Slotted.total(%self: @__main__.Slotted) -> f64 source "Slotted.total" {
+b0:
+  %0 = loadfield %self.a : int
+  %1 = loadfield %self.b : f64
+  %2 = int2f64 %0 : f64
+  %3 = add %2, %1 : f64
+  ret %3
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+entry @__main__:<module>

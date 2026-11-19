@@ -1,0 +1,41 @@
+extern class @ValueError {
+}
+
+module m
+
+func @g(%x: int) -> int {
+b0:
+  %0 = floordiv 10, %x : int -> normal b1(%0), except b2(%x)
+b1(%r: int):
+  ret %r
+b2(%y: int):
+  %1 = landingpad : any
+  %2 = isinstance %1, @ValueError : i1
+  br %2, b3, b4(%1)
+b3:
+  ret %y
+b4(%e: any):
+  reraise %e
+}
+
+func @thrower(%e: any) -> none {
+b0:
+  raise %e
+}
+
+func @never() -> none {
+b0:
+  unreachable
+}
+
+func @nested(%n: int) -> int {
+b0:
+  %0 = call @g(%n) : int -> normal b1, except b2
+b1:
+  %1 = call @g(%0) : int -> normal b3(%1), except b2
+b2:
+  %2 = landingpad : any
+  raise %2
+b3(%v: int):
+  ret %v
+}

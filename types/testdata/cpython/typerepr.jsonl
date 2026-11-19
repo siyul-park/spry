@@ -1,0 +1,56 @@
+{"id": "named-int", "kind": "annotation", "repr": "int", "src": "T = int"}
+{"id": "named-none", "kind": "annotation", "repr": "None", "src": "T = None"}
+{"id": "named-class", "kind": "annotation", "repr": "__main__.C", "src": "class C: ...\nT = C"}
+{"id": "named-generic", "kind": "annotation", "repr": "__main__.D[int]", "src": "class D[X]: ...\nT = D[int]"}
+{"id": "named-generic-nested", "kind": "annotation", "repr": "__main__.D[tuple[int, ...]]", "src": "class D[X]: ...\nT = D[tuple[int, ...]]"}
+{"id": "named-list", "kind": "annotation", "repr": "list[int]", "src": "T = list[int]"}
+{"id": "named-dict", "kind": "annotation", "repr": "dict[str, int]", "src": "T = dict[str, int]"}
+{"id": "named-list-optional", "kind": "annotation", "repr": "list[int | None]", "src": "T = list[int | None]"}
+{"id": "named-list-any", "kind": "annotation", "repr": "list[typing.Any]", "src": "from typing import *\nfrom collections.abc import *\nT = list[Any]"}
+{"id": "named-bare-generic", "kind": "annotation", "repr": "list", "src": "T = list"}
+{"id": "named-abc", "kind": "annotation", "repr": "collections.abc.Iterable[int]", "src": "from typing import *\nfrom collections.abc import *\nT = Iterable[int]"}
+{"id": "named-abc-three", "kind": "annotation", "repr": "collections.abc.Generator[int, None, str]", "src": "from typing import *\nfrom collections.abc import *\nT = Generator[int, None, str]"}
+{"id": "union-optional", "kind": "annotation", "repr": "int | None", "src": "T = int | None"}
+{"id": "union-three", "kind": "annotation", "repr": "int | str | None", "src": "T = int | str | None"}
+{"id": "literal-str", "kind": "annotation", "repr": "typing.Literal['a']", "src": "from typing import *\nfrom collections.abc import *\nT = Literal['a']"}
+{"id": "literal-str-quote", "kind": "annotation", "repr": "typing.Literal[\"it's\"]", "src": "from typing import *\nfrom collections.abc import *\nT = Literal[\"it's\"]"}
+{"id": "literal-bytes", "kind": "annotation", "repr": "typing.Literal[b'x']", "src": "from typing import *\nfrom collections.abc import *\nT = Literal[b'x']"}
+{"id": "literal-bool", "kind": "annotation", "repr": "typing.Literal[True]", "src": "from typing import *\nfrom collections.abc import *\nT = Literal[True]"}
+{"id": "literal-int", "kind": "annotation", "repr": "typing.Literal[-3]", "src": "from typing import *\nfrom collections.abc import *\nT = Literal[-3]"}
+{"id": "literal-merged", "kind": "annotation", "repr": "typing.Literal[1, 2] | None", "src": "from typing import *\nfrom collections.abc import *\nT = Literal[1, 2] | None"}
+{"id": "literal-in-list", "kind": "annotation", "repr": "list[typing.Literal[1]]", "src": "from typing import *\nfrom collections.abc import *\nT = list[Literal[1]]"}
+{"id": "tuple-fixed", "kind": "annotation", "repr": "tuple[int, str]", "src": "T = tuple[int, str]"}
+{"id": "tuple-unbounded", "kind": "annotation", "repr": "tuple[int, ...]", "src": "T = tuple[int, ...]"}
+{"id": "tuple-empty", "kind": "annotation", "repr": "tuple[()]", "src": "T = tuple[()]"}
+{"id": "tuple-unbounded-inner", "kind": "annotation", "repr": "tuple[int, *tuple[str, ...]]", "src": "T = tuple[int, *tuple[str, ...]]"}
+{"id": "tuple-typevartuple", "kind": "annotation", "repr": "tuple[int, typing.Unpack[Ts]]", "src": "from typing import *\nfrom collections.abc import *\nTs = TypeVarTuple('Ts')\nT = tuple[int, *Ts]"}
+{"id": "tuple-typevartuple-only", "kind": "annotation", "repr": "tuple[typing.Unpack[Ts]]", "src": "from typing import *\nfrom collections.abc import *\nTs = TypeVarTuple('Ts')\nT = tuple[*Ts]"}
+{"id": "meta-class", "kind": "annotation", "repr": "type[__main__.C]", "src": "class C: ...\nT = type[C]"}
+{"id": "meta-any", "kind": "annotation", "repr": "type[typing.Any]", "src": "from typing import *\nfrom collections.abc import *\nT = type[Any]"}
+{"id": "callable-params", "kind": "annotation", "repr": "collections.abc.Callable[[int], str]", "src": "from typing import *\nfrom collections.abc import *\nT = Callable[[int], str]"}
+{"id": "callable-empty", "kind": "annotation", "repr": "collections.abc.Callable[[], int]", "src": "from typing import *\nfrom collections.abc import *\nT = Callable[[], int]"}
+{"id": "callable-gradual", "kind": "annotation", "repr": "collections.abc.Callable[..., str]", "src": "from typing import *\nfrom collections.abc import *\nT = Callable[..., str]"}
+{"id": "callable-nested", "kind": "annotation", "repr": "collections.abc.Callable[[int | None], list[str]]", "src": "from typing import *\nfrom collections.abc import *\nT = Callable[[int | None], list[str]]"}
+{"id": "callable-concatenate", "kind": "annotation", "repr": "collections.abc.Callable[typing.Concatenate[int, ~P], int]", "src": "from typing import *\nfrom collections.abc import *\nP = ParamSpec('P')\nT = Callable[Concatenate[int, P], int]"}
+{"id": "callable-paramspec", "kind": "annotation", "repr": "collections.abc.Callable[~P, int]", "src": "from typing import *\nfrom collections.abc import *\nP = ParamSpec('P')\nT = Callable[P, int]"}
+{"id": "basic-any", "kind": "annotation", "repr": "typing.Any", "src": "from typing import *\nfrom collections.abc import *\nT = Any"}
+{"id": "basic-never", "kind": "annotation", "repr": "typing.Never", "src": "from typing import *\nfrom collections.abc import *\nT = Never"}
+{"id": "basic-literalstring", "kind": "annotation", "repr": "typing.LiteralString", "src": "from typing import *\nfrom collections.abc import *\nT = LiteralString"}
+{"id": "guard-typeis", "kind": "annotation", "repr": "typing.TypeIs[int]", "src": "from typing import *\nfrom collections.abc import *\nT = TypeIs[int]"}
+{"id": "guard-typeguard", "kind": "annotation", "repr": "typing.TypeGuard[int]", "src": "from typing import *\nfrom collections.abc import *\nT = TypeGuard[int]"}
+{"id": "typeparam-legacy", "kind": "annotation", "repr": "~T0", "src": "from typing import *\nfrom collections.abc import *\nT0 = TypeVar('T0')\nT = T0"}
+{"id": "typeparam-legacy-in-list", "kind": "annotation", "repr": "list[~T0]", "src": "from typing import *\nfrom collections.abc import *\nT0 = TypeVar('T0')\nT = list[T0]"}
+{"id": "typeparam-covariant", "kind": "annotation", "repr": "+T0", "src": "from typing import *\nfrom collections.abc import *\nT = TypeVar('T0', covariant=True)"}
+{"id": "typeparam-contravariant", "kind": "annotation", "repr": "-T0", "src": "from typing import *\nfrom collections.abc import *\nT = TypeVar('T0', contravariant=True)"}
+{"id": "typeparam-pep695", "kind": "annotation", "repr": "X", "src": "type G[X] = list[X]\nT = G.__type_params__[0]"}
+{"id": "typeparam-paramspec-legacy", "kind": "annotation", "repr": "~P0", "src": "from typing import *\nfrom collections.abc import *\nT = ParamSpec('P0')"}
+{"id": "typeparam-paramspec-pep695", "kind": "annotation", "repr": "P0", "src": "type H[**P0] = int\nT = H.__type_params__[0]"}
+{"id": "typeparam-typevartuple", "kind": "annotation", "repr": "Ts", "src": "from typing import *\nfrom collections.abc import *\nT = TypeVarTuple('Ts')"}
+{"id": "typeparam-self", "kind": "annotation", "repr": "typing.Self", "src": "from typing import *\nfrom collections.abc import *\nT = Self"}
+{"id": "typeparam-paramspec-args", "kind": "annotation", "repr": "P0.args", "src": "from typing import *\nfrom collections.abc import *\nP0 = ParamSpec('P0')\nT = P0.args"}
+{"id": "typeparam-paramspec-kwargs", "kind": "annotation", "repr": "P0.kwargs", "src": "from typing import *\nfrom collections.abc import *\nP0 = ParamSpec('P0')\nT = P0.kwargs"}
+{"id": "alias-plain", "kind": "annotation", "repr": "IntList", "src": "type IntList = list[int]\nT = IntList"}
+{"id": "alias-instance", "kind": "annotation", "repr": "G[int]", "src": "type G[X] = list[X]\nT = G[int]"}
+{"id": "signature-all-kinds", "kind": "signature", "repr": "(a: int, /, b: str, *args: int, c: bool, **kw: str) -> list[int]", "src": "class C: ...\ndef T(a: int, /, b: str, *args: int, c: bool, **kw: str) -> list[int]: ..."}
+{"id": "signature-keyword-only", "kind": "signature", "repr": "(*, a: int) -> None", "src": "def T(*, a: int) -> None: ..."}
+{"id": "signature-named", "kind": "signature", "repr": "(a: int, b: __main__.C) -> int", "src": "class C: ...\ndef T(a: int, b: C) -> int: ..."}

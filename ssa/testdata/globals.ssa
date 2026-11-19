@@ -1,0 +1,79 @@
+extern class @NameError : @Exception {
+}
+
+extern class @Exception : @BaseException {
+}
+
+extern class @BaseException {
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+global @counter : int
+global @LIMIT : int
+global @label : str
+global @i : int
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'globals.py'
+  storeglobal @counter, 0
+  storeglobal @LIMIT, 3
+  storeglobal @label, 'n'
+  %1 = loadglobal @LIMIT : int
+  %2 = call @builtins:range(0, %1, 1) : iter<int>
+  jump b3
+b3:
+  %3 = next %2 : i1
+  br %3, b4, b5
+b4:
+  %4 = current %2 : int
+  storeglobal @i, %4
+  %5 = loadglobal @i : int
+  %6 = call @bump(%5) : int
+  jump b3
+b5:
+  jump b6
+b6:
+  %7 = call @show() : str
+  %8 = call @builtins:NameError("name '__name__' is not defined") : @NameError
+  raise %8
+}
+
+func @bump(%by: int) -> int source "bump" {
+b0:
+  %0 = loadglobal @counter : int
+  %1 = add %0, %by : int
+  storeglobal @counter, %1
+  %2 = loadglobal @counter : int
+  ret %2
+}
+
+func @show() -> str source "show" {
+b0:
+  %0 = loadglobal @label : str
+  %1 = loadglobal @counter : int
+  %2 = format %1, '' : str
+  %3 = concat %0, %2 : str
+  ret %3
+}
+
+module builtins
+
+extern func @range(%start: int, %stop: int, %step: int) -> iter<int> source "range"
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+extern func @NameError(%msg: str) -> @NameError source "NameError"
+
+entry @__main__:<module>

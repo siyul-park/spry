@@ -1,0 +1,207 @@
+class @__main__.MyError : @Exception {
+  field code : int
+}
+
+extern class @Exception : @BaseException {
+}
+
+extern class @BaseException {
+}
+
+extern class @ValueError : @Exception {
+}
+
+extern class @KeyError : @LookupError {
+}
+
+extern class @LookupError : @Exception {
+}
+
+extern class @RuntimeError : @Exception {
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'exceptions.py'
+  %1 = call @guarded(1) : int
+  %2 = call @reraise(1) : int
+  %3 = call @bare(5) : int
+  %4 = call @nested(2) : int
+  %5 = call @cls_raise(0) : int
+  %6 = box %1 : any
+  %7 = box %2 : any
+  %8 = box %3 : any
+  %9 = box %4 : any
+  %10 = box %5 : any
+  %11 = newtuple %6, %7, %8, %9, %10 : tuple<any...>
+  %12 = call @builtins:print(%11, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @MyError.__init__(%self: @__main__.MyError, %code: int) -> none source "MyError.__init__" {
+b0:
+  storefield %self.code, %code
+  ret
+}
+
+func @risky(%n: int) -> int source "risky" {
+b0:
+  %0 = gt %n, 2 : i1
+  br %0, b1, b2
+b1:
+  %1 = alloc @__main__.MyError : @__main__.MyError
+  %2 = call @MyError.__init__(%1, %n) : none
+  raise %1
+b2:
+  jump b3
+b3:
+  %3 = lt %n, 0 : i1
+  br %3, b4, b5
+b4:
+  %4 = newtuple 'negative':any : tuple<any...>
+  %5 = call @builtins:BaseException.__init__(%4) : @ValueError
+  raise %5
+b5:
+  jump b6
+b6:
+  ret %n
+}
+
+func @guarded(%n: int) -> int source "guarded" {
+b0:
+  %0 = call @risky(%n) : int -> normal b4, except b2
+b1(%p0: int):
+  ret %p0
+b2:
+  %1 = landingpad : any
+  jump b3
+b3:
+  %2 = isinstance %1, @__main__.MyError : i1
+  br %2, b5, b6
+b4:
+  %3 = add %0, 1 : int
+  jump b1(%3)
+b5:
+  %4 = unbox %1 : @__main__.MyError
+  %5 = loadfield %4.code : int
+  %6 = mul %5, 10 : int
+  jump b1(%6)
+b6:
+  %7 = isinstance %1, @ValueError : i1
+  %8 = isinstance %1, @KeyError : i1
+  %9 = select %7, True, %8 : i1
+  br %9, b7, b8
+b7:
+  %10 = neg 1 : int
+  jump b1(%10)
+b8:
+  reraise %1
+}
+
+func @reraise(%n: int) -> int source "reraise" {
+b0:
+  %0 = call @risky(%n) : int -> normal b3, except b1
+b1:
+  %1 = landingpad : any
+  jump b2
+b2:
+  %2 = isinstance %1, @ValueError : i1
+  br %2, b4, b5
+b3:
+  ret %0
+b4:
+  reraise %1
+b5:
+  %3 = isinstance %1, @Exception : i1
+  br %3, b6, b7
+b6:
+  %4 = unbox %1 : @Exception
+  %5 = newtuple 'wrapped':any : tuple<any...>
+  %6 = call @builtins:BaseException.__init__$1(%5) : @RuntimeError
+  %7 = box %6 : any
+  %8 = box %4 : any
+  dynsetattr %7.__cause__, %8
+  %9 = box %6 : any
+  dynsetattr %9.__suppress_context__, True:any
+  raise %6
+b7:
+  reraise %1
+}
+
+func @bare(%n: int) -> int source "bare" {
+b0:
+  %0 = call @risky(%n) : int -> normal b3, except b1
+b1:
+  %1 = landingpad : any
+  jump b2
+b2:
+  ret 0
+b3:
+  ret %0
+}
+
+func @nested(%n: int) -> int source "nested" {
+b0:
+  %0 = call @risky(%n) : int -> normal b6, except b4
+b1(%p0: int):
+  ret %p0
+b2:
+  %1 = isinstance %3, @__main__.MyError : i1
+  br %1, b9, b10
+b3(%p1: int):
+  %2 = add %p1, 1 : int
+  jump b1(%2)
+b4:
+  %3 = landingpad : any
+  jump b5
+b5:
+  %4 = isinstance %3, @ValueError : i1
+  br %4, b7, b8
+b6:
+  jump b3(%0)
+b7:
+  jump b3(1)
+b8:
+  jump b2
+b9:
+  jump b1(100)
+b10:
+  reraise %3
+}
+
+func @cls_raise(%n: int) -> int source "cls_raise" {
+b0:
+  %0 = ne %n, 0 : i1
+  br %0, b1, b2
+b1:
+  %1 = newtuple : tuple<any...>
+  %2 = call @builtins:BaseException.__init__(%1) : @ValueError
+  raise %2
+b2:
+  jump b3
+b3:
+  ret 1
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+extern func @BaseException.__init__(%args: tuple<any...>) -> @ValueError source "BaseException.__init__"
+
+extern func @BaseException.__init__$1(%args: tuple<any...>) -> @RuntimeError source "BaseException.__init__"
+
+entry @__main__:<module>

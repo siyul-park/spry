@@ -1,0 +1,249 @@
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'comprehensions.py'
+  %1 = call @squares(5) : list<int>
+  %2 = newlist 1, 2 : list<int>
+  %3 = newlist 2, 3 : list<int>
+  %4 = call @pairs(%2, %3) : list<tuple<int,int>>
+  %5 = call @table(3) : dict<int,str>
+  %6 = newlist 1, 4, 7 : list<int>
+  %7 = call @unique(%6) : set<int>
+  %8 = call @nested(3) : list<list<int>>
+  %9 = newlist 1, 2, 3 : list<int>
+  %10 = call @total(%9) : int
+  %11 = newlist 1, 2 : list<int>
+  %12 = call @joined(%11) : str
+  %13 = call @capture(2) : int
+  %14 = box %1 : any
+  %15 = box %4 : any
+  %16 = box %5 : any
+  %17 = box %7 : any
+  %18 = box %8 : any
+  %19 = box %10 : any
+  %20 = box %12 : any
+  %21 = box %13 : any
+  %22 = newtuple %14, %15, %16, %17, %18, %19, %20, %21 : tuple<any...>
+  %23 = call @builtins:print(%22, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @squares(%n: int) -> list<int> source "squares" {
+b0:
+  %0 = newlist : list<int>
+  %1 = call @builtins:range(0, %n, 1) : iter<int>
+  jump b1
+b1:
+  %2 = next %1 : i1
+  br %2, b2, b3
+b2:
+  %3 = current %1 : int
+  %4 = mod %3, 2 : int
+  %5 = eq %4, 0 : i1
+  br %5, b4, b1
+b3:
+  ret %0
+b4:
+  %6 = mul %3, %3 : int
+  append %0, %6
+  jump b1
+}
+
+func @pairs(%xs: list<int>, %ys: list<int>) -> list<tuple<int,int>> source "pairs" {
+b0:
+  %0 = newcell %ys : cell<list<int>>
+  %1 = newlist : list<tuple<int,int>>
+  %2 = iter %xs : iter<int>
+  jump b1
+b1:
+  %3 = next %2 : i1
+  br %3, b2, b3
+b2:
+  %4 = current %2 : int
+  %5 = loadcell %0 : list<int>
+  %6 = iter %5 : iter<int>
+  jump b4
+b3:
+  ret %1
+b4:
+  %7 = next %6 : i1
+  br %7, b5, b6
+b5:
+  %8 = current %6 : int
+  %9 = ne %4, %8 : i1
+  br %9, b7, b4
+b6:
+  jump b1
+b7:
+  %10 = newtuple %4, %8 : tuple<int,int>
+  append %1, %10
+  jump b4
+}
+
+func @table(%n: int) -> dict<int,str> source "table" {
+b0:
+  %0 = newdict : dict<int,str>
+  %1 = call @builtins:range(0, %n, 1) : iter<int>
+  jump b1
+b1:
+  %2 = next %1 : i1
+  br %2, b2, b3
+b2:
+  %3 = current %1 : int
+  %4 = format %3, '' : str
+  setindex %0, %3, %4
+  jump b1
+b3:
+  ret %0
+}
+
+func @unique(%xs: list<int>) -> set<int> source "unique" {
+b0:
+  %0 = newset : set<int>
+  %1 = iter %xs : iter<int>
+  jump b1
+b1:
+  %2 = next %1 : i1
+  br %2, b2, b3
+b2:
+  %3 = current %1 : int
+  %4 = mod %3, 3 : int
+  %5 = call @builtins:set.add(%0, %4) : none
+  jump b1
+b3:
+  ret %0
+}
+
+func @nested(%n: int) -> list<list<int>> source "nested" {
+b0:
+  %0 = newlist : list<list<int>>
+  %1 = call @builtins:range(0, %n, 1) : iter<int>
+  jump b1
+b1:
+  %2 = next %1 : i1
+  br %2, b2, b3
+b2:
+  %3 = current %1 : int
+  %4 = newlist : list<int>
+  %5 = call @builtins:range(0, %3, 1) : iter<int>
+  jump b4
+b3:
+  ret %0
+b4:
+  %6 = next %5 : i1
+  br %6, b5, b6
+b5:
+  %7 = current %5 : int
+  append %4, %7
+  jump b4
+b6:
+  append %0, %4
+  jump b1
+}
+
+func @total(%xs: list<int>) -> int source "total" {
+b0:
+  %0 = newlist : list<int>
+  %1 = iter %xs : iter<int>
+  jump b1
+b1:
+  %2 = next %1 : i1
+  br %2, b2, b3
+b2:
+  %3 = current %1 : int
+  %4 = mul %3, 2 : int
+  append %0, %4
+  jump b1
+b3:
+  %5 = box %0 : any
+  %6 = call @builtins:sum#0(%5) : int
+  %7 = newlist : list<int>
+  %8 = iter %xs : iter<int>
+  jump b4
+b4:
+  %9 = next %8 : i1
+  br %9, b5, b6
+b5:
+  %10 = current %8 : int
+  %11 = gt %10, 1 : i1
+  br %11, b7, b4
+b6:
+  %12 = len %7 : int
+  %13 = add %6, %12 : int
+  ret %13
+b7:
+  append %7, %10
+  jump b4
+}
+
+func @joined(%xs: list<int>) -> str source "joined" {
+b0:
+  %0 = newlist : list<str>
+  %1 = iter %xs : iter<int>
+  jump b1
+b1:
+  %2 = next %1 : i1
+  br %2, b2, b3
+b2:
+  %3 = current %1 : int
+  %4 = format %3, '' : str
+  append %0, %4
+  jump b1
+b3:
+  %5 = box %0 : any
+  %6 = call @builtins:str.join(',', %5) : str
+  ret %6
+}
+
+func @capture(%n: int) -> int source "capture" {
+b0:
+  %0 = newlist : list<func() -> int>
+  %1 = newcell undef:int : cell<int>
+  %2 = call @builtins:range(0, %n, 1) : iter<int>
+  jump b1
+b1:
+  %3 = next %2 : i1
+  br %3, b2, b3
+b2:
+  %4 = current %2 : int
+  storecell %1, %4
+  %5 = makeclosure @capture.<locals>.listcomp.<locals>.<lambda> [%1] : func() -> int
+  append %0, %5
+  jump b1
+b3:
+  %6 = index %0, 0 : func() -> int
+  %7 = callclosure %6() : int
+  ret %7
+}
+
+func @capture.<locals>.listcomp.<locals>.<lambda>() [%i: cell<int>] -> int source "capture.<locals>.listcomp.<locals>.<lambda>" {
+b0:
+  %0 = loadcell %i : int
+  ret %0
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+extern func @range(%start: int, %stop: int, %step: int) -> iter<int> source "range"
+
+extern func @set.add(%a: set<int>, %b: int) -> none source "set.add"
+
+extern func @sum#0(%iterable: any) -> int source "sum"
+
+extern func @str.join(%self: str, %iterable: any) -> str source "str.join"
+
+entry @__main__:<module>

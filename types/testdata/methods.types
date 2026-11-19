@@ -1,0 +1,24 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  var t: __main__.Temp
+  var u: __main__.Temp
+  class Temp
+    mro Temp, object
+    field _deg: int
+    var scale: int
+    def __init__
+      spec (self: __main__.Temp, deg: int) -> None
+    def deg
+      spec (self: __main__.Temp) -> int
+    def deg
+      spec (self: __main__.Temp, value: int) -> None
+    def double
+      spec (self: __main__.Temp) -> int
+    def zero
+      spec () -> int
+    def make
+      spec (cls: type[__main__.Temp], d: int) -> __main__.Temp
+    def shifted
+      spec (self: __main__.Temp, by: int) -> __main__.Temp
+fallbacks 0

@@ -1,0 +1,12 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  var c: __main__.Counter
+  class Counter
+    mro Counter, object
+    field value: int
+    def __init__
+      spec (self: __main__.Counter, start: int) -> None
+    def bump
+      spec (self: __main__.Counter, by: int) -> int
+fallbacks 0

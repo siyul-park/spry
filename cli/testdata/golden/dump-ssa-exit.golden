@@ -1,0 +1,29 @@
+exit: 0
+--- stdout
+--- stderr
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, '<string>'
+  %1 = newtuple 1:any : tuple<any...>
+  %2 = call @builtins:print(%1, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+entry @__main__:<module>

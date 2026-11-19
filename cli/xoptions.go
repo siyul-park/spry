@@ -16,13 +16,18 @@ const (
 
 	dumpTokens = "tokens"
 	dumpAST    = "ast"
+	dumpTypes  = "types"
+	dumpSSA    = "ssa"
 
 	optionDump     = "spry.dump"
 	optionDumpExit = "spry.dump.exit"
 )
 
 // dumpStages are the spry.dump stages the front end can print.
-var dumpStages = map[string]bool{dumpTokens: true, dumpAST: true}
+var dumpStages = map[string]bool{dumpTokens: true, dumpAST: true, dumpTypes: true, dumpSSA: true}
+
+// pipeline is the order in which the stages print.
+var pipeline = []string{dumpTokens, dumpAST, dumpTypes, dumpSSA}
 
 // XOptions is -X. It only contributes the flag: it selects no action, and the
 // units that run a program read the spry-only options from it. An option or
@@ -62,6 +67,18 @@ func (x *xoptions) Type() string {
 
 func (x *xoptions) String() string {
 	return "[" + strings.Join(x.values, ",") + "]"
+}
+
+// lastStage is the latest pipeline stage the last spry.dump option names, or
+// "" when there is none.
+func (x *xoptions) lastStage() string {
+	last := ""
+	for _, stage := range pipeline {
+		if x.dumps(stage) {
+			last = stage
+		}
+	}
+	return last
 }
 
 // dumps reports whether the last spry.dump option names the stage.

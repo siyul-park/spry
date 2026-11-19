@@ -1,0 +1,147 @@
+extern class @ZeroDivisionError : @ArithmeticError {
+}
+
+extern class @ArithmeticError : @Exception {
+}
+
+extern class @Exception : @BaseException {
+}
+
+extern class @BaseException {
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'finally.py'
+  %1 = newlist : list<int>
+  %2 = call @cleanup(%1, 5) : list<int>
+  %3 = call @early(1) : int
+  %4 = call @swallow(0) : int
+  %5 = newlist : list<int>
+  %6 = call @nested_finally(%5) : list<int>
+  %7 = box %2 : any
+  %8 = box %3 : any
+  %9 = box %4 : any
+  %10 = box %6 : any
+  %11 = newtuple %7, %8, %9, %10 : tuple<any...>
+  %12 = call @builtins:print(%11, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @cleanup(%log: list<int>, %n: int) -> list<int> source "cleanup" {
+b0:
+  %0 = call @builtins:range(0, %n, 1) : iter<int>
+  jump b1
+b1:
+  %1 = next %0 : i1
+  br %1, b2, b3
+b2:
+  %2 = current %0 : int
+  %3 = eq %2, 1 : i1
+  br %3, b6, b7
+b3:
+  jump b4
+b4:
+  ret %log
+b5:
+  %4 = neg 1 : int
+  append %log, %4
+  jump b1
+b6:
+  jump b9
+b7:
+  jump b8
+b8:
+  %5 = eq %2, 3 : i1
+  br %5, b10, b11
+b9:
+  %6 = neg 1 : int
+  append %log, %6
+  jump b1
+b10:
+  jump b13
+b11:
+  jump b12
+b12:
+  append %log, %2
+  jump b5
+b13:
+  %7 = neg 1 : int
+  append %log, %7
+  jump b4
+}
+
+func @early(%n: int) -> int source "early" {
+b0:
+  %0 = ne %n, 0 : i1
+  br %0, b2, b3
+b1:
+  ret 2
+b2:
+  jump b5
+b3:
+  jump b4
+b4:
+  jump b1
+b5:
+  ret 1
+}
+
+func @swallow(%n: int) -> int source "swallow" {
+b0:
+  %0 = floordiv 10, %n : int -> normal b4, except b2
+b1:
+  %1 = newtuple 'done':any : tuple<any...>
+  %2 = call @builtins:print(%1, ' ':str?, '\n':str?, None:any, False) : none
+  reraise %3
+b2:
+  %3 = landingpad : any
+  jump b3
+b3:
+  %4 = isinstance %3, @ZeroDivisionError : i1
+  br %4, b6, b7
+b4:
+  jump b5(%0)
+b5(%p0: int):
+  %5 = newtuple 'done':any : tuple<any...>
+  %6 = call @builtins:print(%5, ' ':str?, '\n':str?, None:any, False) : none
+  ret %p0
+b6:
+  %7 = neg 1 : int
+  jump b5(%7)
+b7:
+  jump b1
+}
+
+func @nested_finally(%log: list<int>) -> list<int> source "nested_finally" {
+b0:
+  append %log, 1
+  jump b2
+b1:
+  append %log, 3
+  ret %log
+b2:
+  append %log, 2
+  jump b1
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+extern func @range(%start: int, %stop: int, %step: int) -> iter<int> source "range"
+
+entry @__main__:<module>

@@ -1,0 +1,38 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  var items: list[__main__.Shape]
+  def total
+    spec (shapes: list[__main__.Shape]) -> float
+  def pick
+    spec (flag: bool) -> __main__.Shape
+  def side
+    spec (s: __main__.Shape) -> float
+  class Shape
+    mro Shape, object
+    field name: str
+    def __init__
+      spec (self: __main__.Shape, name: str) -> None
+    def area
+      spec (self: __main__.Shape) -> float
+    def describe
+      spec (self: __main__.Shape) -> float
+  class Square(Shape)
+    mro Square, Shape, object
+    field side: float
+    def __init__
+      spec (self: __main__.Square, side: float) -> None
+    def area
+      spec (self: __main__.Square) -> float
+  class Circle(Shape)
+    mro Circle, Shape, object
+    field r: float
+    def __init__
+      spec (self: __main__.Circle, r: float) -> None
+    def area
+      spec (self: __main__.Circle) -> float
+  class Unit(Square)
+    mro Unit, Square, Shape, object
+    def __init__
+      spec (self: __main__.Unit) -> None
+fallbacks 0

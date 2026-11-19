@@ -1,0 +1,325 @@
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+global @xs : list<int>
+global @last : int
+global @head : list<int>
+global @tail : list<int>
+global @rev : list<int>
+global @both : list<int>
+global @twice : list<int>
+global @size : int
+global @found : i1
+global @missing : i1
+global @best : int
+global @total : int
+global @ordered : list<int>
+global @d : dict<str,int>
+global @n : int
+global @key : str
+global @value : int
+global @keys : list<str>
+global @s : set<int>
+global @pair : tuple<int,str>
+global @first : int
+global @last_item : str
+global @grid : list<list<int>>
+global @empty : list<str>
+global @t : tuple<int...>
+global @copy : list<int>
+global @i : int
+global @v : int
+global @a : int
+global @b : int
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'containers.py'
+  %1 = newlist 3, 1, 2 : list<int>
+  storeglobal @xs, %1
+  %2 = loadglobal @xs : list<int>
+  append %2, 4
+  %3 = loadglobal @xs : list<int>
+  %4 = box %3 : any
+  %5 = newlist 5, 6 : list<int>
+  %6 = box %5 : any
+  %7 = call @builtins:list.extend(%4, %6) : none
+  %8 = loadglobal @xs : list<int>
+  %9 = box %8 : any
+  %10 = call @builtins:list.insert(%9, 0, 9:any) : none
+  %11 = loadglobal @xs : list<int>
+  setindex %11, 1, 7
+  %12 = loadglobal @xs : list<int>
+  %13 = neg 1 : int
+  %14 = index %12, %13 : int
+  %15 = add %14, 1 : int
+  setindex %12, %13, %15
+  %16 = loadglobal @xs : list<int>
+  delindex %16, 0
+  %17 = loadglobal @xs : list<int>
+  %18 = box %17 : any
+  %19 = call @builtins:list.pop(%18, -1) : any
+  %20 = unbox %19 : int
+  storeglobal @last, %20
+  %21 = loadglobal @xs : list<int>
+  %22 = slice %21, None, 2, None : list<int>
+  storeglobal @head, %22
+  %23 = loadglobal @xs : list<int>
+  %24 = slice %23, 1, None, None : list<int>
+  storeglobal @tail, %24
+  %25 = loadglobal @xs : list<int>
+  %26 = neg 1 : int
+  %27 = slice %25, None, None, %26 : list<int>
+  storeglobal @rev, %27
+  %28 = loadglobal @xs : list<int>
+  %29 = loadglobal @head : list<int>
+  %30 = box %28 : any
+  %31 = cast %29 : list<any>
+  %32 = call @builtins:list.__add__(%30, %31) : list<any>
+  %33 = cast %32 : list<int>
+  storeglobal @both, %33
+  %34 = loadglobal @head : list<int>
+  %35 = box %34 : any
+  %36 = call @builtins:list.__mul__(%35, 2) : list<any>
+  %37 = cast %36 : list<int>
+  storeglobal @twice, %37
+  %38 = loadglobal @xs : list<int>
+  %39 = len %38 : int
+  %40 = loadglobal @both : list<int>
+  %41 = len %40 : int
+  %42 = add %39, %41 : int
+  storeglobal @size, %42
+  %43 = loadglobal @xs : list<int>
+  %44 = in 7, %43 : i1
+  storeglobal @found, %44
+  %45 = loadglobal @xs : list<int>
+  %46 = notin 7, %45 : i1
+  storeglobal @missing, %46
+  %47 = loadglobal @xs : list<int>
+  %48 = box %47 : any
+  %49 = call @builtins:list.sort(%48, None:any, False) : none
+  %50 = loadglobal @xs : list<int>
+  %51 = box %50 : any
+  %52 = call @builtins:list.reverse(%51) : none
+  %53 = loadglobal @xs : list<int>
+  %54 = box %53 : any
+  %55 = call @builtins:max#0(%54, None:any) : any
+  %56 = unbox %55 : int
+  storeglobal @best, %56
+  %57 = loadglobal @xs : list<int>
+  %58 = box %57 : any
+  %59 = call @builtins:sum#0(%58) : int
+  storeglobal @total, %59
+  %60 = loadglobal @xs : list<int>
+  %61 = box %60 : any
+  %62 = call @builtins:sorted(%61, None:any, True) : list<any>
+  %63 = cast %62 : list<int>
+  storeglobal @ordered, %63
+  %64 = newdict 'a', 1, 'b', 2 : dict<str,int>
+  storeglobal @d, %64
+  %65 = loadglobal @d : dict<str,int>
+  setindex %65, 'c', 3
+  %66 = loadglobal @d : dict<str,int>
+  %67 = index %66, 'a' : int
+  %68 = loadglobal @d : dict<str,int>
+  %69 = box %68 : any
+  %70 = call @builtins:dict.get#1(%69, 'z':any, 0:any) : any
+  %71 = unbox %70 : int
+  %72 = add %67, %71 : int
+  storeglobal @n, %72
+  %73 = loadglobal @d : dict<str,int>
+  %74 = iter %73 : iter<str>
+  jump b3
+b3:
+  %75 = next %74 : i1
+  br %75, b4, b5
+b4:
+  %76 = current %74 : str
+  storeglobal @key, %76
+  %77 = loadglobal @n : int
+  %78 = loadglobal @d : dict<str,int>
+  %79 = loadglobal @key : str
+  %80 = index %78, %79 : int
+  %81 = add %77, %80 : int
+  storeglobal @n, %81
+  jump b3
+b5:
+  jump b6
+b6:
+  %82 = loadglobal @d : dict<str,int>
+  %83 = box %82 : any
+  %84 = call @builtins:dict.items(%83) : any
+  %85 = iter %84 : iter<tuple<str,int>>
+  jump b7
+b7:
+  %86 = next %85 : i1
+  br %86, b8, b9
+b8:
+  %87 = current %85 : tuple<str,int>
+  %88 = index %87, 0 : str
+  storeglobal @key, %88
+  %89 = index %87, 1 : int
+  storeglobal @value, %89
+  %90 = loadglobal @n : int
+  %91 = loadglobal @value : int
+  %92 = add %90, %91 : int
+  storeglobal @n, %92
+  jump b7
+b9:
+  jump b10
+b10:
+  %93 = loadglobal @d : dict<str,int>
+  %94 = box %93 : any
+  %95 = call @builtins:dict.keys(%94) : any
+  %96 = call @builtins:list(%95) : list<str>
+  storeglobal @keys, %96
+  %97 = newset 1, 2 : set<int>
+  storeglobal @s, %97
+  %98 = loadglobal @s : set<int>
+  %99 = box %98 : any
+  %100 = call @builtins:set.add(%99, 3:any) : none
+  %101 = loadglobal @s : set<int>
+  %102 = box %101 : any
+  %103 = call @builtins:set.discard(%102, 1:any) : none
+  %104 = newtuple 1, 'x' : tuple<int,str>
+  storeglobal @pair, %104
+  %105 = loadglobal @pair : tuple<int,str>
+  %106 = index %105, 0 : int
+  storeglobal @first, %106
+  %107 = loadglobal @pair : tuple<int,str>
+  %108 = neg 1 : int
+  %109 = index %107, -1 : str
+  storeglobal @last_item, %109
+  %110 = newlist : list<list<int>>
+  %111 = call @builtins:range(0, 3, 1) : iter<int>
+  jump b11
+b11:
+  %112 = next %111 : i1
+  br %112, b12, b13
+b12:
+  %113 = current %111 : int
+  %114 = newlist 0 : list<int>
+  %115 = box %114 : any
+  %116 = call @builtins:list.__mul__(%115, 3) : list<any>
+  %117 = cast %116 : list<int>
+  append %110, %117
+  jump b11
+b13:
+  storeglobal @grid, %110
+  %118 = loadglobal @grid : list<list<int>>
+  %119 = index %118, 1 : list<int>
+  setindex %119, 2, 5
+  %120 = newlist : list<str>
+  storeglobal @empty, %120
+  %121 = loadglobal @empty : list<str>
+  append %121, 'a'
+  %122 = loadglobal @xs : list<int>
+  %123 = box %122 : any
+  %124 = call @builtins:tuple(%123) : tuple<int...>
+  storeglobal @t, %124
+  %125 = loadglobal @xs : list<int>
+  %126 = slice %125, None, None, None : list<int>
+  storeglobal @copy, %126
+  %127 = loadglobal @xs : list<int>
+  %128 = box %127 : any
+  %129 = call @builtins:enumerate.__init__(%128, 0) : iter<tuple<int,int>>
+  jump b14
+b14:
+  %130 = next %129 : i1
+  br %130, b15, b16
+b15:
+  %131 = current %129 : tuple<int,int>
+  %132 = index %131, 0 : int
+  storeglobal @i, %132
+  %133 = index %131, 1 : int
+  storeglobal @v, %133
+  %134 = loadglobal @n : int
+  %135 = loadglobal @i : int
+  %136 = loadglobal @v : int
+  %137 = mul %135, %136 : int
+  %138 = add %134, %137 : int
+  storeglobal @n, %138
+  jump b14
+b16:
+  jump b17
+b17:
+  %139 = loadglobal @xs : list<int>
+  %140 = box %139 : any
+  %141 = loadglobal @copy : list<int>
+  %142 = box %141 : any
+  %143 = call @builtins:zip.__new__#1(%140, %142) : iter<tuple<int,int>>
+  jump b18
+b18:
+  %144 = next %143 : i1
+  br %144, b19, b20
+b19:
+  %145 = current %143 : tuple<int,int>
+  %146 = index %145, 0 : int
+  storeglobal @a, %146
+  %147 = index %145, 1 : int
+  storeglobal @b, %147
+  %148 = loadglobal @n : int
+  %149 = loadglobal @a : int
+  %150 = loadglobal @b : int
+  %151 = sub %149, %150 : int
+  %152 = add %148, %151 : int
+  storeglobal @n, %152
+  jump b18
+b20:
+  jump b21
+b21:
+  ret
+}
+
+module builtins
+
+extern func @list.extend(%self: any, %iterable: any) -> none source "list.extend"
+
+extern func @list.insert(%self: any, %index: int, %object: any) -> none source "list.insert"
+
+extern func @list.pop(%self: any, %index: int) -> any source "list.pop"
+
+extern func @list.__add__(%self: any, %other: list<any>) -> list<any> source "list.__add__"
+
+extern func @list.__mul__(%self: any, %other: int) -> list<any> source "list.__mul__"
+
+extern func @list.sort(%self: any, %key: any, %reverse: i1) -> none source "list.sort"
+
+extern func @list.reverse(%self: any) -> none source "list.reverse"
+
+extern func @max#0(%iterable: any, %key: any) -> any source "max"
+
+extern func @sum#0(%iterable: any) -> int source "sum"
+
+extern func @sorted(%iterable: any, %key: any, %reverse: i1) -> list<any> source "sorted"
+
+extern func @dict.get#1(%self: any, %key: any, %default: any) -> any source "dict.get"
+
+extern func @dict.items(%self: any) -> any source "dict.items"
+
+extern func @dict.keys(%self: any) -> any source "dict.keys"
+
+extern func @list(%a: any) -> list<str> source "list"
+
+extern func @set.add(%self: any, %element: any) -> none source "set.add"
+
+extern func @set.discard(%self: any, %element: any) -> none source "set.discard"
+
+extern func @range(%start: int, %stop: int, %step: int) -> iter<int> source "range"
+
+extern func @tuple(%a: any) -> tuple<int...> source "tuple"
+
+extern func @enumerate.__init__(%iterable: any, %start: int) -> iter<tuple<int,int>> source "enumerate.__init__"
+
+extern func @zip.__new__#1(%a: any, %b: any) -> iter<tuple<int,int>> source "zip.__new__"
+
+entry @__main__:<module>

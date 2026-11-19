@@ -1,0 +1,54 @@
+module helper
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, 'helper'
+  storeglobal @__file__, '$DIR/helper.py'
+  ret
+}
+
+func @double(%x: int) -> int source "double" {
+b0:
+  %0 = mul %x, 2 : int
+  ret %0
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, '$DIR/importer.py'
+  %1 = call @helper:<module>() : none
+  %2 = call @helper:double(21) : int
+  %3 = box %2 : any
+  %4 = newtuple %3 : tuple<any...>
+  %5 = call @builtins:print(%4, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+entry @__main__:<module>

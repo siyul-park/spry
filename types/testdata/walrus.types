@@ -1,0 +1,6 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  def run
+    spec (xs: list[int]) -> int
+fallbacks 0

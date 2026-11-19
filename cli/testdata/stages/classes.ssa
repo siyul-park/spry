@@ -1,0 +1,52 @@
+class @__main__.Counter {
+  field value : int
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+global @c : @__main__.Counter
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, '$DIR/classes.py'
+  %1 = alloc @__main__.Counter : @__main__.Counter
+  %2 = call @Counter.__init__(%1, 1) : none
+  storeglobal @c, %1
+  %3 = loadglobal @c : @__main__.Counter
+  %4 = call @Counter.bump(%3, 2) : int
+  %5 = box %4 : any
+  %6 = newtuple %5 : tuple<any...>
+  %7 = call @builtins:print(%6, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @Counter.__init__(%self: @__main__.Counter, %start: int) -> none source "Counter.__init__" {
+b0:
+  storefield %self.value, %start
+  ret
+}
+
+func @Counter.bump(%self: @__main__.Counter, %by: int) -> int source "Counter.bump" {
+b0:
+  %0 = loadfield %self.value : int
+  %1 = add %0, %by : int
+  storefield %self.value, %1
+  %2 = loadfield %self.value : int
+  ret %2
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+entry @__main__:<module>

@@ -1,0 +1,81 @@
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'unions.py'
+  %1 = call @grow(2) : any
+  %2 = call @pick#0(True, 1, 2.5) : any
+  %3 = call @pick#1(False, 's', 't') : any
+  %4 = newtuple %1, %2, %3 : tuple<any...>
+  %5 = call @builtins:print(%4, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @grow(%n: int) -> any source "grow" {
+b0:
+  %0 = eq %n, 0 : i1
+  br %0, b1, b2
+b1:
+  ret 0:any
+b2:
+  jump b3
+b3:
+  %1 = sub %n, 1 : int
+  %2 = call @grow(%1) : any
+  %3 = dynbinop %2.__add__, 0.5:any : any
+  ret %3
+}
+
+func @pick#0(%flag: i1, %a: int, %b: f64) -> any source "pick" {
+b0:
+  br %flag, b1, b2
+b1:
+  %0 = box %a : any
+  jump b3(%0)
+b2:
+  %1 = box %b : any
+  jump b3(%1)
+b3(%p0: any):
+  %2 = dynbinop %p0.__bool__, %p0 : any
+  %3 = unbox %2 : i1
+  br %3, b4(%p0), b5
+b4(%p1: any):
+  ret %p1
+b5:
+  jump b4(1:any)
+}
+
+func @pick#1(%flag: i1, %a: str, %b: str) -> any source "pick" {
+b0:
+  br %flag, b1, b2
+b1:
+  jump b3(%a)
+b2:
+  jump b3(%b)
+b3(%p0: str):
+  %0 = len %p0 : int
+  %1 = ne %0, 0 : i1
+  %2 = box %p0 : any
+  br %1, b4(%2), b5
+b4(%p1: any):
+  ret %p1
+b5:
+  jump b4(1:any)
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+entry @__main__:<module>

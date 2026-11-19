@@ -1,0 +1,92 @@
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'arith.py'
+  %1 = call @ints(7, 3) : int
+  %2 = box %1 : any
+  %3 = newtuple %2 : tuple<any...>
+  %4 = call @builtins:print(%3, ' ':str?, '\n':str?, None:any, False) : none
+  %5 = call @floats(2.0, 4.0) : f64
+  %6 = box %5 : any
+  %7 = newtuple %6 : tuple<any...>
+  %8 = call @builtins:print(%7, ' ':str?, '\n':str?, None:any, False) : none
+  %9 = call @mixed(1, 2.5) : f64
+  %10 = box %9 : any
+  %11 = newtuple %10 : tuple<any...>
+  %12 = call @builtins:print(%11, ' ':str?, '\n':str?, None:any, False) : none
+  %13 = call @bits(12, 10) : int
+  %14 = box %13 : any
+  %15 = newtuple %14 : tuple<any...>
+  %16 = call @builtins:print(%15, ' ':str?, '\n':str?, None:any, False) : none
+  %17 = call @unary(3, 1.5, True) : tuple<int,int,int,f64,int>
+  %18 = box %17 : any
+  %19 = newtuple %18 : tuple<any...>
+  %20 = call @builtins:print(%19, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @ints(%a: int, %b: int) -> int source "ints" {
+b0:
+  %0 = add %a, %b : int
+  %1 = sub %a, %b : int
+  %2 = mul %0, %1 : int
+  %3 = floordiv %2, 3 : int
+  %4 = mod %3, 7 : int
+  ret %4
+}
+
+func @floats(%x: f64, %y: f64) -> f64 source "floats" {
+b0:
+  %0 = mul %x, %y : f64
+  %1 = truediv %x, %y : f64
+  %2 = sub %0, %1 : f64
+  %3 = pow %x, 2.0 : f64
+  %4 = add %2, %3 : f64
+  ret %4
+}
+
+func @mixed(%n: int, %x: f64) -> f64 source "mixed" {
+b0:
+  %0 = int2f64 %n : f64
+  %1 = add %0, %x : f64
+  ret %1
+}
+
+func @bits(%a: int, %b: int) -> int source "bits" {
+b0:
+  %0 = and %a, %b : int
+  %1 = lshift %b, 2 : int
+  %2 = rshift %1, 1 : int
+  %3 = xor %a, %2 : int
+  %4 = or %0, %3 : int
+  ret %4
+}
+
+func @unary(%a: int, %x: f64, %t: i1) -> tuple<int,int,int,f64,int> source "unary" {
+b0:
+  %0 = neg %a : int
+  %1 = invert %a : int
+  %2 = neg %x : f64
+  %3 = select %t, 1, 0 : int
+  %4 = neg %3 : int
+  %5 = newtuple %0, %a, %1, %2, %4 : tuple<int,int,int,f64,int>
+  ret %5
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+entry @__main__:<module>

@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("class Quiet:\n    def __enter__():0\ndef swallowed():\n    with Quiet:0\n(swallowed)")

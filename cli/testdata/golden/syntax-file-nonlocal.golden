@@ -1,0 +1,7 @@
+exit: 1
+--- stdout
+--- stderr
+  File "$CWD/a.py", line 2
+    nonlocal x
+    ^^^^^^^^^^
+SyntaxError: no binding for nonlocal 'x' found

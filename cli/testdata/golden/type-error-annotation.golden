@@ -1,0 +1,4 @@
+exit: 1
+--- stdout
+--- stderr
+<string>:1:1: error TYP140: value of type str is not assignable to int

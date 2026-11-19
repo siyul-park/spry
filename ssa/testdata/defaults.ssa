@@ -1,0 +1,58 @@
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+global @scaled$default$offset : int
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'defaults.py'
+  %1 = len 'ab' : int
+  storeglobal @scaled$default$offset, %1
+  %2 = call @greet('bob', 'hello', '!', 1) : str
+  %3 = call @greet('amy', 'hi', '!', 2) : str
+  %4 = box %2 : any
+  %5 = box %3 : any
+  %6 = newtuple %4, %5 : tuple<any...>
+  %7 = call @builtins:print(%6, ' ':str?, '\n':str?, None:any, False) : none
+  %8 = loadglobal @scaled$default$offset : int
+  %9 = call @scaled(3, -2, %8) : int
+  %10 = loadglobal @scaled$default$offset : int
+  %11 = call @scaled(3, 4, %10) : int
+  %12 = call @scaled(3, -2, 0) : int
+  %13 = box %9 : any
+  %14 = box %11 : any
+  %15 = box %12 : any
+  %16 = newtuple %13, %14, %15 : tuple<any...>
+  %17 = call @builtins:print(%16, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @greet(%name: str, %greeting: str, %punct: str, %times: int) -> str source "greet" {
+b0:
+  %0 = concat %greeting, ' ' : str
+  %1 = concat %0, %name : str
+  %2 = concat %1, %punct : str
+  ret %2
+}
+
+func @scaled(%x: int, %factor: int, %offset: int) -> int source "scaled" {
+b0:
+  %0 = mul %x, %factor : int
+  %1 = add %0, %offset : int
+  ret %1
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+entry @__main__:<module>

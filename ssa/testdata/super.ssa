@@ -1,0 +1,123 @@
+class @__main__.Both : @__main__.Left, @__main__.Right {
+  field x : int from @__main__.Base
+  method __main__.Left.show -> @__main__:Both.show
+  method super.__main__.Left.__main__.Base.show -> @__main__:Right.show
+}
+
+class @__main__.Base {
+  field x : int
+}
+
+class @__main__.Left : @__main__.Base {
+  field x : int from @__main__.Base
+  method __main__.Left.show -> @__main__:Left.show
+  method super.__main__.Left.__main__.Base.show -> @__main__:Base.show
+}
+
+class @__main__.Right : @__main__.Base {
+  field x : int from @__main__.Base
+}
+
+class @__main__.Plain : @__main__.Left {
+  field x : int from @__main__.Base
+  field y : int
+  method __main__.Left.show -> @__main__:Plain.show
+  method super.__main__.Left.__main__.Base.show -> @__main__:Base.show
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+global @b : @__main__.Both
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'super.py'
+  %1 = alloc @__main__.Both : @__main__.Both
+  %2 = cast %1 : @__main__.Base
+  %3 = call @Base.__init__(%2, 1) : none
+  storeglobal @b, %1
+  %4 = loadglobal @b : @__main__.Both
+  %5 = call @Both.show(%4) : int
+  %6 = alloc @__main__.Plain : @__main__.Plain
+  %7 = call @Plain.__init__(%6, 3) : none
+  %8 = call @Plain.show(%6) : int
+  %9 = alloc @__main__.Left : @__main__.Left
+  %10 = cast %9 : @__main__.Base
+  %11 = call @Base.__init__(%10, 4) : none
+  %12 = callmethod %9.__main__.Left.show() : int
+  %13 = box %5 : any
+  %14 = box %8 : any
+  %15 = box %12 : any
+  %16 = newtuple %13, %14, %15 : tuple<any...>
+  %17 = call @builtins:print(%16, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @Base.__init__(%self: @__main__.Base, %x: int) -> none source "Base.__init__" {
+b0:
+  storefield %self.x, %x
+  ret
+}
+
+func @Base.show(%self: @__main__.Base) -> int source "Base.show" {
+b0:
+  %0 = loadfield %self.x : int
+  ret %0
+}
+
+func @Left.show(%self: @__main__.Left) -> int source "Left.show" {
+b0:
+  %0 = callmethod %self.super.__main__.Left.__main__.Base.show() : int
+  %1 = add %0, 1 : int
+  ret %1
+}
+
+func @Right.show(%self: @__main__.Right) -> int source "Right.show" {
+b0:
+  %0 = cast %self : @__main__.Base
+  %1 = call @Base.show(%0) : int
+  %2 = add %1, 2 : int
+  ret %2
+}
+
+func @Both.show(%self: @__main__.Both) -> int source "Both.show" {
+b0:
+  %0 = cast %self : @__main__.Left
+  %1 = call @Left.show(%0) : int
+  %2 = mul %1, 10 : int
+  ret %2
+}
+
+func @Plain.__init__(%self: @__main__.Plain, %x: int) -> none source "Plain.__init__" {
+b0:
+  %0 = cast %self : @__main__.Base
+  %1 = call @Base.__init__(%0, %x) : none
+  %2 = add %x, 1 : int
+  storefield %self.y, %2
+  ret
+}
+
+func @Plain.show(%self: @__main__.Plain) -> int source "Plain.show" {
+b0:
+  %0 = cast %self : @__main__.Left
+  %1 = call @Left.show(%0) : int
+  %2 = loadfield %self.y : int
+  %3 = add %1, %2 : int
+  ret %3
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+entry @__main__:<module>

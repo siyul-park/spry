@@ -1,0 +1,6 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  def countdown
+    spec (n: int) -> collections.abc.Generator[int, None, None]
+fallbacks 0

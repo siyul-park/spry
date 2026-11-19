@@ -1,0 +1,172 @@
+extern class @NameError : @Exception {
+}
+
+extern class @Exception : @BaseException {
+}
+
+extern class @BaseException {
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+global @c : func(int) -> int
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'closures.py'
+  %1 = call @counter(10) : func(int) -> int
+  storeglobal @c, %1
+  %2 = loadglobal @c : func(int) -> int
+  %3 = callclosure %2(1) : int
+  %4 = loadglobal @c : func(int) -> int
+  %5 = callclosure %4(5) : int
+  %6 = call @adder(1) : func(int) -> int
+  %7 = call @adder(2) : func(int) -> int
+  %8 = call @compose(%6, %7) : func(int) -> int
+  %9 = callclosure %8(3) : int
+  %10 = call @outer(1) : int
+  %11 = call @adder(3) : func(int) -> int
+  %12 = call @apply(%11, 1) : int
+  %13 = call @fact(5) : int
+  %14 = box %3 : any
+  %15 = box %5 : any
+  %16 = box %9 : any
+  %17 = box %10 : any
+  %18 = box %12 : any
+  %19 = box %13 : any
+  %20 = newtuple %14, %15, %16, %17, %18, %19 : tuple<any...>
+  %21 = call @builtins:print(%20, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @counter(%start: int) -> func(int) -> int source "counter" {
+b0:
+  %0 = newcell undef:int : cell<int>
+  storecell %0, %start
+  %1 = makeclosure @counter.<locals>.tick [%0] : func(int) -> int
+  ret %1
+}
+
+func @counter.<locals>.tick(%step: int) [%count: cell<int>] -> int source "counter.<locals>.tick" {
+b0:
+  %0 = loadcell %count : int
+  %1 = add %0, %step : int
+  storecell %count, %1
+  %2 = loadcell %count : int
+  ret %2
+}
+
+func @compose(%f: func(int) -> int, %g: func(int) -> int) -> func(int) -> int source "compose" {
+b0:
+  %0 = newcell %f : cell<func(int) -> int>
+  %1 = newcell %g : cell<func(int) -> int>
+  %2 = makeclosure @compose.<locals>.run [%0, %1] : func(int) -> int
+  ret %2
+}
+
+func @compose.<locals>.run(%x: int) [%f: cell<func(int) -> int>, %g: cell<func(int) -> int>] -> int source "compose.<locals>.run" {
+b0:
+  %0 = loadcell %f : func(int) -> int
+  %1 = loadcell %g : func(int) -> int
+  %2 = callclosure %1(%x) : int
+  %3 = callclosure %0(%2) : int
+  ret %3
+}
+
+func @outer(%n: int) -> int source "outer" {
+b0:
+  %0 = newcell %n : cell<int>
+  %1 = makeclosure @outer.<locals>.middle [%0] : func(int) -> int
+  %2 = callclosure %1(2) : int
+  ret %2
+}
+
+func @outer.<locals>.middle(%m: int) [%n: cell<int>] -> int source "outer.<locals>.middle" {
+b0:
+  %0 = newcell %m : cell<int>
+  %1 = makeclosure @outer.<locals>.middle.<locals>.inner [%0, %n] : func(int) -> int
+  %2 = callclosure %1(1) : int
+  ret %2
+}
+
+func @outer.<locals>.middle.<locals>.inner(%k: int) [%m: cell<int>, %n: cell<int>] -> int source "outer.<locals>.middle.<locals>.inner" {
+b0:
+  %0 = loadcell %n : int
+  %1 = loadcell %m : int
+  %2 = add %0, %1 : int
+  %3 = add %2, %k : int
+  ret %3
+}
+
+func @apply(%f: func(int) -> int, %x: int) -> int source "apply" {
+b0:
+  %0 = callclosure %f(%x) : int
+  %1 = callclosure %f(%0) : int
+  ret %1
+}
+
+func @fact(%n: int) -> int source "fact" {
+b0:
+  %0 = newcell undef:func(int,int) -> int : cell<func(int,int) -> int>
+  %1 = newcell False : cell<i1>
+  %2 = makeclosure @fact.<locals>.go [%0, %1] : func(int,int) -> int
+  storecell %0, %2
+  storecell %1, True
+  %3 = loadcell %0 : func(int,int) -> int
+  %4 = callclosure %3(%n, 1) : int
+  ret %4
+}
+
+func @fact.<locals>.go(%k: int, %acc: int) [%go: cell<func(int,int) -> int>, %go$bound: cell<i1>] -> int source "fact.<locals>.go" {
+b0:
+  %0 = le %k, 1 : i1
+  br %0, b1, b2
+b1:
+  ret %acc
+b2:
+  jump b3
+b3:
+  %1 = loadcell %go$bound : i1
+  br %1, b4, b5
+b4:
+  %2 = loadcell %go : func(int,int) -> int
+  %3 = sub %k, 1 : int
+  %4 = mul %acc, %k : int
+  %5 = callclosure %2(%3, %4) : int
+  ret %5
+b5:
+  %6 = call @builtins:NameError("cannot access free variable 'go' where it is not associated with a value in enclosing scope") : @NameError
+  raise %6
+}
+
+func @adder(%n: int) -> func(int) -> int source "adder" {
+b0:
+  %0 = newcell %n : cell<int>
+  %1 = makeclosure @adder.<locals>.<lambda> [%0] : func(int) -> int
+  ret %1
+}
+
+func @adder.<locals>.<lambda>(%x: int) [%n: cell<int>] -> int source "adder.<locals>.<lambda>" {
+b0:
+  %0 = loadcell %n : int
+  %1 = add %x, %0 : int
+  ret %1
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+extern func @NameError(%msg: str) -> @NameError source "NameError"
+
+entry @__main__:<module>

@@ -1,0 +1,10 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  var counter: int
+  var scale: float
+  def bump
+    spec () -> int
+  def scaled
+    spec () -> float
+fallbacks 0

@@ -1,0 +1,59 @@
+module m
+
+func @arith(%a: int, %b: int, %x: f64, %y: f64) -> f64 {
+b0:
+  %0 = add %a, %b : int
+  %1 = sub %a, 1 : int
+  %2 = mul %0, %1 : int
+  %3 = floordiv %2, %b : int
+  %4 = mod %3, 7 : int
+  %5 = pow %4, 2 : int
+  %6 = lshift %5, 3 : int
+  %7 = rshift %6, 1 : int
+  %8 = and %7, 255 : int
+  %9 = or %8, 1 : int
+  %10 = xor %9, -1 : int
+  %11 = neg %10 : int
+  %12 = invert %11 : int
+  %13 = truediv %12, %b : f64
+  %14 = add %x, %y : f64
+  %15 = neg %14 : f64
+  %16 = truediv %15, %y : f64
+  %17 = sub %13, %16 : f64
+  %18 = mul %17, 2.5 : f64
+  %19 = floordiv %18, %y : f64
+  %20 = mod %19, %y : f64
+  %21 = pow %20, 0.5 : f64
+  ret %21
+}
+
+func @compare(%a: int, %f: f64, %s: str, %c: bytes, %t: i1, %i: i32) -> i1 {
+b0:
+  %0 = eq %a, 1 : i1
+  %1 = ne %f, 1.5 : i1
+  %2 = lt %s, 'x' : i1
+  %3 = le %c, b'x' : i1
+  %4 = gt %t, True : i1
+  %5 = ge %i, 0:i32 : i1
+  %6 = is %s, None : i1
+  %7 = isnot %c, None : i1
+  %8 = in %a, 1 : i1
+  %9 = notin 'a', %s : i1
+  %10 = not %0 : i1
+  %11 = and %a, 3 : int
+  %12 = select %10, %a, %11 : int
+  %13 = select %9, 'yes', 'no' : str
+  ret %7
+}
+
+func @convert(%n: int, %f: f64, %v: any, %l: list<int>) -> list<int>? {
+b0:
+  %0 = int2f64 %n : f64
+  %1 = f642int %f : int
+  %2 = box %n : any
+  %3 = unbox %v : int
+  %4 = box %f : any
+  %5 = unbox %4 : f64
+  %6 = cast %l : list<int>?
+  ret %6
+}

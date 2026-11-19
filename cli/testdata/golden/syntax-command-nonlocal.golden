@@ -1,0 +1,5 @@
+exit: 1
+--- stdout
+--- stderr
+  File "<string>", line 1
+SyntaxError: nonlocal declaration not allowed at module level

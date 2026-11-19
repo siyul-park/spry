@@ -1,0 +1,11 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  var limit: int
+  var ratio: float
+  var name: str | None
+  def half
+    spec (x: float) -> float
+  def label
+    spec (n: int) -> str
+fallbacks 0

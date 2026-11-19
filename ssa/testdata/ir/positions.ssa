@@ -1,0 +1,12 @@
+module m
+
+func @f(%a: int) -> int {
+b0:
+  %0 = add %a, 1 : int !pos "a.py" 4:1:5 "a.py" 9:1:10
+  %1 = call @f(%0) : int -> normal b1, except b2 !pos "" 0:0:0 "a.py" 20:2:3
+b1:
+  ret %1 !pos "a.py" 30:3:1 "a.py" 38:3:9
+b2:
+  %2 = landingpad : any
+  raise %2
+}

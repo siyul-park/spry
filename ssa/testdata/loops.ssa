@@ -1,0 +1,131 @@
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'loops.py'
+  %1 = call @squares(10) : int
+  %2 = call @search(50) : int
+  %3 = call @nested() : int
+  %4 = call @text('banana') : int
+  %5 = box %1 : any
+  %6 = box %2 : any
+  %7 = box %3 : any
+  %8 = box %4 : any
+  %9 = newtuple %5, %6, %7, %8 : tuple<any...>
+  %10 = call @builtins:print(%9, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @squares(%n: int) -> int source "squares" {
+b0:
+  %0 = call @builtins:range(0, %n, 1) : iter<int>
+  jump b1(0)
+b1(%p0: int):
+  %1 = next %0 : i1
+  br %1, b2, b3
+b2:
+  %2 = current %0 : int
+  %3 = mul %2, %2 : int
+  %4 = add %p0, %3 : int
+  jump b1(%4)
+b3:
+  jump b4
+b4:
+  ret %p0
+}
+
+func @search(%limit: int) -> int source "search" {
+b0:
+  %0 = call @builtins:range(2, %limit, 1) : iter<int>
+  jump b1
+b1:
+  %1 = next %0 : i1
+  br %1, b2, b3
+b2:
+  %2 = current %0 : int
+  %3 = mul %2, %2 : int
+  %4 = gt %3, %limit : i1
+  br %4, b5, b6
+b3:
+  %5 = neg 1 : int
+  ret %5
+b4:
+  ret %2
+b5:
+  jump b4
+b6:
+  jump b7
+b7:
+  jump b1
+}
+
+func @nested() -> int source "nested" {
+b0:
+  %0 = call @builtins:range(1, 4, 1) : iter<int>
+  jump b1(0)
+b1(%p0: int):
+  %1 = next %0 : i1
+  br %1, b2, b3
+b2:
+  %2 = current %0 : int
+  %3 = call @builtins:range(%2, 4, 2) : iter<int>
+  jump b5(%p0)
+b3:
+  jump b4
+b4:
+  ret %p0
+b5(%p1: int):
+  %4 = next %3 : i1
+  br %4, b6, b7
+b6:
+  %5 = current %3 : int
+  %6 = add %p1, %5 : int
+  jump b5(%6)
+b7:
+  jump b8
+b8:
+  jump b1(%p1)
+}
+
+func @text(%s: str) -> int source "text" {
+b0:
+  %0 = iter %s : iter<str>
+  jump b1(0)
+b1(%p0: int):
+  %1 = next %0 : i1
+  br %1, b2, b3
+b2:
+  %2 = current %0 : str
+  %3 = eq %2, 'a' : i1
+  br %3, b5, b6
+b3:
+  jump b4
+b4:
+  ret %p0
+b5:
+  %4 = add %p0, 1 : int
+  jump b7(%4)
+b6:
+  jump b7(%p0)
+b7(%p1: int):
+  jump b1(%p1)
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+extern func @range(%start: int, %stop: int, %step: int) -> iter<int> source "range"
+
+entry @__main__:<module>

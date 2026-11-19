@@ -1,0 +1,260 @@
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+global @inc : func(int) -> int
+global @add : func(int,int) -> int
+global @nums : list<int>
+global @total : int
+global @pick : int
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'lambda.py'
+  %1 = makeclosure @<lambda> [] : func(int) -> int
+  storeglobal @inc, %1
+  %2 = makeclosure @<lambda>$1 [] : func(int,int) -> int
+  storeglobal @add, %2
+  %3 = newlist 3, 1, 2 : list<int>
+  %4 = makeclosure @<lambda>$2 [] : func(int) -> int
+  %5 = call @builtins:__sorted__(%3, %4, False) : list<int>
+  storeglobal @nums, %5
+  %6 = loadglobal @inc : func(int) -> int
+  %7 = callclosure %6(1) : int
+  %8 = loadglobal @add : func(int,int) -> int
+  %9 = callclosure %8(1, 2) : int
+  %10 = add %7, %9 : int
+  %11 = loadglobal @add : func(int,int) -> int
+  %12 = callclosure %11(1, 5) : int
+  %13 = add %10, %12 : int
+  storeglobal @total, %13
+  %14 = makeclosure @<lambda>$3 [] : func() -> int
+  %15 = callclosure %14() : int
+  storeglobal @pick, %15
+  %16 = loadglobal @total : int
+  %17 = loadglobal @nums : list<int>
+  %18 = loadglobal @pick : int
+  %19 = loadglobal @inc : func(int) -> int
+  %20 = makeclosure @<lambda>$4 [] : func(int) -> int
+  %21 = newlist %19, %20 : list<func(int) -> int>
+  %22 = call @run(%21, 3) : list<int>
+  %23 = box %16 : any
+  %24 = box %17 : any
+  %25 = box %18 : any
+  %26 = box %22 : any
+  %27 = newtuple %23, %24, %25, %26 : tuple<any...>
+  %28 = call @builtins:print(%27, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @<lambda>(%x: int) -> int source "<lambda>" {
+b0:
+  %0 = add %x, 1 : int
+  ret %0
+}
+
+func @<lambda>$1(%a: int, %b: int) -> int source "<lambda>" {
+b0:
+  %0 = add %a, %b : int
+  ret %0
+}
+
+func @<lambda>$2(%v: int) -> int source "<lambda>" {
+b0:
+  %0 = neg %v : int
+  ret %0
+}
+
+func @<lambda>$3() -> int source "<lambda>" {
+b0:
+  ret 7
+}
+
+func @run(%fs: list<func(int) -> int>, %x: int) -> list<int> source "run" {
+b0:
+  %0 = newcell %x : cell<int>
+  %1 = newlist : list<int>
+  %2 = iter %fs : iter<func(int) -> int>
+  jump b1
+b1:
+  %3 = next %2 : i1
+  br %3, b2, b3
+b2:
+  %4 = current %2 : func(int) -> int
+  %5 = loadcell %0 : int
+  %6 = callclosure %4(%5) : int
+  append %1, %6
+  jump b1
+b3:
+  ret %1
+}
+
+func @<lambda>$4(%y: int) -> int source "<lambda>" {
+b0:
+  %0 = mul %y, 2 : int
+  ret %0
+}
+
+module builtins
+
+func @__sorted__(%iterable: list<int>, %key: func(int) -> int, %reverse: i1) -> list<int> source "__sorted__" {
+b0:
+  %0 = slice %iterable, None, None, None : list<int>
+  %1 = len %0 : int
+  %2 = newlist : list<int>
+  %3 = iter %0 : iter<int>
+  jump b1
+b1:
+  %4 = next %3 : i1
+  br %4, b2, b3
+b2:
+  %5 = current %3 : int
+  %6 = is %key, None : i1
+  br %6, b5, b6
+b3:
+  jump b4
+b4:
+  %7 = call @range(0, %1, 1) : iter<int>
+  %8 = box %7 : any
+  %9 = call @list(%8) : list<int>
+  jump b8(1, %9)
+b5:
+  jump b7
+b6:
+  %10 = callclosure %key(%5) : int
+  append %2, %10
+  jump b7
+b7:
+  jump b1
+b8(%p0: int, %p1: list<int>):
+  %11 = lt %p0, %1 : i1
+  br %11, b9, b10
+b9:
+  %12 = newlist : list<int>
+  jump b12(0)
+b10:
+  jump b11
+b11:
+  %13 = newlist : list<int>
+  %14 = iter %p1 : iter<int>
+  jump b35
+b12(%p2: int):
+  %15 = lt %p2, %1 : i1
+  br %15, b13, b14
+b13:
+  %16 = add %p2, %p0 : int
+  %17 = box %16 : any
+  %18 = box %1 : any
+  %19 = newtuple : tuple<any...>
+  %20 = call @min#1(%17, %18, %19, None:any) : any
+  %21 = unbox %20 : int
+  %22 = mul 2, %p0 : int
+  %23 = add %p2, %22 : int
+  %24 = box %23 : any
+  %25 = box %1 : any
+  %26 = newtuple : tuple<any...>
+  %27 = call @min#1(%24, %25, %26, None:any) : any
+  %28 = unbox %27 : int
+  jump b16(%p2, %21)
+b14:
+  jump b15
+b15:
+  %29 = mul %p0, 2 : int
+  jump b8(%29, %12)
+b16(%p3: int, %p4: int):
+  %30 = lt %p3, %21 : i1
+  br %30, b20, b18
+b17:
+  br %reverse, b21, b22
+b18:
+  jump b19
+b19:
+  jump b27(%p3)
+b20:
+  %31 = lt %p4, %28 : i1
+  br %31, b17, b18
+b21:
+  %32 = index %p1, %p3 : int
+  %33 = index %2, %32 : int
+  %34 = index %p1, %p4 : int
+  %35 = index %2, %34 : int
+  %36 = lt %33, %35 : i1
+  jump b23(%36)
+b22:
+  %37 = index %p1, %p4 : int
+  %38 = index %2, %37 : int
+  %39 = index %p1, %p3 : int
+  %40 = index %2, %39 : int
+  %41 = lt %38, %40 : i1
+  jump b23(%41)
+b23(%p5: i1):
+  br %p5, b24, b25
+b24:
+  %42 = index %p1, %p4 : int
+  append %12, %42
+  %43 = add %p4, 1 : int
+  jump b26(%p3, %43)
+b25:
+  %44 = index %p1, %p3 : int
+  append %12, %44
+  %45 = add %p3, 1 : int
+  jump b26(%45, %p4)
+b26(%p6: int, %p7: int):
+  jump b16(%p6, %p7)
+b27(%p8: int):
+  %46 = lt %p8, %21 : i1
+  br %46, b28, b29
+b28:
+  %47 = index %p1, %p8 : int
+  append %12, %47
+  %48 = add %p8, 1 : int
+  jump b27(%48)
+b29:
+  jump b30
+b30:
+  jump b31(%p4)
+b31(%p9: int):
+  %49 = lt %p9, %28 : i1
+  br %49, b32, b33
+b32:
+  %50 = index %p1, %p9 : int
+  append %12, %50
+  %51 = add %p9, 1 : int
+  jump b31(%51)
+b33:
+  jump b34
+b34:
+  %52 = mul 2, %p0 : int
+  %53 = add %p2, %52 : int
+  jump b12(%53)
+b35:
+  %54 = next %14 : i1
+  br %54, b36, b37
+b36:
+  %55 = current %14 : int
+  %56 = index %0, %55 : int
+  append %13, %56
+  jump b35
+b37:
+  jump b38
+b38:
+  ret %13
+}
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+extern func @range(%start: int, %stop: int, %step: int) -> iter<int> source "range"
+
+extern func @list(%a: any) -> list<int> source "list"
+
+extern func @min#1(%a: any, %b: any, %rest: tuple<any...>, %key: any) -> any source "min"
+
+entry @__main__:<module>

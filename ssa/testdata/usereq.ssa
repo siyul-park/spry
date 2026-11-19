@@ -1,0 +1,97 @@
+class @__main__.Key {
+  field n : int
+}
+
+class @__main__.Plain {
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'usereq.py'
+  %1 = alloc @__main__.Key : @__main__.Key
+  %2 = call @Key.__init__(%1, 1) : none
+  %3 = alloc @__main__.Key : @__main__.Key
+  %4 = call @Key.__init__(%3, 2) : none
+  %5 = newlist %1, %3 : list<@__main__.Key>
+  %6 = alloc @__main__.Key : @__main__.Key
+  %7 = call @Key.__init__(%6, 2) : none
+  %8 = call @lookup(%5, %6) : tuple<str,int,i1,int>
+  %9 = box %8 : any
+  %10 = newtuple %9 : tuple<any...>
+  %11 = call @builtins:print(%10, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @Key.__init__(%self: @__main__.Key, %n: int) -> none source "Key.__init__" {
+b0:
+  storefield %self.n, %n
+  ret
+}
+
+func @lookup(%items: list<@__main__.Key>, %k: @__main__.Key) -> tuple<str,int,i1,int> source "lookup" {
+b0:
+  %0 = alloc @__main__.Key : @__main__.Key
+  %1 = call @Key.__init__(%0, 1) : none
+  %2 = alloc @__main__.Key : @__main__.Key
+  %3 = call @Key.__init__(%2, 2) : none
+  %4 = newdict : dict<@__main__.Key,str>
+  %5 = box %4 : any
+  %6 = dyngetattr %5.__setitem__ : any
+  %7 = box %0 : any
+  %8 = dyncall %6(%7, 'a':any) : any
+  %9 = box %4 : any
+  %10 = dyngetattr %9.__setitem__ : any
+  %11 = box %2 : any
+  %12 = dyncall %10(%11, 'b':any) : any
+  %13 = box %4 : any
+  %14 = dyngetattr %13.__setitem__ : any
+  %15 = box %k : any
+  %16 = dyncall %14(%15, 'c':any) : any
+  %17 = alloc @__main__.Key : @__main__.Key
+  %18 = call @Key.__init__(%17, 3) : none
+  %19 = newset : set<@__main__.Key>
+  %20 = box %19 : any
+  %21 = dyngetattr %20.add : any
+  %22 = box %17 : any
+  %23 = dyncall %21(%22) : any
+  %24 = box %19 : any
+  %25 = dyngetattr %24.add : any
+  %26 = box %k : any
+  %27 = dyncall %25(%26) : any
+  %28 = unbox %27 : none
+  %29 = box %items : any
+  %30 = box %k : any
+  %31 = dynbinop %29.__contains__, %30 : any
+  %32 = unbox %31 : i1
+  %33 = box %items : any
+  %34 = dyngetattr %33.index : any
+  %35 = box %k : any
+  %36 = dyncall %34(%35) : any
+  %37 = unbox %36 : int
+  %38 = box %4 : any
+  %39 = box %k : any
+  %40 = dynbinop %38.__getitem__, %39 : any
+  %41 = unbox %40 : str
+  %42 = len %19 : int
+  %43 = newtuple %41, %42, %32, %37 : tuple<str,int,i1,int>
+  ret %43
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+entry @__main__:<module>

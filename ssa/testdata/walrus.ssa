@@ -1,0 +1,77 @@
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'walrus.py'
+  %1 = newlist 1, 2, 3 : list<int>
+  %2 = call @run(%1) : int
+  %3 = newlist 1 : list<int>
+  %4 = call @run(%3) : int
+  %5 = box %2 : any
+  %6 = box %4 : any
+  %7 = newtuple %5, %6 : tuple<any...>
+  %8 = call @builtins:print(%7, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @run(%xs: list<int>) -> int source "run" {
+b0:
+  %0 = newcell undef:int : cell<int>
+  %1 = len %xs : int
+  %2 = gt %1, 2 : i1
+  br %2, b1, b2
+b1:
+  ret %1
+b2:
+  jump b3
+b3:
+  jump b4(0)
+b4(%p0: int):
+  %3 = add %p0, 1 : int
+  %4 = lt %3, 5 : i1
+  br %4, b5, b6
+b5:
+  jump b4(%3)
+b6:
+  jump b7
+b7:
+  %5 = newlist : list<int>
+  %6 = iter %xs : iter<int>
+  jump b8
+b8:
+  %7 = next %6 : i1
+  br %7, b9, b10
+b9:
+  %8 = current %6 : int
+  %9 = mul %8, 2 : int
+  storecell %0, %9
+  %10 = gt %9, 2 : i1
+  br %10, b11, b8
+b10:
+  %11 = add %p0, 3 : int
+  %12 = add %11, 3 : int
+  %13 = len %5 : int
+  %14 = add %12, %13 : int
+  ret %14
+b11:
+  %15 = loadcell %0 : int
+  append %5, %15
+  jump b8
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+entry @__main__:<module>

@@ -14,3 +14,5 @@ MADR format. Each record has Status, Context, Decision, Consequences, Alternativ
 | [0008](0008-cpython-test-corpus.md) | CPython test corpus | Accepted |
 | [0009](0009-frontend-api-shape.md) | Frontend API shape | Accepted |
 | [0010](0010-cli-command-layer.md) | CLI command layer | Accepted |
+| [0011](0011-types-and-ssa-api-shape.md) | Types and SSA API shape | Accepted |
+| [0012](0012-whole-program-import-resolution.md) | Whole-program import resolution | Accepted |

@@ -1,0 +1,7 @@
+exit: 1
+--- stdout
+--- stderr
+  File "$CWD/a.py", line 1
+    s = "abc
+        ^
+SyntaxError: unterminated string literal (detected at line 1)

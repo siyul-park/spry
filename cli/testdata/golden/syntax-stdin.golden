@@ -1,0 +1,7 @@
+exit: 1
+--- stdout
+--- stderr
+  File "<stdin>", line 1
+    x = (
+        ^
+SyntaxError: '(' was never closed

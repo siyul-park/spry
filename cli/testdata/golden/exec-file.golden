@@ -1,0 +1,4 @@
+exit: 1
+--- stdout
+--- stderr
+spry: execution not implemented yet (phase P3)

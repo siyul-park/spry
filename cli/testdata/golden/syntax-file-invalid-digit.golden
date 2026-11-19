@@ -1,0 +1,7 @@
+exit: 1
+--- stdout
+--- stderr
+  File "$CWD/a.py", line 1
+    x = 0b12
+           ^
+SyntaxError: invalid digit '2' in binary literal

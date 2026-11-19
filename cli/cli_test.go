@@ -18,8 +18,10 @@ import (
 )
 
 type goldenCase struct {
-	name string
-	args []string
+	name  string
+	args  []string
+	files map[string]string // written to the working directory first
+	stdin string
 }
 
 const (
@@ -40,29 +42,54 @@ var (
 // compared against the recorded golden and, when python3.14 is available,
 // against a live CPython run.
 var goldenCases = []goldenCase{
-	{"unknown-short", []string{"-z"}},
-	{"unknown-short-in-group", []string{"-Ez"}},
-	{"unknown-after-flag", []string{"-O", "-z"}},
-	{"unknown-before-help", []string{"-z", "-h"}},
-	{"unknown-long", []string{"--foo"}},
-	{"unknown-long-value", []string{"--foo=bar"}},
-	{"unknown-long-abbrev", []string{"--help-x"}},
-	{"unknown-version-eq", []string{"--version=3"}},
-	{"unknown-after-version", []string{"-V", "-z"}},
-	{"missing-c", []string{"-c"}},
-	{"missing-m", []string{"-m"}},
-	{"missing-W", []string{"-W"}},
-	{"missing-X", []string{"-X"}},
-	{"missing-hash-arg", []string{"--check-hash-based-pycs"}},
-	{"missing-after-group", []string{"-OOW"}},
-	{"file-not-found", []string{"nonexist.py"}},
-	{"file-not-found-dashdash", []string{"--", "-c"}},
-	{"file-not-found-args", []string{"nonexist.py", "-z", "a"}},
-	{"help-short", []string{"-h"}},
-	{"help-question", []string{"-?"}},
-	{"help-long", []string{"--help"}},
-	{"help-wins-over-error", []string{"-h", "-z"}},
-	{"help-in-group", []string{"-Eh"}},
+	{name: "unknown-short", args: []string{"-z"}},
+	{name: "unknown-short-in-group", args: []string{"-Ez"}},
+	{name: "unknown-after-flag", args: []string{"-O", "-z"}},
+	{name: "unknown-before-help", args: []string{"-z", "-h"}},
+	{name: "unknown-long", args: []string{"--foo"}},
+	{name: "unknown-long-value", args: []string{"--foo=bar"}},
+	{name: "unknown-long-abbrev", args: []string{"--help-x"}},
+	{name: "unknown-version-eq", args: []string{"--version=3"}},
+	{name: "unknown-after-version", args: []string{"-V", "-z"}},
+	{name: "missing-c", args: []string{"-c"}},
+	{name: "missing-m", args: []string{"-m"}},
+	{name: "missing-W", args: []string{"-W"}},
+	{name: "missing-X", args: []string{"-X"}},
+	{name: "missing-hash-arg", args: []string{"--check-hash-based-pycs"}},
+	{name: "missing-after-group", args: []string{"-OOW"}},
+	{name: "file-not-found", args: []string{"nonexist.py"}},
+	{name: "file-not-found-dashdash", args: []string{"--", "-c"}},
+	{name: "file-not-found-args", args: []string{"nonexist.py", "-z", "a"}},
+	{name: "help-short", args: []string{"-h"}},
+	{name: "help-question", args: []string{"-?"}},
+	{name: "help-long", args: []string{"--help"}},
+	{name: "help-wins-over-error", args: []string{"-h", "-z"}},
+	{name: "help-in-group", args: []string{"-Eh"}},
+
+	{name: "syntax-file-never-closed", args: []string{"a.py"}, files: map[string]string{"a.py": "x = (1,\n"}},
+	{name: "syntax-file-nested-never-closed", args: []string{"a.py"}, files: map[string]string{"a.py": "def f():\n    x = [1,\n  2\n"}},
+	{name: "syntax-file-non-ascii-column", args: []string{"a.py"}, files: map[string]string{"a.py": "x = \"é\" + (\n"}},
+	{name: "syntax-file-unterminated-string", args: []string{"a.py"}, files: map[string]string{"a.py": "s = \"abc\n"}},
+	{name: "syntax-file-unterminated-triple-quoted", args: []string{"a.py"}, files: map[string]string{"a.py": "x = \"\"\"abc\ndef\n"}},
+	{name: "syntax-file-invalid-digit", args: []string{"a.py"}, files: map[string]string{"a.py": "x = 0b12\n"}},
+	{name: "syntax-file-invalid-decimal-literal", args: []string{"a.py"}, files: map[string]string{"a.py": "x = 1abc\n"}},
+	{name: "syntax-file-leading-zeros", args: []string{"a.py"}, files: map[string]string{"a.py": "a = 0123\n"}},
+	{name: "syntax-file-invalid-character", args: []string{"a.py"}, files: map[string]string{"a.py": "x = ¢\n"}},
+	{name: "syntax-file-non-printable", args: []string{"a.py"}, files: map[string]string{"a.py": "x = 1 \x01\n"}},
+	{name: "syntax-file-unmatched-paren", args: []string{"a.py"}, files: map[string]string{"a.py": "x = ) \n"}},
+	{name: "syntax-file-mismatched-paren", args: []string{"a.py"}, files: map[string]string{"a.py": "x = (]\n"}},
+	{name: "syntax-file-unindent", args: []string{"a.py"}, files: map[string]string{"a.py": "if 1:\n    x\n  y\n"}},
+	{name: "syntax-file-tab-error", args: []string{"a.py"}, files: map[string]string{"a.py": "if 1:\n        x\n\ty\n"}},
+	{name: "syntax-file-leading-blanks-stripped", args: []string{"a.py"}, files: map[string]string{"a.py": "if 1:\n\t  x = \"abc\n"}},
+	{name: "syntax-file-crlf", args: []string{"a.py"}, files: map[string]string{"a.py": "x = 1\r\ny = (\r\n"}},
+	{name: "syntax-file-unknown-encoding", args: []string{"a.py"}, files: map[string]string{"a.py": "# coding: nope\nx = 1\n"}},
+	{name: "syntax-file-fstring", args: []string{"a.py"}, files: map[string]string{"a.py": "f\"{\"\n"}},
+	{name: "syntax-file-relative-subdir", args: []string{"sub/a.py"}, files: map[string]string{"sub/a.py": "x = (\n"}},
+	{name: "syntax-command", args: []string{"-c", "x = (1,"}},
+	{name: "syntax-command-second-line", args: []string{"-c", "x = 1\ny = \"abc"}},
+	{name: "syntax-stdin", args: nil, stdin: "x = (\n"},
+	{name: "syntax-stdin-dash", args: []string{"-"}, stdin: "if 1:\n  x\n y\n"},
+	{name: "syntax-stdin-crlf", args: nil, stdin: "x = 1\r\ny = (\r\n"},
 }
 
 // spryOnlyCases differ from CPython (they execute code, print spry-only text,
@@ -73,23 +100,24 @@ var goldenCases = []goldenCase{
 // -u -v -x (interpreter options), -W, -X, -m, --help-env, --help-xoptions,
 // --help-all and --check-hash-based-pycs.
 var spryOnlyCases = []goldenCase{
-	{"c-swallows-help", []string{"-c", "pass", "-h", "-z"}},
-	{"m-swallows-flags", []string{"-m", "mod", "-z"}},
-	{"W-takes-next-dash-arg", []string{"-W", "-z", "-V"}},
-	{"version", []string{"-V"}},
-	{"version-long", []string{"--version"}},
-	{"invalid-spry-opt", []string{"-X", "spry.opt=9"}},
-	{"invalid-spry-dump", []string{"-X", "spry.dump=nope"}},
-	{"invalid-spry-fallback", []string{"-X", "spry.fallback=maybe"}},
-	{"unknown-spry-option", []string{"-X", "spry.nothing"}},
-	{"bad-hash-arg", []string{"--check-hash-based-pycs", "bad"}},
-	{"unsupported-before-file", []string{"-u", "nonexist.py", "-z", "a"}},
-	{"exec-command", []string{"-c", "print(1)"}},
-	{"exec-module", []string{"-m", "json.tool"}},
-	{"exec-stdin", nil},
-	{"help-env", []string{"--help-env"}},
-	{"help-env-wins-over-version", []string{"-V", "--help-env"}},
-	{"help-xoptions", []string{"--help-xoptions"}},
+	{name: "c-swallows-help", args: []string{"-c", "pass", "-h", "-z"}},
+	{name: "m-swallows-flags", args: []string{"-m", "mod", "-z"}},
+	{name: "W-takes-next-dash-arg", args: []string{"-W", "-z", "-V"}},
+	{name: "version", args: []string{"-V"}},
+	{name: "version-long", args: []string{"--version"}},
+	{name: "invalid-spry-opt", args: []string{"-X", "spry.opt=9"}},
+	{name: "invalid-spry-dump", args: []string{"-X", "spry.dump=nope"}},
+	{name: "invalid-spry-fallback", args: []string{"-X", "spry.fallback=maybe"}},
+	{name: "unknown-spry-option", args: []string{"-X", "spry.nothing"}},
+	{name: "bad-hash-arg", args: []string{"--check-hash-based-pycs", "bad"}},
+	{name: "unsupported-before-file", args: []string{"-u", "nonexist.py", "-z", "a"}},
+	{name: "exec-command", args: []string{"-c", "print(1)"}},
+	{name: "exec-module", args: []string{"-m", "json.tool"}},
+	{name: "exec-stdin", args: nil},
+	{name: "exec-file", args: []string{"ok.py"}, files: map[string]string{"ok.py": "print(1)\n"}},
+	{name: "help-env", args: []string{"--help-env"}},
+	{name: "help-env-wins-over-version", args: []string{"-V", "--help-env"}},
+	{name: "help-xoptions", args: []string{"--help-xoptions"}},
 }
 
 // normalizeCPython maps CPython output onto what spry prints: the executable
@@ -117,9 +145,9 @@ func TestGolden(t *testing.T) {
 	}
 	for _, tt := range goldenCases {
 		t.Run(tt.name, func(t *testing.T) {
-			got := runSpry(t, tt.args)
+			got := runSpry(t, tt)
 			if *update {
-				require.NoError(t, os.WriteFile(goldenPath(tt.name), []byte(runCPython(t, python, tt.args)), 0o644))
+				require.NoError(t, os.WriteFile(goldenPath(tt.name), []byte(runCPython(t, python, tt)), 0o644))
 			}
 			want, err := os.ReadFile(goldenPath(tt.name))
 			require.NoError(t, err)
@@ -128,7 +156,7 @@ func TestGolden(t *testing.T) {
 	}
 	for _, tt := range spryOnlyCases {
 		t.Run(tt.name, func(t *testing.T) {
-			got := runSpry(t, tt.args)
+			got := runSpry(t, tt)
 			if *update {
 				require.NoError(t, os.WriteFile(goldenPath(tt.name), []byte(got), 0o644))
 			}
@@ -143,7 +171,7 @@ func TestGoldenMatchesCPython(t *testing.T) {
 	python := lookupPython(t)
 	for _, tt := range goldenCases {
 		t.Run(tt.name, func(t *testing.T) {
-			require.Equal(t, runCPython(t, python, tt.args), runSpry(t, tt.args))
+			require.Equal(t, runCPython(t, python, tt), runSpry(t, tt))
 		})
 	}
 }
@@ -161,22 +189,33 @@ func TestGoldenFiles(t *testing.T) {
 	}
 }
 
-func runSpry(t *testing.T, args []string) string {
+func runSpry(t *testing.T, tt goldenCase) string {
 	t.Helper()
-	dir, err := filepath.EvalSymlinks(t.TempDir())
-	require.NoError(t, err)
+	dir := workDir(t, tt.files)
 	var stdout, stderr bytes.Buffer
-	code := cli.Run(context.Background(), cli.Process{Args: args, Stdin: strings.NewReader(""), Stdout: &stdout, Stderr: &stderr, Dir: dir})
+	code := cli.Run(context.Background(), cli.Process{Args: tt.args, Stdin: strings.NewReader(tt.stdin), Stdout: &stdout, Stderr: &stderr, Dir: dir})
 	return strings.ReplaceAll(format(stdout.String(), stderr.String(), code), dir, cwdToken)
 }
 
-func runCPython(t *testing.T, python string, args []string) string {
+func runCPython(t *testing.T, python string, tt goldenCase) string {
+	t.Helper()
+	dir := workDir(t, tt.files)
+	res, err := cpython.Run(context.Background(), python, dir, []byte(tt.stdin), tt.args...)
+	require.NoError(t, err)
+	return format(normalizeCPython(res.Stdout, dir), normalizeCPython(res.Stderr, dir), res.ExitCode)
+}
+
+// workDir returns a fresh working directory holding files.
+func workDir(t *testing.T, files map[string]string) string {
 	t.Helper()
 	dir, err := filepath.EvalSymlinks(t.TempDir())
 	require.NoError(t, err)
-	res, err := cpython.Run(context.Background(), python, dir, nil, args...)
-	require.NoError(t, err)
-	return format(normalizeCPython(res.Stdout, dir), normalizeCPython(res.Stderr, dir), res.ExitCode)
+	for name, text := range files {
+		path := filepath.Join(dir, name)
+		require.NoError(t, os.MkdirAll(filepath.Dir(path), 0o755))
+		require.NoError(t, os.WriteFile(path, []byte(text), 0o644))
+	}
+	return dir
 }
 
 func lookupPython(t *testing.T) string {

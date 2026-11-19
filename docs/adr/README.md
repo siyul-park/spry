@@ -11,4 +11,6 @@ MADR format. Each record has Status, Context, Decision, Consequences, Alternativ
 | [0005](0005-lighthouse-design-enforcement.md) | Lighthouse for design enforcement | Accepted |
 | [0006](0006-baseline-benchmark-harness.md) | Baseline and benchmark harness | Accepted |
 | [0007](0007-cpython-compatible-cli.md) | CPython-compatible CLI | Accepted; superseded in part by 0010 |
+| [0008](0008-cpython-test-corpus.md) | CPython test corpus | Accepted |
+| [0009](0009-frontend-api-shape.md) | Frontend API shape | Accepted |
 | [0010](0010-cli-command-layer.md) | CLI command layer | Accepted |

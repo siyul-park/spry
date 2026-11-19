@@ -1,0 +1,20 @@
+Module(
+   body=[
+      If(
+         test=Constant(value=1),
+         body=[
+            Assign(
+               targets=[
+                  Name(id='x', ctx=Store())],
+               value=Constant(value=1)),
+            Assign(
+               targets=[
+                  Name(id='y', ctx=Store())],
+               value=BinOp(
+                  left=Constant(value=2),
+                  op=Add(),
+                  right=Constant(value=3)))]),
+      Assign(
+         targets=[
+            Name(id='z', ctx=Store())],
+         value=Constant(value=3))])

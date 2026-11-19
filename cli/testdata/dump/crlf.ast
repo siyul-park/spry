@@ -1,0 +1,13 @@
+Module(
+   body=[
+      Assign(
+         targets=[
+            Name(id='x', ctx=Store())],
+         value=Constant(value=1)),
+      If(
+         test=Name(id='x', ctx=Load()),
+         body=[
+            Assign(
+               targets=[
+                  Name(id='y', ctx=Store())],
+               value=Constant(value=2))])])

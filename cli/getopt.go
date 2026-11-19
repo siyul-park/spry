@@ -39,29 +39,10 @@ var longOptions = map[string]bool{
 	"check-hash-based-pycs": true,
 }
 
-func (e *usageError) Error() string {
-	return e.message
-}
-
-func (e *usageError) Unwrap() error {
-	return ErrUsage
-}
-
 // Terminal reports whether the option ends option parsing: -c and -m take
 // every following argument as their own.
 func (o option) Terminal() bool {
 	return !o.long && (o.name == "c" || o.name == "m")
-}
-
-func (o option) String() string {
-	if o.long {
-		return "--" + o.name
-	}
-	return "-" + o.name
-}
-
-func newGetopt(args []string) *getopt {
-	return &getopt{args: args}
 }
 
 // Operands returns the arguments that follow the options.
@@ -98,6 +79,25 @@ func (g *getopt) Next() (option, bool, error) {
 		return g.long()
 	}
 	return g.short(letter)
+}
+
+func (e *usageError) Error() string {
+	return e.message
+}
+
+func (e *usageError) Unwrap() error {
+	return ErrUsage
+}
+
+func (o option) String() string {
+	if o.long {
+		return "--" + o.name
+	}
+	return "-" + o.name
+}
+
+func newGetopt(args []string) *getopt {
+	return &getopt{args: args}
 }
 
 func (g *getopt) long() (option, bool, error) {

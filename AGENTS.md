@@ -13,18 +13,20 @@ Delegation: agents SHOULD delegate broad investigation and multi-file or large c
 
 ## Setup (fresh clone)
 
-- Go: install the version in `.go-version`.
+- Go: install the version in `.go-version`; Node: the version in `.node-version`.
+- `make init`: installs the git pre-commit hook (`.githooks`), lighthouse at the version in `.lighthouse-version`, and the lint tools lighthouse runs (markdownlint-cli2 and prettier from `package.json`, ruff, lychee), each release archive verified against the SHA-256 pinned in the Makefile. Tools go to `$(PREFIX)/bin` (default `~/.local/bin`).
+- Run `lighthouse trust` once so lighthouse may run those tools locally; CI sets `LIGHTHOUSE_TRUST=1`.
 - CPython oracle: Python 3.14 as `python3.14` (for example `uv python install 3.14`), or point `SPRY_PYTHON` at it. Needed only to regenerate goldens and run conformance/benchmark baselines.
-- Lighthouse: install from https://github.com/siyul-park/lighthouse (see its README).
 - Optional benchmark baselines: `pypy3`, gpython (https://github.com/go-python/gpython).
 
 ## Workflow
 
-1. Read the doc named in the Task Router row for your task before touching code.
+1. Read the doc named in the Task Router row for your task before touching code, and follow docs/coding-patterns.md for code design.
 2. Design changes land in `docs/` (and an ADR if a decision changes) in the same change as the code.
-3. Write the failing test first, then the implementation.
-4. Run the package test command, then `lighthouse check --changed`, then `make check` before reporting success.
-5. Report only checks that actually passed. Say what was not run.
+3. Write the failing test first, then the implementation, following docs/testing.md.
+4. For non-trivial changes, finish with the structural review in docs/refactoring.md.
+5. Run the package test command, then `lighthouse check --changed`, then `make check` before reporting success.
+6. Report only checks that actually passed. Say what was not run.
 
 ## Task Router
 
@@ -34,7 +36,9 @@ Delegation: agents SHOULD delegate broad investigation and multi-file or large c
 | Tokenizer, indentation, f-/t-strings | docs/frontend.md | `scanner` | `go test ./scanner/...` |
 | AST nodes, Walk, Dump | docs/frontend.md | `ast` | `go test ./ast/...` |
 | Parsing, error recovery | docs/frontend.md | `parser` | `go test ./parser/...` |
-| Regenerate AST goldens | docs/testing.md | `internal/cpython`, `ast` | `go test ./ast/... -update` (needs python3.14) |
+| Regenerate AST goldens | docs/testing.md | `internal/cpython`, `parser` | `go test ./parser/... -update` (needs python3.14) |
+| CPython test corpus | docs/testing.md | `internal/cpython` | `make corpus && make corpus-extract` |
+| Structural review | docs/refactoring.md | n/a | n/a |
 | Scopes, inference, specialization | docs/typing.md, docs/subset.md | `types` | `go test ./types/...` |
 | SSA IR, builder, verifier, printer | docs/ssa.md | `ssa` | `go test ./ssa/...` |
 | Optimization passes | docs/ssa.md, docs/architecture.md | `optimize` | `go test ./optimize/...` |
@@ -64,12 +68,10 @@ Enforced by lighthouse decisions; see docs/architecture.md.
 
 ## Conventions
 
-- Tests are table-driven and use `github.com/stretchr/testify/require`.
-- Files stay under 800 lines; split by responsibility, not by arbitrary size.
-- No speculative abstractions: add an interface or option when a second user exists.
-- Prefer well-maintained existing libraries over reimplementation; justify any hand-rolled replacement (for example in an ADR).
-- No `init()` registration magic; wire dependencies explicitly.
-- Public API gets doc comments; each package has a `doc.go` stating role, inputs/outputs, allowed imports.
+Code design, naming, errors, file order, comments and test structure follow docs/coding-patterns.md and docs/testing.md. Spry-specific items:
+
 - Goldens (`.ast`, `.ssa`, `.expected`) are generated, never hand-edited; regenerate with `-update` or `cmd/genexpected`.
+- Each package has a `doc.go` stating role, inputs/outputs, allowed imports.
+- Files split by responsibility following the Go standard library layout (for example one `scanner.go`, one `parser.go`), never by size; there is no line limit.
 - Commits: `<type>: <description>` (feat, fix, refactor, docs, test, chore, perf, ci).
 - CLI behavior mirrors `python3.14`; deviations need a `# spry-divergence:` note or an ADR.

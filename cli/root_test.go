@@ -21,7 +21,7 @@ func TestDefault(t *testing.T) {
 	for _, u := range cli.Default() {
 		names = append(names, u.Name())
 	}
-	require.Equal(t, []string{"help", "version", "command", "file", "stdin"}, names)
+	require.Equal(t, []string{"help", "version", "command", "file", "stdin", "xoptions"}, names)
 }
 
 func TestNew(t *testing.T) {

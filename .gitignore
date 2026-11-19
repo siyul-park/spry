@@ -30,3 +30,12 @@ __pycache__/
 .lighthouse/*.db*
 .lighthouse/local.toml
 .lighthouse/cache/
+
+# npm lint tools (make install-lint-tools)
+node_modules/
+
+# Pinned CPython source cache (make corpus)
+.cache/
+
+# Claude Code agent worktrees (separate checkouts)
+.claude/worktrees/

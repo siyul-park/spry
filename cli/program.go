@@ -3,6 +3,7 @@ package cli
 import (
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -25,7 +26,7 @@ func Command() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:  "command",
 		Args: cobra.ArbitraryArgs,
-		RunE: func(*cobra.Command, []string) error { return ErrNotImplemented },
+		RunE: runCommand,
 	}
 	cmd.Flags().StringP("command", "c", "", "program passed in as string (terminates option list)")
 	return cmd
@@ -56,12 +57,33 @@ func Stdin() *cobra.Command {
 			}
 			return nil
 		},
-		RunE: func(*cobra.Command, []string) error { return ErrNotImplemented },
+		RunE: runStdin,
 	}
 }
 
+// runCommand compiles the program text given to -c.
+func runCommand(cmd *cobra.Command, _ []string) error {
+	text, err := cmd.Flags().GetString("command")
+	if err != nil {
+		return err
+	}
+	return compile(cmd, commandName, []byte(text))
+}
+
+// runStdin compiles the program read from standard input.
+func runStdin(cmd *cobra.Command, _ []string) error {
+	var src []byte
+	if stdin := processOf(cmd.Context()).Stdin; stdin != nil {
+		var err error
+		if src, err = io.ReadAll(stdin); err != nil {
+			return fmt.Errorf("can't read standard input: %w", err)
+		}
+	}
+	return compile(cmd, stdinName, src)
+}
+
 // runFile mirrors CPython's messages for a script it cannot open, then reports
-// that execution is missing until phase P3.
+// compiles it. Execution is missing until phase P3.
 func runFile(cmd *cobra.Command, args []string) error {
 	path := args[0]
 	if !filepath.IsAbs(path) {
@@ -88,7 +110,11 @@ func runFile(cmd *cobra.Command, args []string) error {
 	if info.IsDir() {
 		return fmt.Errorf("can't find '__main__' module in '%s'", path)
 	}
-	return ErrNotImplemented
+	src, err := io.ReadAll(file)
+	if err != nil {
+		return fmt.Errorf("can't read file '%s': %w", path, err)
+	}
+	return compile(cmd, path, src)
 }
 
 func errnoText(err error) string {

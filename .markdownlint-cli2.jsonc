@@ -10,5 +10,5 @@
     "MD010": { "code_blocks": false },
     "MD024": { "siblings_only": true }
   },
-  "ignores": [".github/**", ".claude/**"]
+  "ignores": [".github/**", ".claude/**", ".cache/**", "node_modules/**"]
 }

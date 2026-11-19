@@ -24,6 +24,12 @@ type Root struct {
 	owners map[*pflag.Flag]*cobra.Command
 }
 
+// accepter is implemented by flag values that implement only some of the
+// option values the grammar knows.
+type accepter interface {
+	Accepts(value string) bool
+}
+
 type exitError struct {
 	code int
 	err  error
@@ -39,7 +45,7 @@ var (
 
 // Default is the supported python3.14 command line, one unit per action.
 func Default() []*cobra.Command {
-	return []*cobra.Command{Help(), Version(), Command(), File(), Stdin()}
+	return []*cobra.Command{Help(), Version(), Command(), File(), Stdin(), XOptions()}
 }
 
 // New composes units, in selection priority order, under one root.
@@ -67,6 +73,14 @@ func (r *Root) Run(ctx context.Context, p Process) int {
 	r.cmd.SetOut(p.Stdout)
 	r.cmd.SetErr(p.Stderr)
 	return r.report(r.run(context.WithValue(ctx, processKey{}, p), p.Args))
+}
+
+func (e *exitError) Error() string {
+	return e.err.Error()
+}
+
+func (e *exitError) Unwrap() error {
+	return e.err
 }
 
 // run reads options in order. The first unsupported option is held back so
@@ -129,10 +143,19 @@ func (r *Root) pick(selected map[*cobra.Command]bool, operands []string) *cobra.
 }
 
 func (r *Root) lookup(opt option) *pflag.Flag {
+	var flag *pflag.Flag
 	if opt.long {
-		return r.flags.Lookup(opt.name)
+		flag = r.flags.Lookup(opt.name)
+	} else {
+		flag = r.flags.ShorthandLookup(opt.name)
 	}
-	return r.flags.ShorthandLookup(opt.name)
+	if flag == nil {
+		return nil
+	}
+	if a, ok := flag.Value.(accepter); ok && opt.hasArg && !a.Accepts(opt.value) {
+		return nil
+	}
+	return flag
 }
 
 func (r *Root) exec(ctx context.Context, unit *cobra.Command, args []string) error {
@@ -150,20 +173,17 @@ func (r *Root) report(err error) int {
 		_, _ = io.WriteString(stderr, usageLine+usageHint)
 		return ExitUsage
 	}
+	var syntax *syntaxError
+	if errors.As(err, &syntax) {
+		_, _ = io.WriteString(stderr, syntax.text)
+		return ExitFailure
+	}
 	_, _ = fmt.Fprintf(stderr, "%s: %v\n", programName, err)
 	var exit *exitError
 	if errors.As(err, &exit) {
 		return exit.code
 	}
 	return ExitFailure
-}
-
-func (e *exitError) Error() string {
-	return e.err.Error()
-}
-
-func (e *exitError) Unwrap() error {
-	return e.err
 }
 
 // record stores the option in the flag it selected, as pflag's parser would.

@@ -23,7 +23,11 @@ func TestCommand(t *testing.T) {
 		require.Empty(t, stdout)
 		require.Equal(t, notImplemented, stderr)
 	}
-	code, _, stderr := run(t, root, "-c")
+	code, stdout, stderr := run(t, root, "-c", "x = (")
+	require.Equal(t, cli.ExitFailure, code)
+	require.Empty(t, stdout)
+	require.Equal(t, "  File \"<string>\", line 1\n    x = (\n        ^\nSyntaxError: '(' was never closed\n", stderr)
+	code, _, stderr = run(t, root, "-c")
 	require.Equal(t, cli.ExitUsage, code)
 	require.True(t, strings.HasPrefix(stderr, "Argument expected for the -c option\n"))
 }
@@ -31,6 +35,7 @@ func TestCommand(t *testing.T) {
 func TestFile(t *testing.T) {
 	dir := t.TempDir()
 	require.NoError(t, os.WriteFile(filepath.Join(dir, "ok.py"), []byte("pass\n"), 0o644))
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "bad.py"), []byte("x = (\n"), 0o644))
 	require.NoError(t, os.Mkdir(filepath.Join(dir, "pkg"), 0o755))
 	unreadable := filepath.Join(dir, "unreadable.py")
 	require.NoError(t, os.WriteFile(unreadable, []byte("pass\n"), 0o000))
@@ -48,6 +53,7 @@ func TestFile(t *testing.T) {
 		{"exists", []string{"ok.py"}, cli.ExitFailure, notImplemented},
 		{"absolute", []string{filepath.Join(dir, "ok.py")}, cli.ExitFailure, notImplemented},
 		{"arguments are not options", []string{"ok.py", "-z", "a"}, cli.ExitFailure, notImplemented},
+		{"syntax error", []string{"bad.py"}, cli.ExitFailure, "  File \"" + filepath.Join(dir, "bad.py") + "\", line 1\n    x = (\n        ^\nSyntaxError: '(' was never closed\n"},
 		{"missing", []string{"no.py"}, cli.ExitUsage, "spry: can't open file '" + filepath.Join(dir, "no.py") + "': [Errno 2] No such file or directory\n"},
 		{"directory", []string{"pkg"}, cli.ExitFailure, "spry: can't find '__main__' module in '" + filepath.Join(dir, "pkg") + "'\n"},
 		{"not a directory", []string{"ok.py/x"}, cli.ExitUsage, "spry: can't open file '" + filepath.Join(dir, "ok.py", "x") + "': [Errno 20] Not a directory\n"},
@@ -80,12 +86,18 @@ func TestFile(t *testing.T) {
 
 func TestStdin(t *testing.T) {
 	root := units(cli.Stdin())
+	var stdout, stderr bytes.Buffer
+	code := cli.New(cli.Stdin()).Run(context.Background(), cli.Process{Stdin: strings.NewReader("x = (\n"), Stdout: &stdout, Stderr: &stderr})
+	require.Equal(t, cli.ExitFailure, code)
+	require.Empty(t, stdout.String())
+	require.Equal(t, "  File \"<stdin>\", line 1\n    x = (\n        ^\nSyntaxError: '(' was never closed\n", stderr.String())
+
 	for _, args := range [][]string{nil, {"-"}, {"-", "a"}, {"--"}} {
 		code, _, stderr := run(t, root, args...)
 		require.Equal(t, cli.ExitFailure, code, args)
 		require.Equal(t, notImplemented, stderr)
 	}
-	code, _, stderr := run(t, root, "x.py")
+	code, _, text := run(t, root, "x.py")
 	require.Equal(t, cli.ExitFailure, code)
-	require.Equal(t, "spry: no command selected\n", stderr)
+	require.Equal(t, "spry: no command selected\n", text)
 }

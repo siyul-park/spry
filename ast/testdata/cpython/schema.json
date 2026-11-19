@@ -1,0 +1,1924 @@
+{
+ "categories": [
+  "boolop",
+  "cmpop",
+  "excepthandler",
+  "expr",
+  "expr_context",
+  "mod",
+  "operator",
+  "pattern",
+  "stmt",
+  "type_ignore",
+  "type_param",
+  "unaryop"
+ ],
+ "nodes": [
+  {
+   "attributes": [],
+   "category": "operator",
+   "fields": [],
+   "name": "Add"
+  },
+  {
+   "attributes": [],
+   "category": "boolop",
+   "fields": [],
+   "name": "And"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "target",
+     "type": "expr"
+    },
+    {
+     "name": "annotation",
+     "type": "expr"
+    },
+    {
+     "name": "value",
+     "type": "expr | None"
+    },
+    {
+     "name": "simple",
+     "type": "int"
+    }
+   ],
+   "name": "AnnAssign"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "test",
+     "type": "expr"
+    },
+    {
+     "name": "msg",
+     "type": "expr | None"
+    }
+   ],
+   "name": "Assert"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "targets",
+     "type": "list[expr]"
+    },
+    {
+     "name": "value",
+     "type": "expr"
+    },
+    {
+     "name": "type_comment",
+     "type": "str | None"
+    }
+   ],
+   "name": "Assign"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "target",
+     "type": "expr"
+    },
+    {
+     "name": "iter",
+     "type": "expr"
+    },
+    {
+     "name": "body",
+     "type": "list[stmt]"
+    },
+    {
+     "name": "orelse",
+     "type": "list[stmt]"
+    },
+    {
+     "name": "type_comment",
+     "type": "str | None"
+    }
+   ],
+   "name": "AsyncFor"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "name",
+     "type": "str"
+    },
+    {
+     "name": "args",
+     "type": "arguments"
+    },
+    {
+     "name": "body",
+     "type": "list[stmt]"
+    },
+    {
+     "name": "decorator_list",
+     "type": "list[expr]"
+    },
+    {
+     "name": "returns",
+     "type": "expr | None"
+    },
+    {
+     "name": "type_comment",
+     "type": "str | None"
+    },
+    {
+     "name": "type_params",
+     "type": "list[type_param]"
+    }
+   ],
+   "name": "AsyncFunctionDef"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "items",
+     "type": "list[withitem]"
+    },
+    {
+     "name": "body",
+     "type": "list[stmt]"
+    },
+    {
+     "name": "type_comment",
+     "type": "str | None"
+    }
+   ],
+   "name": "AsyncWith"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "value",
+     "type": "expr"
+    },
+    {
+     "name": "attr",
+     "type": "str"
+    },
+    {
+     "name": "ctx",
+     "type": "expr_context"
+    }
+   ],
+   "name": "Attribute"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "target",
+     "type": "expr"
+    },
+    {
+     "name": "op",
+     "type": "operator"
+    },
+    {
+     "name": "value",
+     "type": "expr"
+    }
+   ],
+   "name": "AugAssign"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "value",
+     "type": "expr"
+    }
+   ],
+   "name": "Await"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "left",
+     "type": "expr"
+    },
+    {
+     "name": "op",
+     "type": "operator"
+    },
+    {
+     "name": "right",
+     "type": "expr"
+    }
+   ],
+   "name": "BinOp"
+  },
+  {
+   "attributes": [],
+   "category": "operator",
+   "fields": [],
+   "name": "BitAnd"
+  },
+  {
+   "attributes": [],
+   "category": "operator",
+   "fields": [],
+   "name": "BitOr"
+  },
+  {
+   "attributes": [],
+   "category": "operator",
+   "fields": [],
+   "name": "BitXor"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "op",
+     "type": "boolop"
+    },
+    {
+     "name": "values",
+     "type": "list[expr]"
+    }
+   ],
+   "name": "BoolOp"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [],
+   "name": "Break"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "func",
+     "type": "expr"
+    },
+    {
+     "name": "args",
+     "type": "list[expr]"
+    },
+    {
+     "name": "keywords",
+     "type": "list[keyword]"
+    }
+   ],
+   "name": "Call"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "name",
+     "type": "str"
+    },
+    {
+     "name": "bases",
+     "type": "list[expr]"
+    },
+    {
+     "name": "keywords",
+     "type": "list[keyword]"
+    },
+    {
+     "name": "body",
+     "type": "list[stmt]"
+    },
+    {
+     "name": "decorator_list",
+     "type": "list[expr]"
+    },
+    {
+     "name": "type_params",
+     "type": "list[type_param]"
+    }
+   ],
+   "name": "ClassDef"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "left",
+     "type": "expr"
+    },
+    {
+     "name": "ops",
+     "type": "list[cmpop]"
+    },
+    {
+     "name": "comparators",
+     "type": "list[expr]"
+    }
+   ],
+   "name": "Compare"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "value",
+     "type": "object"
+    },
+    {
+     "name": "kind",
+     "type": "str | None"
+    }
+   ],
+   "name": "Constant"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [],
+   "name": "Continue"
+  },
+  {
+   "attributes": [],
+   "category": "expr_context",
+   "fields": [],
+   "name": "Del"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "targets",
+     "type": "list[expr]"
+    }
+   ],
+   "name": "Delete"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "keys",
+     "type": "list[expr]"
+    },
+    {
+     "name": "values",
+     "type": "list[expr]"
+    }
+   ],
+   "name": "Dict"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "key",
+     "type": "expr"
+    },
+    {
+     "name": "value",
+     "type": "expr"
+    },
+    {
+     "name": "generators",
+     "type": "list[comprehension]"
+    }
+   ],
+   "name": "DictComp"
+  },
+  {
+   "attributes": [],
+   "category": "operator",
+   "fields": [],
+   "name": "Div"
+  },
+  {
+   "attributes": [],
+   "category": "cmpop",
+   "fields": [],
+   "name": "Eq"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "excepthandler",
+   "fields": [
+    {
+     "name": "type",
+     "type": "expr | None"
+    },
+    {
+     "name": "name",
+     "type": "str | None"
+    },
+    {
+     "name": "body",
+     "type": "list[stmt]"
+    }
+   ],
+   "name": "ExceptHandler"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "value",
+     "type": "expr"
+    }
+   ],
+   "name": "Expr"
+  },
+  {
+   "attributes": [],
+   "category": "mod",
+   "fields": [
+    {
+     "name": "body",
+     "type": "expr"
+    }
+   ],
+   "name": "Expression"
+  },
+  {
+   "attributes": [],
+   "category": "operator",
+   "fields": [],
+   "name": "FloorDiv"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "target",
+     "type": "expr"
+    },
+    {
+     "name": "iter",
+     "type": "expr"
+    },
+    {
+     "name": "body",
+     "type": "list[stmt]"
+    },
+    {
+     "name": "orelse",
+     "type": "list[stmt]"
+    },
+    {
+     "name": "type_comment",
+     "type": "str | None"
+    }
+   ],
+   "name": "For"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "value",
+     "type": "expr"
+    },
+    {
+     "name": "conversion",
+     "type": "int"
+    },
+    {
+     "name": "format_spec",
+     "type": "expr | None"
+    }
+   ],
+   "name": "FormattedValue"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "name",
+     "type": "str"
+    },
+    {
+     "name": "args",
+     "type": "arguments"
+    },
+    {
+     "name": "body",
+     "type": "list[stmt]"
+    },
+    {
+     "name": "decorator_list",
+     "type": "list[expr]"
+    },
+    {
+     "name": "returns",
+     "type": "expr | None"
+    },
+    {
+     "name": "type_comment",
+     "type": "str | None"
+    },
+    {
+     "name": "type_params",
+     "type": "list[type_param]"
+    }
+   ],
+   "name": "FunctionDef"
+  },
+  {
+   "attributes": [],
+   "category": "mod",
+   "fields": [
+    {
+     "name": "argtypes",
+     "type": "list[expr]"
+    },
+    {
+     "name": "returns",
+     "type": "expr"
+    }
+   ],
+   "name": "FunctionType"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "elt",
+     "type": "expr"
+    },
+    {
+     "name": "generators",
+     "type": "list[comprehension]"
+    }
+   ],
+   "name": "GeneratorExp"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "names",
+     "type": "list[str]"
+    }
+   ],
+   "name": "Global"
+  },
+  {
+   "attributes": [],
+   "category": "cmpop",
+   "fields": [],
+   "name": "Gt"
+  },
+  {
+   "attributes": [],
+   "category": "cmpop",
+   "fields": [],
+   "name": "GtE"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "test",
+     "type": "expr"
+    },
+    {
+     "name": "body",
+     "type": "list[stmt]"
+    },
+    {
+     "name": "orelse",
+     "type": "list[stmt]"
+    }
+   ],
+   "name": "If"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "test",
+     "type": "expr"
+    },
+    {
+     "name": "body",
+     "type": "expr"
+    },
+    {
+     "name": "orelse",
+     "type": "expr"
+    }
+   ],
+   "name": "IfExp"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "names",
+     "type": "list[alias]"
+    }
+   ],
+   "name": "Import"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "module",
+     "type": "str | None"
+    },
+    {
+     "name": "names",
+     "type": "list[alias]"
+    },
+    {
+     "name": "level",
+     "type": "int | None"
+    }
+   ],
+   "name": "ImportFrom"
+  },
+  {
+   "attributes": [],
+   "category": "cmpop",
+   "fields": [],
+   "name": "In"
+  },
+  {
+   "attributes": [],
+   "category": "mod",
+   "fields": [
+    {
+     "name": "body",
+     "type": "list[stmt]"
+    }
+   ],
+   "name": "Interactive"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "value",
+     "type": "expr"
+    },
+    {
+     "name": "str",
+     "type": "object"
+    },
+    {
+     "name": "conversion",
+     "type": "int"
+    },
+    {
+     "name": "format_spec",
+     "type": "expr | None"
+    }
+   ],
+   "name": "Interpolation"
+  },
+  {
+   "attributes": [],
+   "category": "unaryop",
+   "fields": [],
+   "name": "Invert"
+  },
+  {
+   "attributes": [],
+   "category": "cmpop",
+   "fields": [],
+   "name": "Is"
+  },
+  {
+   "attributes": [],
+   "category": "cmpop",
+   "fields": [],
+   "name": "IsNot"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "values",
+     "type": "list[expr]"
+    }
+   ],
+   "name": "JoinedStr"
+  },
+  {
+   "attributes": [],
+   "category": "operator",
+   "fields": [],
+   "name": "LShift"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "args",
+     "type": "arguments"
+    },
+    {
+     "name": "body",
+     "type": "expr"
+    }
+   ],
+   "name": "Lambda"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "elts",
+     "type": "list[expr]"
+    },
+    {
+     "name": "ctx",
+     "type": "expr_context"
+    }
+   ],
+   "name": "List"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "elt",
+     "type": "expr"
+    },
+    {
+     "name": "generators",
+     "type": "list[comprehension]"
+    }
+   ],
+   "name": "ListComp"
+  },
+  {
+   "attributes": [],
+   "category": "expr_context",
+   "fields": [],
+   "name": "Load"
+  },
+  {
+   "attributes": [],
+   "category": "cmpop",
+   "fields": [],
+   "name": "Lt"
+  },
+  {
+   "attributes": [],
+   "category": "cmpop",
+   "fields": [],
+   "name": "LtE"
+  },
+  {
+   "attributes": [],
+   "category": "operator",
+   "fields": [],
+   "name": "MatMult"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "subject",
+     "type": "expr"
+    },
+    {
+     "name": "cases",
+     "type": "list[match_case]"
+    }
+   ],
+   "name": "Match"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "pattern",
+   "fields": [
+    {
+     "name": "pattern",
+     "type": "pattern | None"
+    },
+    {
+     "name": "name",
+     "type": "str | None"
+    }
+   ],
+   "name": "MatchAs"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "pattern",
+   "fields": [
+    {
+     "name": "cls",
+     "type": "expr"
+    },
+    {
+     "name": "patterns",
+     "type": "list[pattern]"
+    },
+    {
+     "name": "kwd_attrs",
+     "type": "list[str]"
+    },
+    {
+     "name": "kwd_patterns",
+     "type": "list[pattern]"
+    }
+   ],
+   "name": "MatchClass"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "pattern",
+   "fields": [
+    {
+     "name": "keys",
+     "type": "list[expr]"
+    },
+    {
+     "name": "patterns",
+     "type": "list[pattern]"
+    },
+    {
+     "name": "rest",
+     "type": "str | None"
+    }
+   ],
+   "name": "MatchMapping"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "pattern",
+   "fields": [
+    {
+     "name": "patterns",
+     "type": "list[pattern]"
+    }
+   ],
+   "name": "MatchOr"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "pattern",
+   "fields": [
+    {
+     "name": "patterns",
+     "type": "list[pattern]"
+    }
+   ],
+   "name": "MatchSequence"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "pattern",
+   "fields": [
+    {
+     "name": "value",
+     "type": "object"
+    }
+   ],
+   "name": "MatchSingleton"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "pattern",
+   "fields": [
+    {
+     "name": "name",
+     "type": "str | None"
+    }
+   ],
+   "name": "MatchStar"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "pattern",
+   "fields": [
+    {
+     "name": "value",
+     "type": "expr"
+    }
+   ],
+   "name": "MatchValue"
+  },
+  {
+   "attributes": [],
+   "category": "operator",
+   "fields": [],
+   "name": "Mod"
+  },
+  {
+   "attributes": [],
+   "category": "mod",
+   "fields": [
+    {
+     "name": "body",
+     "type": "list[stmt]"
+    },
+    {
+     "name": "type_ignores",
+     "type": "list[type_ignore]"
+    }
+   ],
+   "name": "Module"
+  },
+  {
+   "attributes": [],
+   "category": "operator",
+   "fields": [],
+   "name": "Mult"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "id",
+     "type": "str"
+    },
+    {
+     "name": "ctx",
+     "type": "expr_context"
+    }
+   ],
+   "name": "Name"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "target",
+     "type": "expr"
+    },
+    {
+     "name": "value",
+     "type": "expr"
+    }
+   ],
+   "name": "NamedExpr"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "names",
+     "type": "list[str]"
+    }
+   ],
+   "name": "Nonlocal"
+  },
+  {
+   "attributes": [],
+   "category": "unaryop",
+   "fields": [],
+   "name": "Not"
+  },
+  {
+   "attributes": [],
+   "category": "cmpop",
+   "fields": [],
+   "name": "NotEq"
+  },
+  {
+   "attributes": [],
+   "category": "cmpop",
+   "fields": [],
+   "name": "NotIn"
+  },
+  {
+   "attributes": [],
+   "category": "boolop",
+   "fields": [],
+   "name": "Or"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "type_param",
+   "fields": [
+    {
+     "name": "name",
+     "type": "str"
+    },
+    {
+     "name": "default_value",
+     "type": "expr | None"
+    }
+   ],
+   "name": "ParamSpec"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [],
+   "name": "Pass"
+  },
+  {
+   "attributes": [],
+   "category": "operator",
+   "fields": [],
+   "name": "Pow"
+  },
+  {
+   "attributes": [],
+   "category": "operator",
+   "fields": [],
+   "name": "RShift"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "exc",
+     "type": "expr | None"
+    },
+    {
+     "name": "cause",
+     "type": "expr | None"
+    }
+   ],
+   "name": "Raise"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "value",
+     "type": "expr | None"
+    }
+   ],
+   "name": "Return"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "elts",
+     "type": "list[expr]"
+    }
+   ],
+   "name": "Set"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "elt",
+     "type": "expr"
+    },
+    {
+     "name": "generators",
+     "type": "list[comprehension]"
+    }
+   ],
+   "name": "SetComp"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "lower",
+     "type": "expr | None"
+    },
+    {
+     "name": "upper",
+     "type": "expr | None"
+    },
+    {
+     "name": "step",
+     "type": "expr | None"
+    }
+   ],
+   "name": "Slice"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "value",
+     "type": "expr"
+    },
+    {
+     "name": "ctx",
+     "type": "expr_context"
+    }
+   ],
+   "name": "Starred"
+  },
+  {
+   "attributes": [],
+   "category": "expr_context",
+   "fields": [],
+   "name": "Store"
+  },
+  {
+   "attributes": [],
+   "category": "operator",
+   "fields": [],
+   "name": "Sub"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "value",
+     "type": "expr"
+    },
+    {
+     "name": "slice",
+     "type": "expr"
+    },
+    {
+     "name": "ctx",
+     "type": "expr_context"
+    }
+   ],
+   "name": "Subscript"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "values",
+     "type": "list[expr]"
+    }
+   ],
+   "name": "TemplateStr"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "body",
+     "type": "list[stmt]"
+    },
+    {
+     "name": "handlers",
+     "type": "list[excepthandler]"
+    },
+    {
+     "name": "orelse",
+     "type": "list[stmt]"
+    },
+    {
+     "name": "finalbody",
+     "type": "list[stmt]"
+    }
+   ],
+   "name": "Try"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "body",
+     "type": "list[stmt]"
+    },
+    {
+     "name": "handlers",
+     "type": "list[excepthandler]"
+    },
+    {
+     "name": "orelse",
+     "type": "list[stmt]"
+    },
+    {
+     "name": "finalbody",
+     "type": "list[stmt]"
+    }
+   ],
+   "name": "TryStar"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "elts",
+     "type": "list[expr]"
+    },
+    {
+     "name": "ctx",
+     "type": "expr_context"
+    }
+   ],
+   "name": "Tuple"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "name",
+     "type": "expr"
+    },
+    {
+     "name": "type_params",
+     "type": "list[type_param]"
+    },
+    {
+     "name": "value",
+     "type": "expr"
+    }
+   ],
+   "name": "TypeAlias"
+  },
+  {
+   "attributes": [],
+   "category": "type_ignore",
+   "fields": [
+    {
+     "name": "lineno",
+     "type": "int"
+    },
+    {
+     "name": "tag",
+     "type": "str"
+    }
+   ],
+   "name": "TypeIgnore"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "type_param",
+   "fields": [
+    {
+     "name": "name",
+     "type": "str"
+    },
+    {
+     "name": "bound",
+     "type": "expr | None"
+    },
+    {
+     "name": "default_value",
+     "type": "expr | None"
+    }
+   ],
+   "name": "TypeVar"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "type_param",
+   "fields": [
+    {
+     "name": "name",
+     "type": "str"
+    },
+    {
+     "name": "default_value",
+     "type": "expr | None"
+    }
+   ],
+   "name": "TypeVarTuple"
+  },
+  {
+   "attributes": [],
+   "category": "unaryop",
+   "fields": [],
+   "name": "UAdd"
+  },
+  {
+   "attributes": [],
+   "category": "unaryop",
+   "fields": [],
+   "name": "USub"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "op",
+     "type": "unaryop"
+    },
+    {
+     "name": "operand",
+     "type": "expr"
+    }
+   ],
+   "name": "UnaryOp"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "test",
+     "type": "expr"
+    },
+    {
+     "name": "body",
+     "type": "list[stmt]"
+    },
+    {
+     "name": "orelse",
+     "type": "list[stmt]"
+    }
+   ],
+   "name": "While"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "stmt",
+   "fields": [
+    {
+     "name": "items",
+     "type": "list[withitem]"
+    },
+    {
+     "name": "body",
+     "type": "list[stmt]"
+    },
+    {
+     "name": "type_comment",
+     "type": "str | None"
+    }
+   ],
+   "name": "With"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "value",
+     "type": "expr | None"
+    }
+   ],
+   "name": "Yield"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "expr",
+   "fields": [
+    {
+     "name": "value",
+     "type": "expr"
+    }
+   ],
+   "name": "YieldFrom"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "",
+   "fields": [
+    {
+     "name": "name",
+     "type": "str"
+    },
+    {
+     "name": "asname",
+     "type": "str | None"
+    }
+   ],
+   "name": "alias"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "",
+   "fields": [
+    {
+     "name": "arg",
+     "type": "str"
+    },
+    {
+     "name": "annotation",
+     "type": "expr | None"
+    },
+    {
+     "name": "type_comment",
+     "type": "str | None"
+    }
+   ],
+   "name": "arg"
+  },
+  {
+   "attributes": [],
+   "category": "",
+   "fields": [
+    {
+     "name": "posonlyargs",
+     "type": "list[arg]"
+    },
+    {
+     "name": "args",
+     "type": "list[arg]"
+    },
+    {
+     "name": "vararg",
+     "type": "arg | None"
+    },
+    {
+     "name": "kwonlyargs",
+     "type": "list[arg]"
+    },
+    {
+     "name": "kw_defaults",
+     "type": "list[expr]"
+    },
+    {
+     "name": "kwarg",
+     "type": "arg | None"
+    },
+    {
+     "name": "defaults",
+     "type": "list[expr]"
+    }
+   ],
+   "name": "arguments"
+  },
+  {
+   "attributes": [],
+   "category": "",
+   "fields": [
+    {
+     "name": "target",
+     "type": "expr"
+    },
+    {
+     "name": "iter",
+     "type": "expr"
+    },
+    {
+     "name": "ifs",
+     "type": "list[expr]"
+    },
+    {
+     "name": "is_async",
+     "type": "int"
+    }
+   ],
+   "name": "comprehension"
+  },
+  {
+   "attributes": [
+    "lineno",
+    "col_offset",
+    "end_lineno",
+    "end_col_offset"
+   ],
+   "category": "",
+   "fields": [
+    {
+     "name": "arg",
+     "type": "str | None"
+    },
+    {
+     "name": "value",
+     "type": "expr"
+    }
+   ],
+   "name": "keyword"
+  },
+  {
+   "attributes": [],
+   "category": "",
+   "fields": [
+    {
+     "name": "pattern",
+     "type": "pattern"
+    },
+    {
+     "name": "guard",
+     "type": "expr | None"
+    },
+    {
+     "name": "body",
+     "type": "list[stmt]"
+    }
+   ],
+   "name": "match_case"
+  },
+  {
+   "attributes": [],
+   "category": "",
+   "fields": [],
+   "name": "slice"
+  },
+  {
+   "attributes": [],
+   "category": "",
+   "fields": [
+    {
+     "name": "context_expr",
+     "type": "expr"
+    },
+    {
+     "name": "optional_vars",
+     "type": "expr | None"
+    }
+   ],
+   "name": "withitem"
+  }
+ ]
+}

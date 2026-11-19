@@ -1,1 +1,4 @@
 .lighthouse/decisions.jsonl merge=union
+
+# Fixtures and goldens keep exact bytes (tokenize padding, CRLF, tabs).
+**/testdata/** -whitespace

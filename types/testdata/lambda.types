@@ -1,0 +1,23 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  var inc: <function <lambda>>
+  var add: <function <lambda>>
+  var nums: list[int]
+  var total: int
+  var pick: int
+  def <lambda>
+    general (x: int) -> int
+  def <lambda>
+    general (a: int, b: int = ...) -> int
+  def <lambda>
+    general (v: int) -> int
+  def <lambda>
+    general () -> int
+  def run
+    spec (fs: list[<function <lambda>> | <function <lambda>>], x: int) -> list[int]
+  def <lambda>
+    general (y: int) -> int
+prelude __sorted__
+  spec (iterable: list[int], key: <function <lambda>> = ..., reverse: bool = ...) -> list[int]
+fallbacks 0

@@ -1,0 +1,37 @@
+module m
+
+func @ints() -> int {
+b0:
+  %0 = add 0, 123456789012345678901234567890 : int
+  %1 = add %0, -170141183460469231731687303715884105728 : int
+  %2 = add %1, 18446744073709551616 : int
+  %3 = select True, undef:int, %2 : int
+  ret %3
+}
+
+func @floats() -> f64 {
+b0:
+  %0 = add 1.5, -0.0 : f64
+  %1 = add %0, 0.1 : f64
+  %2 = add %1, 1e+21 : f64
+  %3 = add %2, 1e-07 : f64
+  %4 = add %3, 5e-324 : f64
+  %5 = add %4, 1.7976931348623157e+308 : f64
+  %6 = add %5, inf : f64
+  %7 = add %6, -inf : f64
+  %8 = add %7, 100.0 : f64
+  ret %8
+}
+
+func @text() -> bytes {
+b0:
+  %0 = concat 'plain', "it's" : str
+  %1 = concat %0, 'say "hi"' : str
+  %2 = concat %1, '\n\t\x00\x7f' : str
+  %3 = concat %2, '\ud800' : str
+  %4 = concat %3, '' : str
+  %5 = eq b'\x00\xff abc', b"it's" : i1
+  %6 = eq b'\\', b'\n' : i1
+  %7 = eq 'x', 'y' : i1
+  ret b''
+}

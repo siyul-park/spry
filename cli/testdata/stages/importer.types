@@ -1,0 +1,9 @@
+module helper
+  var __name__: str
+  var __file__: str
+  def double
+    spec (x: int) -> int
+module __main__
+  var __name__: str
+  var __file__: str
+fallbacks 0

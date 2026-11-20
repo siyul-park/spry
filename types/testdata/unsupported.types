@@ -1,0 +1,9 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  def make
+    spec (n: int) -> list[int]
+  class Point
+    mro Point, object
+fallbacks 1
+  10:16 dynamic-attr: attribute of an Any value

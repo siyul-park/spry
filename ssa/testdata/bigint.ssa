@@ -1,0 +1,57 @@
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+global @BIG : int
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'bigint.py'
+  %1 = lshift 1, 100 : int
+  storeglobal @BIG, %1
+  %2 = call @grow(3) : int
+  %3 = box %2 : any
+  %4 = newtuple %3 : tuple<any...>
+  %5 = call @builtins:print(%4, ' ':str?, '\n':str?, None:any, False) : none
+  %6 = call @power(2) : int
+  %7 = box %6 : any
+  %8 = newtuple %7 : tuple<any...>
+  %9 = call @builtins:print(%8, ' ':str?, '\n':str?, None:any, False) : none
+  %10 = pow 7, 2 : int
+  %11 = neg 1 : int
+  %12 = select True, 2:any, 2:any : any
+  %13 = box %11 : any
+  %14 = dynbinop %12.__pow__, %13 : any
+  %15 = box %10 : any
+  %16 = newtuple %15, %14 : tuple<any...>
+  %17 = call @builtins:print(%16, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @grow(%n: int) -> int source "grow" {
+b0:
+  %0 = mul %n, 340282366920938463463374607431768211456 : int
+  %1 = loadglobal @BIG : int
+  %2 = add %0, %1 : int
+  ret %2
+}
+
+func @power(%n: int) -> int source "power" {
+b0:
+  %0 = pow %n, 64 : int
+  ret %0
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+entry @__main__:<module>

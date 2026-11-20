@@ -1,0 +1,58 @@
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, '$DIR/generators.py'
+  %1 = makegen @countdown(3) : gen<int,none,none>
+  %2 = newlist : list<int>
+  jump b3
+b3:
+  %3 = resume %1, None : i1
+  br %3, b4, b5
+b4:
+  %4 = current %1 : int
+  append %2, %4
+  jump b3
+b5:
+  %5 = box %2 : any
+  %6 = call @builtins:sum#0(%5) : int
+  %7 = box %6 : any
+  %8 = newtuple %7 : tuple<any...>
+  %9 = call @builtins:print(%8, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @countdown(%n: int) -> none yield int send none source "countdown" {
+b0:
+  jump b1(%n)
+b1(%p0: int):
+  %0 = gt %p0, 0 : i1
+  br %0, b2, b3
+b2:
+  %1 = yield %p0 : none
+  %2 = sub %p0, 1 : int
+  jump b1(%2)
+b3:
+  jump b4
+b4:
+  ret
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+extern func @sum#0(%iterable: any) -> int source "sum"
+
+entry @__main__:<module>

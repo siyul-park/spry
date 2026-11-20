@@ -37,12 +37,12 @@ Caveat: minivm's inline `i64` holds a 49-bit payload in the boxed word; values b
 
 ## Integers (ADR 0004, Proposed)
 
-Python `int` has unbounded range. Checked fast path:
+Python `int` has unbounded range. The IR has one `int` type and every int operation has Python semantics: there are no `.chk` variants and no bigint type in the IR (docs/ssa.md). The compiler expands each operation into a fast path and a slow path. For `add`:
 
-- `add.chk a, b`: `I64_ADD` then overflow test. The sign test `((a ^ r) & (b ^ r)) < 0` uses `I64_XOR`, `I64_AND`, `I64_LT_S`. On overflow, `BR_IF` to a slow-path block that calls host function `builtins.IntAdd(ref, ref)` producing a `bigint` ref.
-- `mul.chk`: `I64_MUL` with a pre-check on operand magnitudes, or a host call when either operand exceeds a threshold (32-bit); division and shifts use the same pattern.
+- `I64_ADD` then overflow test. The sign test `((a ^ r) & (b ^ r)) < 0` uses `I64_XOR`, `I64_AND`, `I64_LT_S`. On overflow, `BR_IF` to a slow-path block that calls host function `builtins.IntAdd(ref, ref)` producing a `bigint` ref.
+- `mul`: `I64_MUL` with a pre-check on operand magnitudes, or a host call when either operand exceeds a threshold (32-bit); division and shifts use the same pattern.
 - Values of IR type `int` that may become bigint are carried as `any` only on the slow path; the common representation of `int` stays `i64` plus an out-of-band "is bigint" check in the slow-path block (the SSA builder splits blocks so the slow path produces a `bigint` typed value and joins through a block parameter of type `int` boxed as `any`).
-- `add.nochk` and friends emit bare `I64_ADD` etc. They appear only when `optimize` range analysis proves the result fits (e.g., loop counters bounded by `range(n)` with `n` an `i32` value).
+- Later (P4), `.nochk` variants will emit bare `I64_ADD` etc. when `optimize` range analysis proves the result fits (for example loop counters bounded by `range(n)` with `n` an `i32` value). They do not exist in the IR yet.
 
 If ADR 0004 changes the representation, only this section and `builtins` int operations change.
 
@@ -53,7 +53,7 @@ If ADR 0004 changes the representation, only this section and `builtins` int ope
 | `const int` | `I64_CONST` |
 | `const f64` | `F64_CONST` |
 | `const bool` | `I32_CONST` (0/1) typed `i1` |
-| `add/sub/mul` (nochk) | `I64_ADD`, `I64_SUB`, `I64_MUL`; floats `F64_ADD`, `F64_SUB`, `F64_MUL` |
+| `add/sub/mul` (fast path) | `I64_ADD`, `I64_SUB`, `I64_MUL`; floats `F64_ADD`, `F64_SUB`, `F64_MUL` |
 | `floordiv`, `mod` int | `I64_DIV_S`/`I64_REM_S` plus Python sign correction; zero check raises `ZeroDivisionError` via `THROW` |
 | `truediv` | `I64_TO_F64_S` ×2, `F64_DIV`, zero check |
 | `pow` | host function (`builtins.Pow`) or `F64_*` helper when exponent constant small |
@@ -68,6 +68,12 @@ If ADR 0004 changes the representation, only this section and `builtins` int ope
 | field access | `STRUCT_GET`, `STRUCT_SET` |
 | null/identity | `REF_NULL`, `REF_IS_NULL`, `REF_EQ` (`is`), `REF_NE` |
 | `box`/`unbox` | `REF_NEW`/`REF_CAST`, `REF_TEST` for checks |
+| `isinstance %v, @C` | class-id test against the class and its subclasses (as `excmatch` below) |
+| `typeof` | host function returning the class object of the value |
+| `classobj @C` | the class object of `C`, the `cls` of a classmethod |
+| `iter`, `next`, `current` | iterator creation, advance (`i1`), read of the current item |
+| `makegen`, `yield`, `resume`, `current` | coroutine creation, `YIELD`, `RESUME`, `CORO_DONE`/`CORO_VALUE` (below) |
+| `not` | boolean negation of an `i1` |
 | `unreachable` | `UNREACHABLE` |
 
 Operations without a direct opcode (hashing, repr, bigint, formatting, sorting) are host functions.
@@ -82,7 +88,7 @@ Operations without a direct opcode (hashing, repr, bigint, formatting, sorting) 
 
 ## Classes
 
-Each class compiles to a minivm struct type with one field per attribute in analyzed layout order, plus a hidden class-id field when virtual dispatch or `isinstance` is required. Inheritance is prefix layout (base fields first). Method tables are global constants. Attribute access with a static type is a single `STRUCT_GET`/`STRUCT_SET`.
+Each class compiles to a minivm struct type with one field per attribute in analyzed layout order, plus a hidden class-id field when virtual dispatch or `isinstance` is required. Inheritance is prefix layout (base fields first). It is valid because the checker admits only classes whose bases with fields form one chain (at most one base chain has fields; `TYP150` otherwise, docs/subset.md), so a subclass layout starts with the layout of each base that has fields. Method tables are global constants. Attribute access with a static type is a single `STRUCT_GET`/`STRUCT_SET`.
 
 ## Generators
 
@@ -97,13 +103,13 @@ A generator function becomes a minivm coroutine function.
 ## Exceptions
 
 - `raise e` → `THROW` with an error payload (`ERROR_NEW` code + message); exception objects (instances of exception classes) are carried as `ref`. `ERROR_CODE` and `ERROR_GET` read a thrown error. Codes at or above `ErrorCodeUserBase` are Python exception class ids; VM traps (negative) map to `ZeroDivisionError`, `IndexError`, etc. by the `builtins` trap translator.
-- Exception edges become handler-table ranges: `FunctionBuilder.Try(start, end, catch, depth)` where `[start,end)` covers the code between the raising instruction and its normal successor, `catch` is the label of the handler block (`landingpad` becomes the pushed error), and `depth` is the operand-stack depth to restore. The builder keeps stack depth at 0 across raising instructions (values live in locals) so ranges are simple.
+- Exception edges become handler-table ranges: `FunctionBuilder.Try(start, end, catch, depth)` where `[start,end)` covers the code between the raising instruction and its normal successor, `catch` is the label of the handler block (`landingpad` becomes the pushed error), and `depth` is the operand-stack depth to restore. The builder keeps stack depth at 0 across raising instructions (values live in locals) so ranges are simple. The arguments of an exception edge are copied into the handler's block-parameter locals before the raising instruction, because nothing runs after the throw on that edge.
 - `excmatch` is `ERROR_CODE` comparison against the class id set (including subclasses) or a `builtins` call for non-trivial hierarchies.
 - `finally`/`with` are already explicit in the CFG.
 
 ## Builtins Host Functions
 
-`builtins` registers typed host functions (`interp.NewHostFunction` with `vmtypes.FunctionType`): bigint ops, `str` methods, list/dict/set methods without opcodes, `print`, `repr`, `hash`, formatting, `sorted`, exceptions, `dynbinop`/`dyngetattr`. Host functions must not call `vm.Run` recursively; operations that call back into Python (e.g., `sorted(key=...)`) are compiled as Python-level helper functions (written in the supported subset and compiled with the program), not as host calls.
+`builtins` registers typed host functions (`interp.NewHostFunction` with `vmtypes.FunctionType`): bigint ops, `str` methods, list/dict/set methods without opcodes, `print`, `repr`, `hash`, formatting, `sorted`, exceptions, `dynbinop`/`dyngetattr`. Host functions must not call `vm.Run` recursively; operations that call back into Python (e.g., `sorted(key=...)`) are compiled as Python-level helper functions (written in the supported subset and compiled with the program), not as host calls. These are the prelude functions of the `builtins` stub (`__sorted__`, `__min__`, `__max__`, `__sum__`, docs/typing.md); `ssa.Build` lowers their specializations like user functions and `compiler` compiles them with the program.
 
 ## After Emission
 

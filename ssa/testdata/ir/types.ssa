@@ -1,0 +1,33 @@
+class @C {
+}
+
+module m
+global @g1 : i1
+global @g2 : i32
+global @g3 : int
+global @g4 : f64
+global @g5 : str
+global @g6 : bytes
+global @g7 : none
+global @g8 : any
+global @l : list<list<int>>
+global @d : dict<str,list<int>>
+global @s : set<str>
+global @t0 : tuple<>
+global @t1 : tuple<int>
+global @t2 : tuple<int,str>
+global @tv : tuple<f64...>
+global @tc : tuple<@"C"...>
+global @tn : tuple<@C?...>
+global @fn : func(int,str) -> i1
+global @fn0 : func() -> none
+global @fnn : (func(int) -> int)?
+global @fh : func((func(int) -> int)?,@C?) -> @C?
+global @cell : cell<int>
+global @gen : gen<int,none,str>
+global @iter : iter<@C>
+global @type : type<@C>
+global @n1 : @C?
+global @n2 : list<int>?
+global @n3 : str?
+global @n4 : bytes?

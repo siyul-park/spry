@@ -1,0 +1,23 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  var head: __main__.Node
+  var m: __main__.Node | None
+  def length
+    spec (n: __main__.Node) -> int
+  def first
+    spec (n: None) -> int
+    spec (n: __main__.Node) -> int
+  def last
+    spec (n: None | __main__.Node) -> int
+    spec (n: __main__.Node) -> int
+  def maybe
+    spec (flag: bool) -> __main__.Node | None
+  class Node
+    mro Node, object
+    field v: int
+    field nxt: None | __main__.Node
+    def __init__
+      spec (self: __main__.Node, v: int, nxt: None) -> None
+      spec (self: __main__.Node, v: int, nxt: __main__.Node) -> None
+fallbacks 0

@@ -1,0 +1,32 @@
+module m
+
+func @gen(%n: int) -> str yield int send none {
+b0:
+  %0 = yield %n : none
+  %1 = yield 5 : none -> normal b1, except b2
+b1:
+  ret 'done'
+b2:
+  %2 = landingpad : any
+  raise %2
+}
+
+func @echo(%first: any) -> none yield any send any {
+b0:
+  %0 = yield %first : any
+  %1 = yield %0 : any
+  ret
+}
+
+func @drive() -> int {
+b0:
+  %0 = makegen @gen(3) : gen<int,none,str>
+  %1 = resume %0, None : i1
+  br %1, b1, b2
+b1:
+  %2 = current %0 : int
+  ret %2
+b2:
+  %3 = current %0 : str
+  ret 0
+}

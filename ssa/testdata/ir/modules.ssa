@@ -1,0 +1,35 @@
+module a
+global @counter : int
+global @name : str?
+init @$init
+
+func @$init() -> none {
+b0:
+  storeglobal @counter, 0
+  ret
+}
+
+func @bump(%by: int) -> int {
+b0:
+  %0 = loadglobal @counter : int
+  %1 = add %0, %by : int
+  storeglobal @counter, %1
+  ret %1
+}
+
+extern func @native(%x: f64) -> f64
+
+module __main__
+global @result : int
+
+func @<module>() -> none {
+b0:
+  %0 = call @a:bump(2) : int
+  %1 = loadglobal @a:counter : int
+  %2 = call @a:native(1.5) : f64
+  storeglobal @a:counter, %0
+  storeglobal @result, %1
+  ret
+}
+
+entry @__main__:<module>

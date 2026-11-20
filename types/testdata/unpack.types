@@ -1,0 +1,14 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  def swap
+    spec (a: int, b: int) -> tuple[int, int]
+  def head_tail
+    spec (xs: list[int]) -> tuple[int, list[int], list[int], int, int, list[int], int]
+  def nested
+    spec () -> int
+  def from_tuple
+    spec () -> tuple[int, str, float, int, int, list[str | float | int]]
+  def loops
+    spec (pairs: list[tuple[int, int]]) -> int
+fallbacks 0

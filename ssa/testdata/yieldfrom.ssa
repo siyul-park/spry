@@ -1,0 +1,123 @@
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'yieldfrom.py'
+  %1 = call @chain() : list<int>
+  %2 = box %1 : any
+  %3 = newtuple %2 : tuple<any...>
+  %4 = call @builtins:print(%3, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @inner(%n: int) -> int yield int send none source "inner" {
+b0:
+  %0 = call @builtins:range(0, %n, 1) : iter<int>
+  jump b1
+b1:
+  %1 = next %0 : i1
+  br %1, b2, b3
+b2:
+  %2 = current %0 : int
+  %3 = yield %2 : none
+  jump b1
+b3:
+  jump b4
+b4:
+  %4 = mul %n, 10 : int
+  ret %4
+}
+
+func @outer(%n: int) -> none yield int send any source "outer" {
+b0:
+  %0 = makegen @inner(%n) : gen<int,none,int>
+  jump b1(None:any)
+b1(%p0: any):
+  %1 = unbox %p0 : none
+  %2 = resume %0, %1 : i1
+  br %2, b2, b3
+b2:
+  %3 = current %0 : int
+  %4 = yield %3 : any
+  jump b1(%4)
+b3:
+  %5 = current %0 : int
+  %6 = yield %5 : any
+  %7 = unbox %6 : none
+  %8 = newlist 100, 200 : list<int>
+  %9 = iter %8 : iter<int>
+  jump b4
+b4:
+  %10 = next %9 : i1
+  br %10, b5, b6
+b5:
+  %11 = current %9 : int
+  %12 = yield %11 : any
+  jump b4
+b6:
+  %13 = call @builtins:range(0, 2, 1) : iter<int>
+  %14 = makegen @outer.<genexpr>(%13) : gen<int,none,none>
+  jump b7(None:any)
+b7(%p1: any):
+  %15 = unbox %p1 : none
+  %16 = resume %14, %15 : i1
+  br %16, b8, b9
+b8:
+  %17 = current %14 : int
+  %18 = yield %17 : any
+  jump b7(%18)
+b9:
+  %19 = current %14 : none
+  ret
+}
+
+func @chain() -> list<int> source "chain" {
+b0:
+  %0 = newlist : list<int>
+  %1 = makegen @outer(2) : gen<int,any,none>
+  jump b1
+b1:
+  %2 = resume %1, None:any : i1
+  br %2, b2, b3
+b2:
+  %3 = current %1 : int
+  append %0, %3
+  jump b1
+b3:
+  jump b4
+b4:
+  ret %0
+}
+
+func @outer.<genexpr>(%iter: iter<int>) -> none yield int send none source "outer.<genexpr>" {
+b0:
+  jump b1
+b1:
+  %0 = next %iter : i1
+  br %0, b2, b3
+b2:
+  %1 = current %iter : int
+  %2 = yield %1 : none
+  jump b1
+b3:
+  ret
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+extern func @range(%start: int, %stop: int, %step: int) -> iter<int> source "range"
+
+entry @__main__:<module>

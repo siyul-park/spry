@@ -1,0 +1,175 @@
+class @__main__.Shape {
+  field name : str
+  method __main__.Shape.area -> @__main__:Shape.area
+}
+
+class @__main__.Square : @__main__.Shape {
+  field name : str from @__main__.Shape
+  field side : f64
+  method __main__.Shape.area -> @__main__:Square.area
+}
+
+class @__main__.Circle : @__main__.Shape {
+  field name : str from @__main__.Shape
+  field r : f64
+  method __main__.Shape.area -> @__main__:Circle.area
+}
+
+class @__main__.Unit : @__main__.Square {
+  field name : str from @__main__.Shape
+  field side : f64 from @__main__.Square
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+global @items : list<@__main__.Shape>
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'inheritance.py'
+  %1 = alloc @__main__.Square : @__main__.Square
+  %2 = call @Square.__init__(%1, 2.0) : none
+  %3 = cast %1 : @__main__.Shape
+  %4 = alloc @__main__.Circle : @__main__.Circle
+  %5 = call @Circle.__init__(%4, 1.0) : none
+  %6 = cast %4 : @__main__.Shape
+  %7 = alloc @__main__.Unit : @__main__.Unit
+  %8 = call @Unit.__init__(%7) : none
+  %9 = cast %7 : @__main__.Shape
+  %10 = newlist %3, %6, %9 : list<@__main__.Shape>
+  storeglobal @items, %10
+  %11 = loadglobal @items : list<@__main__.Shape>
+  %12 = call @total(%11) : f64
+  %13 = call @pick(True) : @__main__.Shape
+  %14 = call @side(%13) : f64
+  %15 = call @pick(False) : @__main__.Shape
+  %16 = call @side(%15) : f64
+  %17 = box %12 : any
+  %18 = box %14 : any
+  %19 = box %16 : any
+  %20 = newtuple %17, %18, %19 : tuple<any...>
+  %21 = call @builtins:print(%20, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @Shape.__init__(%self: @__main__.Shape, %name: str) -> none source "Shape.__init__" {
+b0:
+  storefield %self.name, %name
+  ret
+}
+
+func @Shape.area(%self: @__main__.Shape) -> f64 source "Shape.area" {
+b0:
+  ret 0.0
+}
+
+func @Shape.describe(%self: @__main__.Shape) -> f64 source "Shape.describe" {
+b0:
+  %0 = callmethod %self.__main__.Shape.area() : f64
+  %1 = add %0, 1.0 : f64
+  ret %1
+}
+
+func @Square.__init__(%self: @__main__.Square, %side: f64) -> none source "Square.__init__" {
+b0:
+  %0 = cast %self : @__main__.Shape
+  %1 = call @Shape.__init__(%0, 'square') : none
+  storefield %self.side, %side
+  ret
+}
+
+func @Square.area(%self: @__main__.Square) -> f64 source "Square.area" {
+b0:
+  %0 = loadfield %self.side : f64
+  %1 = loadfield %self.side : f64
+  %2 = mul %0, %1 : f64
+  ret %2
+}
+
+func @Circle.__init__(%self: @__main__.Circle, %r: f64) -> none source "Circle.__init__" {
+b0:
+  %0 = cast %self : @__main__.Shape
+  %1 = call @Shape.__init__(%0, 'circle') : none
+  storefield %self.r, %r
+  ret
+}
+
+func @Circle.area(%self: @__main__.Circle) -> f64 source "Circle.area" {
+b0:
+  %0 = loadfield %self.r : f64
+  %1 = mul 3.0, %0 : f64
+  %2 = loadfield %self.r : f64
+  %3 = mul %1, %2 : f64
+  ret %3
+}
+
+func @Unit.__init__(%self: @__main__.Unit) -> none source "Unit.__init__" {
+b0:
+  %0 = cast %self : @__main__.Square
+  %1 = call @Square.__init__(%0, 1.0) : none
+  ret
+}
+
+func @total(%shapes: list<@__main__.Shape>) -> f64 source "total" {
+b0:
+  %0 = iter %shapes : iter<@__main__.Shape>
+  jump b1(0.0)
+b1(%p0: f64):
+  %1 = next %0 : i1
+  br %1, b2, b3
+b2:
+  %2 = current %0 : @__main__.Shape
+  %3 = call @Shape.describe(%2) : f64
+  %4 = add %p0, %3 : f64
+  jump b1(%4)
+b3:
+  jump b4
+b4:
+  ret %p0
+}
+
+func @pick(%flag: i1) -> @__main__.Shape source "pick" {
+b0:
+  br %flag, b1, b2
+b1:
+  %0 = alloc @__main__.Square : @__main__.Square
+  %1 = call @Square.__init__(%0, 2.0) : none
+  %2 = cast %0 : @__main__.Shape
+  ret %2
+b2:
+  jump b3
+b3:
+  %3 = alloc @__main__.Circle : @__main__.Circle
+  %4 = call @Circle.__init__(%3, 1.0) : none
+  %5 = cast %3 : @__main__.Shape
+  ret %5
+}
+
+func @side(%s: @__main__.Shape) -> f64 source "side" {
+b0:
+  br False, b1, b2
+b1:
+  %0 = cast %s : @__main__.Square
+  %1 = loadfield %0.side : f64
+  ret %1
+b2:
+  jump b3
+b3:
+  ret 0.0
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+entry @__main__:<module>

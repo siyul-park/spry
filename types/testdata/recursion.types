@@ -1,0 +1,13 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  def fib
+    spec (n: int) -> int
+  def even
+    spec (n: int) -> bool
+  def odd
+    spec (n: int) -> bool
+  def grow
+    spec (n: int) -> int | float
+fallbacks 1
+  22:12 union: an operand is a union

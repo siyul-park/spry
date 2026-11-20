@@ -1,0 +1,22 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  def squares
+    spec (n: int) -> list[int]
+  def pairs
+    spec (xs: list[int], ys: list[int]) -> list[tuple[int, int]]
+  def table
+    spec (n: int) -> dict[int, str]
+  def unique
+    spec (xs: list[int]) -> set[int]
+  def nested
+    spec (n: int) -> list[list[int]]
+  def total
+    spec (xs: list[int]) -> int
+  def joined
+    spec (xs: list[int]) -> str
+  def capture
+    spec (n: int) -> int
+  def capture.<locals>.listcomp.<locals>.<lambda>
+    general () -> int
+fallbacks 0

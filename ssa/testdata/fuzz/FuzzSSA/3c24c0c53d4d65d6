@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("xs = [3, 1, 2]\nxs.append(xs)\nordered = sorted(xs, reverse=True)\nd = {\"a\": 1, \"b\": 2}\nd[\"c\"] = 3\nn = d[\"a\"] + d.get(\"z\", 0)\nfor key in d:\n   n += d[key]\nfor key, value in d.items():\n    n + vaue\nkys = list(d.keys())\ns = {1, 2}\ns.add(3)\ns.discard(1)\npair = (1, \"x\")\nfirst = pair[0]\nlast_item = pair[-1]\ngrid = [[0] * 3 for _ in range(3)]\ngrid[1][2] = 5\nempty = []\nempty.append(\"a\")\nt = tuple(xs)\ncopy = list(xs)\nfor i, v in enumerate(xs):\n   n += i * v\nfor a, b in zip(xs, copy):\n    n += a - b2")

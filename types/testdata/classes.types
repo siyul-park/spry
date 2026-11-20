@@ -1,0 +1,26 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  var c: __main__.Counter
+  var s: __main__.Slotted
+  class Counter
+    mro Counter, object
+    field label: str
+    field value: int
+    field history: list[int]
+    var step: int
+    def __init__
+      spec (self: __main__.Counter, start: int) -> None
+    def bump
+      spec (self: __main__.Counter) -> int
+    def reset
+      spec (self: __main__.Counter, to: int = ...) -> None
+  class Slotted
+    mro Slotted, object
+    field a: int
+    field b: float
+    def __init__
+      spec (self: __main__.Slotted, a: int, b: float) -> None
+    def total
+      spec (self: __main__.Slotted) -> float
+fallbacks 0

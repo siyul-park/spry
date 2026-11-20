@@ -1,0 +1,104 @@
+class @__main__.Temp {
+  field _deg : int
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+global @t : @__main__.Temp
+global @u : @__main__.Temp
+global @Temp.scale : int
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'methods.py'
+  storeglobal @Temp.scale, 10
+  %1 = classobj @__main__.Temp : type<@__main__.Temp>
+  %2 = call @Temp.make(%1, 2) : @__main__.Temp
+  storeglobal @t, %2
+  %3 = loadglobal @t : @__main__.Temp
+  %4 = call @Temp.deg$1(%3, 7) : none
+  %5 = loadglobal @t : @__main__.Temp
+  %6 = call @Temp.deg(%5) : int
+  %7 = add %6, 1 : int
+  %8 = loadglobal @t : @__main__.Temp
+  %9 = call @Temp.deg$1(%8, %7) : none
+  %10 = loadglobal @t : @__main__.Temp
+  %11 = call @Temp.zero() : int
+  %12 = call @Temp.shifted(%10, %11) : @__main__.Temp
+  storeglobal @u, %12
+  %13 = loadglobal @t : @__main__.Temp
+  %14 = call @Temp.deg(%13) : int
+  %15 = loadglobal @u : @__main__.Temp
+  %16 = call @Temp.double(%15) : int
+  %17 = call @Temp.zero() : int
+  %18 = box %14 : any
+  %19 = box %16 : any
+  %20 = box %17 : any
+  %21 = newtuple %18, %19, %20 : tuple<any...>
+  %22 = call @builtins:print(%21, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @Temp.__init__(%self: @__main__.Temp, %deg: int) -> none source "Temp.__init__" {
+b0:
+  storefield %self._deg, %deg
+  ret
+}
+
+func @Temp.deg(%self: @__main__.Temp) -> int source "Temp.deg" {
+b0:
+  %0 = loadfield %self._deg : int
+  ret %0
+}
+
+func @Temp.deg$1(%self: @__main__.Temp, %value: int) -> none source "Temp.deg" {
+b0:
+  storefield %self._deg, %value
+  ret
+}
+
+func @Temp.double(%self: @__main__.Temp) -> int source "Temp.double" {
+b0:
+  %0 = loadfield %self._deg : int
+  %1 = mul %0, 2 : int
+  ret %1
+}
+
+func @Temp.zero() -> int source "Temp.zero" {
+b0:
+  ret 0
+}
+
+func @Temp.make(%cls: type<@__main__.Temp>, %d: int) -> @__main__.Temp source "Temp.make" {
+b0:
+  %0 = alloc @__main__.Temp : @__main__.Temp
+  %1 = loadglobal @Temp.scale : int
+  %2 = mul %d, %1 : int
+  %3 = call @Temp.__init__(%0, %2) : none
+  ret %0
+}
+
+func @Temp.shifted(%self: @__main__.Temp, %by: int) -> @__main__.Temp source "Temp.shifted" {
+b0:
+  %0 = alloc @__main__.Temp : @__main__.Temp
+  %1 = loadfield %self._deg : int
+  %2 = add %1, %by : int
+  %3 = call @Temp.__init__(%0, %2) : none
+  ret %0
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+entry @__main__:<module>

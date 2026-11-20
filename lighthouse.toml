@@ -80,6 +80,13 @@ rules = { "design/no-unused-symbol" = "off", "testing/no-missing-owner" = "off",
 files = ["internal/cpython/driver/*.py"]
 rules = { "testing/no-missing-owner" = "off", "design/exported-doc" = "off" }
 
+# The stubs of types/lib declare the Python library surface that the checker
+# reads (builtins, typing, math, ...); their names are fixed by CPython, they
+# are not an API of spry, and types/universe_test.go owns their contract.
+[[spec.overrides]]
+files = ["types/lib/**/*.py"]
+rules = { "testing/no-missing-owner" = "off", "design/exported-doc" = "off" }
+
 # Each parser function mirrors one rule of CPython's Grammar/python.gram, and a
 # rule with many alternatives (try_stmt, except_block, import_from, arguments,
 # the invalid_* rules, ...) legitimately calls one sub-rule per alternative.

@@ -1,0 +1,34 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  var xs: list[int]
+  var last: int
+  var head: list[int]
+  var tail: list[int]
+  var rev: list[int]
+  var both: list[int]
+  var twice: list[int]
+  var size: int
+  var found: bool
+  var missing: bool
+  var best: int
+  var total: int
+  var ordered: list[int]
+  var d: dict[str, int]
+  var n: int
+  var key: str
+  var value: int
+  var keys: list[str]
+  var s: set[int]
+  var pair: tuple[int, str]
+  var first: int
+  var last_item: str
+  var grid: list[list[int]]
+  var empty: list[str]
+  var t: tuple[int, ...]
+  var copy: list[int]
+  var i: int
+  var v: int
+  var a: int
+  var b: int
+fallbacks 0

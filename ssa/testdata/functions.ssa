@@ -1,0 +1,125 @@
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'functions.py'
+  %1 = call @twice#1(2) : int
+  %2 = call @twice#0(1.5) : f64
+  %3 = call @twice#2('ab') : str
+  %4 = box %1 : any
+  %5 = box %2 : any
+  %6 = box %3 : any
+  %7 = newtuple %4, %5, %6 : tuple<any...>
+  %8 = call @builtins:print(%7, ' ':str?, '\n':str?, None:any, False) : none
+  %9 = call @fib(10) : int
+  %10 = call @even(10) : i1
+  %11 = box %9 : any
+  %12 = box %10 : any
+  %13 = newtuple %11, %12 : tuple<any...>
+  %14 = call @builtins:print(%13, ' ':str?, '\n':str?, None:any, False) : none
+  %15 = newtuple 1, 2, 3 : tuple<int,int,int>
+  %16 = newdict : dict<str,any>
+  %17 = call @total(%15, 2, %16) : int
+  %18 = box %17 : any
+  %19 = newtuple %18 : tuple<any...>
+  %20 = call @builtins:print(%19, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @twice#0(%x: f64) -> f64 source "twice" {
+b0:
+  %0 = add %x, %x : f64
+  ret %0
+}
+
+func @twice#1(%x: int) -> int source "twice" {
+b0:
+  %0 = add %x, %x : int
+  ret %0
+}
+
+func @twice#2(%x: str) -> str source "twice" {
+b0:
+  %0 = concat %x, %x : str
+  ret %0
+}
+
+func @fib(%n: int) -> int source "fib" {
+b0:
+  %0 = lt %n, 2 : i1
+  br %0, b1, b2
+b1:
+  ret %n
+b2:
+  jump b3
+b3:
+  %1 = sub %n, 1 : int
+  %2 = call @fib(%1) : int
+  %3 = sub %n, 2 : int
+  %4 = call @fib(%3) : int
+  %5 = add %2, %4 : int
+  ret %5
+}
+
+func @even(%n: int) -> i1 source "even" {
+b0:
+  %0 = eq %n, 0 : i1
+  br %0, b1, b2
+b1:
+  ret True
+b2:
+  jump b3
+b3:
+  %1 = sub %n, 1 : int
+  %2 = call @odd(%1) : i1
+  ret %2
+}
+
+func @odd(%n: int) -> i1 source "odd" {
+b0:
+  %0 = eq %n, 0 : i1
+  br %0, b1, b2
+b1:
+  ret False
+b2:
+  jump b3
+b3:
+  %1 = sub %n, 1 : int
+  %2 = call @even(%1) : i1
+  ret %2
+}
+
+func @total(%values: tuple<int,int,int>, %scale: int, %extra: dict<str,any>) -> int source "total" {
+b0:
+  %0 = iter %values : iter<int>
+  jump b1(0)
+b1(%p0: int):
+  %1 = next %0 : i1
+  br %1, b2, b3
+b2:
+  %2 = current %0 : int
+  %3 = add %p0, %2 : int
+  jump b1(%3)
+b3:
+  jump b4
+b4:
+  %4 = mul %p0, %scale : int
+  ret %4
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+entry @__main__:<module>

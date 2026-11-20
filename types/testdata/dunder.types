@@ -1,0 +1,53 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  var a: __main__.Vec
+  var b: __main__.Vec
+  var c: __main__.Vec
+  var d: __main__.Vec
+  var v: int
+  var total: int
+  var k: int
+  class Vec
+    mro Vec, object
+    field x: int
+    field y: int
+    def __init__
+      spec (self: __main__.Vec, x: int, y: int) -> None
+    def __add__
+      spec (self: __main__.Vec, o: __main__.Vec) -> __main__.Vec
+    def __radd__
+      spec (self: __main__.Vec, o: int) -> __main__.Vec
+    def __neg__
+      spec (self: __main__.Vec) -> __main__.Vec
+    def __eq__
+      spec (self: __main__.Vec, o: __main__.Vec) -> bool
+    def __lt__
+      spec (self: __main__.Vec, o: __main__.Vec) -> bool
+    def __bool__
+      spec (self: __main__.Vec) -> bool
+    def __len__
+      spec (self: __main__.Vec) -> int
+    def __contains__
+      spec (self: __main__.Vec, v: int) -> bool
+    def __getitem__
+      spec (self: __main__.Vec, i: int) -> int
+    def __setitem__
+      spec (self: __main__.Vec, i: int, v: int) -> None
+    def __iadd__
+      spec (self: __main__.Vec, o: __main__.Vec) -> __main__.Vec
+    def __repr__
+      spec (self: __main__.Vec) -> str
+    def __str__
+      spec (self: __main__.Vec) -> str
+  class Count
+    mro Count, object
+    field i: int
+    field n: int
+    def __init__
+      spec (self: __main__.Count, n: int) -> None
+    def __iter__
+      spec (self: __main__.Count) -> __main__.Count
+    def __next__
+      spec (self: __main__.Count) -> int
+fallbacks 0

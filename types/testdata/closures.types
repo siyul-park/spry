@@ -1,0 +1,29 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  var c: <function counter.<locals>.tick>
+  def counter
+    spec (start: int) -> <function counter.<locals>.tick>
+  def counter.<locals>.tick
+    general (step: int = ...) -> int
+  def compose
+    spec (f: <function adder.<locals>.<lambda>>, g: <function adder.<locals>.<lambda>>) -> <function compose.<locals>.run>
+  def compose.<locals>.run
+    general (x: int) -> int
+  def outer
+    spec (n: int) -> int
+  def outer.<locals>.middle
+    general (m: int) -> int
+  def outer.<locals>.middle.<locals>.inner
+    general (k: int) -> int
+  def apply
+    spec (f: <function adder.<locals>.<lambda>>, x: int) -> int
+  def fact
+    spec (n: int) -> int
+  def fact.<locals>.go
+    general (k: int, acc: int) -> int
+  def adder
+    spec (n: int) -> <function adder.<locals>.<lambda>>
+  def adder.<locals>.<lambda>
+    general (x: int) -> int
+fallbacks 0

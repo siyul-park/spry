@@ -1,0 +1,182 @@
+extern class @ValueError : @Exception {
+}
+
+extern class @Exception : @BaseException {
+}
+
+extern class @BaseException {
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'unpack.py'
+  %1 = call @swap(1, 2) : tuple<int,int>
+  %2 = newlist 1, 2, 3, 4 : list<int>
+  %3 = call @head_tail(%2) : tuple<int,list<int>,list<int>,int,int,list<int>,int>
+  %4 = call @nested() : int
+  %5 = call @from_tuple() : tuple<int,str,f64,int,int,list<any>>
+  %6 = newtuple 1, 2 : tuple<int,int>
+  %7 = newtuple 3, 4 : tuple<int,int>
+  %8 = newlist %6, %7 : list<tuple<int,int>>
+  %9 = call @loops(%8) : int
+  %10 = box %1 : any
+  %11 = box %3 : any
+  %12 = box %4 : any
+  %13 = box %5 : any
+  %14 = box %9 : any
+  %15 = newtuple %10, %11, %12, %13, %14 : tuple<any...>
+  %16 = call @builtins:print(%15, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @swap(%a: int, %b: int) -> tuple<int,int> source "swap" {
+b0:
+  %0 = newtuple %b, %a : tuple<int,int>
+  ret %0
+}
+
+func @head_tail(%xs: list<int>) -> tuple<int,list<int>,list<int>,int,int,list<int>,int> source "head_tail" {
+b0:
+  %0 = len %xs : int
+  %1 = ge %0, 1 : i1
+  br %1, b1, b2
+b1:
+  %2 = index %xs, 0 : int
+  %3 = sub %0, 0 : int
+  %4 = slice %xs, 1, %3, None : list<int>
+  %5 = len %xs : int
+  %6 = ge %5, 1 : i1
+  br %6, b3, b4
+b2:
+  %7 = call @builtins:ValueError('not enough values to unpack') : @ValueError
+  raise %7
+b3:
+  %8 = sub %5, 1 : int
+  %9 = slice %xs, 0, %8, None : list<int>
+  %10 = sub %5, 1 : int
+  %11 = index %xs, %10 : int
+  %12 = len %xs : int
+  %13 = ge %12, 2 : i1
+  br %13, b5, b6
+b4:
+  %14 = call @builtins:ValueError('not enough values to unpack') : @ValueError
+  raise %14
+b5:
+  %15 = index %xs, 0 : int
+  %16 = sub %12, 1 : int
+  %17 = slice %xs, 1, %16, None : list<int>
+  %18 = sub %12, 1 : int
+  %19 = index %xs, %18 : int
+  %20 = newtuple %2, %4, %9, %11, %15, %17, %19 : tuple<int,list<int>,list<int>,int,int,list<int>,int>
+  ret %20
+b6:
+  %21 = call @builtins:ValueError('not enough values to unpack') : @ValueError
+  raise %21
+}
+
+func @nested() -> int source "nested" {
+b0:
+  %0 = newtuple 1, 2 : tuple<int,int>
+  %1 = index %0, 0 : int
+  %2 = index %0, 1 : int
+  %3 = newlist 20, 30 : list<int>
+  %4 = newtuple 10, %3 : tuple<int,list<int>>
+  %5 = index %4, 0 : int
+  %6 = index %4, 1 : list<int>
+  %7 = unpack %6 : tuple<int,int>
+  %8 = index %7, 0 : int
+  %9 = index %7, 1 : int
+  %10 = add %1, %2 : int
+  %11 = add %10, 3 : int
+  %12 = add %11, %5 : int
+  %13 = add %12, %8 : int
+  %14 = add %13, %9 : int
+  ret %14
+}
+
+func @from_tuple() -> tuple<int,str,f64,int,int,list<any>> source "from_tuple" {
+b0:
+  %0 = newtuple 1, 'two', 3.0, 4 : tuple<int,str,f64,int>
+  %1 = index %0, 0 : int
+  %2 = index %0, 1 : str
+  %3 = index %0, 2 : f64
+  %4 = index %0, 3 : int
+  %5 = index %0, 0 : int
+  %6 = index %0, 1 : str
+  %7 = box %6 : any
+  %8 = index %0, 2 : f64
+  %9 = box %8 : any
+  %10 = index %0, 3 : int
+  %11 = box %10 : any
+  %12 = newlist %7, %9, %11 : list<any>
+  %13 = newtuple %1, %2, %3, %4, %5, %12 : tuple<int,str,f64,int,int,list<any>>
+  ret %13
+}
+
+func @loops(%pairs: list<tuple<int,int>>) -> int source "loops" {
+b0:
+  %0 = box %pairs : any
+  %1 = call @builtins:enumerate.__init__(%0, 0) : iter<tuple<int,tuple<int,int>>>
+  jump b1(0)
+b1(%p0: int):
+  %2 = next %1 : i1
+  br %2, b2, b3
+b2:
+  %3 = current %1 : tuple<int,tuple<int,int>>
+  %4 = index %3, 0 : int
+  %5 = index %3, 1 : tuple<int,int>
+  %6 = index %5, 0 : int
+  %7 = index %5, 1 : int
+  %8 = mul %4, %6 : int
+  %9 = add %8, %7 : int
+  %10 = add %p0, %9 : int
+  jump b1(%10)
+b3:
+  jump b4
+b4:
+  %11 = newtuple 1, 2, 3 : tuple<int,int,int>
+  %12 = newtuple 4, 5, 6 : tuple<int,int,int>
+  %13 = newlist %11, %12 : list<tuple<int,int,int>>
+  %14 = iter %13 : iter<tuple<int,int,int>>
+  jump b5(%p0)
+b5(%p1: int):
+  %15 = next %14 : i1
+  br %15, b6, b7
+b6:
+  %16 = current %14 : tuple<int,int,int>
+  %17 = index %16, 0 : int
+  %18 = index %16, 1 : int
+  %19 = index %16, 2 : int
+  %20 = newlist %18, %19 : list<int>
+  %21 = len %20 : int
+  %22 = add %17, %21 : int
+  %23 = add %p1, %22 : int
+  jump b5(%23)
+b7:
+  jump b8
+b8:
+  ret %p1
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+extern func @ValueError(%msg: str) -> @ValueError source "ValueError"
+
+extern func @enumerate.__init__(%iterable: any, %start: int) -> iter<tuple<int,tuple<int,int>>> source "enumerate.__init__"
+
+entry @__main__:<module>

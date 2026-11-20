@@ -1,0 +1,178 @@
+class @__main__.Node {
+  field v : int
+  field nxt : @__main__.Node?
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+global @head : @__main__.Node
+global @m : @__main__.Node?
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'narrowing.py'
+  %1 = alloc @__main__.Node : @__main__.Node
+  %2 = alloc @__main__.Node : @__main__.Node
+  %3 = call @Node.__init__#0(%2, 2, None) : none
+  %4 = call @Node.__init__#1(%1, 1, %2) : none
+  storeglobal @head, %1
+  %5 = loadglobal @head : @__main__.Node
+  %6 = cast %5 : @__main__.Node?
+  %7 = call @length(%6) : int
+  %8 = loadglobal @head : @__main__.Node
+  %9 = call @first#1(%8) : int
+  %10 = loadglobal @head : @__main__.Node
+  %11 = call @last#1(%10) : int
+  %12 = call @first#0(None) : int
+  %13 = box %7 : any
+  %14 = box %9 : any
+  %15 = box %11 : any
+  %16 = box %12 : any
+  %17 = newtuple %13, %14, %15, %16 : tuple<any...>
+  %18 = call @builtins:print(%17, ' ':str?, '\n':str?, None:any, False) : none
+  %19 = call @maybe(True) : @__main__.Node?
+  storeglobal @m, %19
+  %20 = loadglobal @m : @__main__.Node?
+  %21 = nonnull %20.v : @__main__.Node
+  %22 = loadfield %21.v : int
+  %23 = box %22 : any
+  %24 = newtuple %23 : tuple<any...>
+  %25 = call @builtins:print(%24, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @Node.__init__#0(%self: @__main__.Node, %v: int, %nxt: none) -> none source "Node.__init__" {
+b0:
+  storefield %self.v, %v
+  storefield %self.nxt, None:@__main__.Node?
+  ret
+}
+
+func @Node.__init__#1(%self: @__main__.Node, %v: int, %nxt: @__main__.Node) -> none source "Node.__init__" {
+b0:
+  storefield %self.v, %v
+  %0 = cast %nxt : @__main__.Node?
+  storefield %self.nxt, %0
+  ret
+}
+
+func @length(%n: @__main__.Node?) -> int source "length" {
+b0:
+  jump b1(%n, 0)
+b1(%p0: @__main__.Node?, %p1: int):
+  %0 = isnot %p0, None : i1
+  br %0, b2, b3
+b2:
+  %1 = add %p1, 1 : int
+  %2 = cast %p0 : @__main__.Node
+  %3 = loadfield %2.nxt : @__main__.Node?
+  jump b1(%3, %1)
+b3:
+  jump b4
+b4:
+  ret %p1
+}
+
+func @first#0(%n: none) -> int source "first" {
+b0:
+  br False, b1, b2
+b1:
+  jump b3
+b2:
+  jump b3
+b3:
+  %0 = neg 1 : int
+  ret %0
+}
+
+func @first#1(%n: @__main__.Node) -> int source "first" {
+b0:
+  br True, b1, b2
+b1:
+  %0 = loadfield %n.v : int
+  ret %0
+b2:
+  jump b3
+b3:
+  %1 = neg 1 : int
+  ret %1
+}
+
+func @last#0(%n: @__main__.Node?) -> int source "last" {
+b0:
+  %0 = is %n, None : i1
+  br %0, b1, b2
+b1:
+  ret 0
+b2:
+  jump b3
+b3:
+  %1 = cast %n : @__main__.Node
+  %2 = loadfield %1.nxt : @__main__.Node?
+  %3 = is %2, None : i1
+  br %3, b4, b5
+b4:
+  %4 = cast %n : @__main__.Node
+  %5 = loadfield %4.v : int
+  ret %5
+b5:
+  jump b6
+b6:
+  %6 = cast %n : @__main__.Node
+  %7 = loadfield %6.nxt : @__main__.Node?
+  %8 = call @last#0(%7) : int
+  ret %8
+}
+
+func @last#1(%n: @__main__.Node) -> int source "last" {
+b0:
+  %0 = is %n, None : i1
+  br %0, b1, b2
+b1:
+  jump b3
+b2:
+  jump b3
+b3:
+  %1 = loadfield %n.nxt : @__main__.Node?
+  %2 = is %1, None : i1
+  br %2, b4, b5
+b4:
+  %3 = loadfield %n.v : int
+  ret %3
+b5:
+  jump b6
+b6:
+  %4 = loadfield %n.nxt : @__main__.Node?
+  %5 = call @last#0(%4) : int
+  ret %5
+}
+
+func @maybe(%flag: i1) -> @__main__.Node? source "maybe" {
+b0:
+  br %flag, b1, b2
+b1:
+  %0 = alloc @__main__.Node : @__main__.Node
+  %1 = call @Node.__init__#0(%0, 1, None) : none
+  %2 = cast %0 : @__main__.Node?
+  ret %2
+b2:
+  jump b3
+b3:
+  ret None:@__main__.Node?
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+entry @__main__:<module>

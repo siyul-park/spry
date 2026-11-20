@@ -1,0 +1,87 @@
+extern class @NameError : @Exception {
+}
+
+extern class @Exception : @BaseException {
+}
+
+extern class @BaseException {
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+global @flag : int
+global @later : int
+global @flag$bound : i1
+global @later$bound : i1
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'definedness.py'
+  %1 = len 'x' : int
+  %2 = gt %1, 0 : i1
+  br %2, b3, b4
+b3:
+  storeglobal @flag, 1
+  storeglobal @flag$bound, True
+  jump b5
+b4:
+  jump b5
+b5:
+  %3 = call @read() : int
+  %4 = box %3 : any
+  %5 = newtuple %4 : tuple<any...>
+  %6 = call @builtins:print(%5, ' ':str?, '\n':str?, None:any, False) : none
+  %7 = call @early() : int
+  %8 = box %7 : any
+  %9 = newtuple %8 : tuple<any...>
+  %10 = call @builtins:print(%9, ' ':str?, '\n':str?, None:any, False) : none
+  storeglobal @later, 5
+  storeglobal @later$bound, True
+  %11 = loadglobal @later : int
+  %12 = box %11 : any
+  %13 = newtuple %12 : tuple<any...>
+  %14 = call @builtins:print(%13, ' ':str?, '\n':str?, None:any, False) : none
+  unreachable
+}
+
+func @read() -> int source "read" {
+b0:
+  %0 = loadglobal @flag$bound : i1
+  br %0, b1, b2
+b1:
+  %1 = loadglobal @flag : int
+  ret %1
+b2:
+  %2 = call @builtins:NameError("name 'flag' is not bound") : @NameError
+  raise %2
+}
+
+func @early() -> int source "early" {
+b0:
+  %0 = loadglobal @later$bound : i1
+  br %0, b1, b2
+b1:
+  %1 = loadglobal @later : int
+  ret %1
+b2:
+  %2 = call @builtins:NameError("name 'later' is not bound") : @NameError
+  raise %2
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+extern func @NameError(%msg: str) -> @NameError source "NameError"
+
+entry @__main__:<module>

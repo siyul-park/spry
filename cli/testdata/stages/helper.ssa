@@ -1,0 +1,20 @@
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, '$DIR/helper.py'
+  ret
+}
+
+entry @__main__:<module>

@@ -1,0 +1,47 @@
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, '$DIR/scalar.py'
+  %1 = call @clamp(15, 0, 10) : int
+  %2 = box %1 : any
+  %3 = newtuple %2 : tuple<any...>
+  %4 = call @builtins:print(%3, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @clamp(%x: int, %lo: int, %hi: int) -> int source "clamp" {
+b0:
+  %0 = lt %x, %lo : i1
+  br %0, b1, b2
+b1:
+  ret %lo
+b2:
+  jump b3
+b3:
+  %1 = gt %x, %hi : i1
+  br %1, b4, b5
+b4:
+  ret %hi
+b5:
+  jump b6
+b6:
+  ret %x
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+entry @__main__:<module>

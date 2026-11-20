@@ -1,0 +1,11 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  def pick
+    spec (x: int | None, y: str | int) -> int
+  def truthy
+    spec (x: int | None) -> int
+  def either
+    spec (a: int, b: float) -> int | float
+fallbacks 1
+  10:8 union: a truth test of a union

@@ -1,0 +1,4 @@
+exit: 1
+--- stdout
+--- stderr
+$CWD/a.py:2:1: error TYP140: value of type int is not assignable to str

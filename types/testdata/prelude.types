@@ -1,0 +1,40 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  var ps: list[__main__.P]
+  var a: list[__main__.P]
+  var b: list[__main__.P]
+  var c: list[int]
+  var d: __main__.P
+  var e: __main__.P
+  var f: __main__.P
+  var g: __main__.P
+  var h: list[int]
+  def <lambda>
+    general (p: __main__.P) -> int
+  def <lambda>
+    general (v: int) -> int
+  def <lambda>
+    general (p: __main__.P) -> int
+  class P
+    mro P, object
+    field n: int
+    def __init__
+      spec (self: __main__.P, n: int) -> None
+    def __lt__
+      spec (self: __main__.P, o: __main__.P) -> bool
+    def __add__
+      spec (self: __main__.P, o: __main__.P) -> __main__.P
+prelude __max2__
+  spec (a: __main__.P, b: __main__.P, key: None = ...) -> __main__.P
+prelude __max__
+  spec (iterable: list[__main__.P], key: <function <lambda>> = ...) -> __main__.P
+prelude __min__
+  spec (iterable: list[__main__.P], key: None = ...) -> __main__.P
+prelude __sorted__
+  spec (iterable: list[__main__.P], key: None = ..., reverse: bool = ...) -> list[__main__.P]
+  spec (iterable: list[__main__.P], key: <function <lambda>> = ..., reverse: bool = ...) -> list[__main__.P]
+  spec (iterable: list[int], key: <function <lambda>> = ..., reverse: bool = ...) -> list[int]
+prelude __sum__
+  spec (iterable: list[__main__.P], start: __main__.P = ...) -> __main__.P
+fallbacks 0

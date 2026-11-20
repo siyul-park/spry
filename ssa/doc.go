@@ -1,8 +1,10 @@
-// Package ssa defines spry's own SSA intermediate representation
-// (Program, Function, BasicBlock, Value, Instruction), a builder from the typed
-// AST, a verifier, and a text printer and parser.
+// Package ssa defines spry's own typed SSA intermediate representation: the
+// data model (Program, Module, Class, Function, Block, Instr), a verifier, and
+// a text printer and parser. Blocks take parameters instead of phi nodes, and
+// instructions that can raise carry an exception edge.
 //
-// Input: typed ast from package types. Output: an SSA program.
-// Allowed spry imports: ast, types (and token for positions). It never
-// imports minivm.
+// Input: text (Parse) or the checked program (Build, from types.Check).
+// Output: a *Program, which Verify checks and Print writes.
+// Allowed imports: ast, token and types, and the standard library. It never
+// imports minivm. Its tests also import parser.
 package ssa

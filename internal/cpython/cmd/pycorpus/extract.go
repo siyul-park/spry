@@ -48,6 +48,7 @@ var tables = []table{
 	{"ast/" + base + "/schema.json", "tables.py", []string{"ast"}, false},
 	{"scanner/" + base + "/unicode.json", "unicode.py", nil, false},
 	{"ast/" + base + "/repr.jsonl", "repr.py", nil, true},
+	{"types/" + base + "/typerepr.jsonl", "typerepr.py", nil, false},
 }
 
 func extract(ctx context.Context, cache string) error {

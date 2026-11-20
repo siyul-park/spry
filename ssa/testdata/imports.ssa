@@ -1,0 +1,102 @@
+module pkg
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, 'pkg'
+  storeglobal @__file__, '/app/pkg/__init__.py'
+  ret
+}
+
+module pkg.util
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+global @STEP : int
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, 'pkg.util'
+  storeglobal @__file__, '/app/pkg/util.py'
+  storeglobal @STEP, 10
+  ret
+}
+
+func @add(%a: int, %b: int) -> int source "add" {
+b0:
+  %0 = add %a, %b : int
+  ret %0
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'imports.py'
+  %1 = call @pkg:<module>() : none
+  %2 = call @pkg.util:<module>() : none
+  %3 = call @pkg:<module>() : none
+  %4 = call @pkg.util:<module>() : none
+  %5 = call @math:sqrt(16.0) : f64
+  %6 = call @math:sqrt(2.0) : f64
+  %7 = call @area(2.0) : f64
+  %8 = box %5 : any
+  %9 = box %6 : any
+  %10 = box %7 : any
+  %11 = newtuple %8, %9, %10 : tuple<any...>
+  %12 = call @builtins:print(%11, ' ':str?, '\n':str?, None:any, False) : none
+  %13 = loadglobal @pkg.util:STEP : int
+  %14 = call @pkg.util:add(1, %13) : int
+  %15 = call @pkg.util:add(2, 3) : int
+  %16 = box %14 : any
+  %17 = box %15 : any
+  %18 = newtuple %16, %17 : tuple<any...>
+  %19 = call @builtins:print(%18, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @area(%r: f64) -> f64 source "area" {
+b0:
+  %0 = loadglobal @math:pi : f64
+  %1 = mul %0, %r : f64
+  %2 = mul %1, %r : f64
+  ret %2
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+module math
+global @pi : f64
+
+extern func @sqrt(%x: f64) -> f64 source "sqrt"
+
+entry @__main__:<module>

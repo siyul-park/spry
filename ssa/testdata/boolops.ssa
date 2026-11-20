@@ -1,0 +1,97 @@
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'boolops.py'
+  %1 = call @logic(1, 0) : int
+  %2 = box %1 : any
+  %3 = newtuple %2 : tuple<any...>
+  %4 = call @builtins:print(%3, ' ':str?, '\n':str?, None:any, False) : none
+  %5 = call @value(0, 5) : int
+  %6 = box %5 : any
+  %7 = newtuple %6 : tuple<any...>
+  %8 = call @builtins:print(%7, ' ':str?, '\n':str?, None:any, False) : none
+  %9 = call @both(2, 3) : int
+  %10 = box %9 : any
+  %11 = newtuple %10 : tuple<any...>
+  %12 = call @builtins:print(%11, ' ':str?, '\n':str?, None:any, False) : none
+  %13 = call @pick(4, 9) : int
+  %14 = box %13 : any
+  %15 = newtuple %14 : tuple<any...>
+  %16 = call @builtins:print(%15, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @logic(%a: int, %b: int) -> int source "logic" {
+b0:
+  %0 = ne %a, 0 : i1
+  br %0, b4, b2
+b1:
+  ret 1
+b2:
+  jump b3
+b3:
+  %1 = ne %a, 0 : i1
+  br %1, b5, b8
+b4:
+  %2 = ne %b, 0 : i1
+  br %2, b1, b2
+b5:
+  ret 2
+b6:
+  jump b7
+b7:
+  ret 3
+b8:
+  %3 = ne %b, 0 : i1
+  br %3, b6, b5
+}
+
+func @value(%a: int, %b: int) -> int source "value" {
+b0:
+  %0 = ne %a, 0 : i1
+  br %0, b1(%a), b2
+b1(%p0: int):
+  ret %p0
+b2:
+  jump b1(%b)
+}
+
+func @both(%a: int, %b: int) -> int source "both" {
+b0:
+  %0 = ne %a, 0 : i1
+  br %0, b2, b1(%a)
+b1(%p0: int):
+  ret %p0
+b2:
+  jump b1(%b)
+}
+
+func @pick(%a: int, %b: int) -> int source "pick" {
+b0:
+  %0 = gt %a, %b : i1
+  br %0, b1, b2
+b1:
+  jump b3(%a)
+b2:
+  jump b3(%b)
+b3(%p0: int):
+  ret %p0
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+entry @__main__:<module>

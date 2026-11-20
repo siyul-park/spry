@@ -1,0 +1,67 @@
+class @Base {
+  field x : int
+}
+
+class @Point : @Base {
+  field x : int from @Base
+  field y : int
+  field next : @Point?
+  method norm -> @m:norm
+}
+
+extern class @Error {
+  field msg : str
+}
+
+class @"odd name" {
+  field "a b" : int
+}
+
+class @f.<locals>.Local : @Point, @Base {
+  field x : int from @Base
+  field y : int from @Point
+  field next : @Point? from @Point
+}
+
+module m
+
+func @norm(%self: @Point) -> int {
+b0:
+  %0 = loadfield %self.x : int
+  %1 = loadfield %self.y : int
+  %2 = mul %0, %0 : int
+  %3 = mul %1, %1 : int
+  %4 = add %2, %3 : int
+  ret %4
+}
+
+func @make(%x: int) -> @Point {
+b0:
+  %0 = alloc @Point : @Point
+  storefield %0.x, %x
+  storefield %0.y, 0
+  storefield %0.next, None:@Point?
+  ret %0
+}
+
+func @walk(%p: @Point) -> int {
+b0:
+  %0 = loadfield %p.next : @Point?
+  %1 = is %0, None : i1
+  br %1, b1, b2
+b1:
+  %2 = callmethod %p.norm() : int
+  ret %2
+b2:
+  %3 = nonnull %0.next : @Point
+  %4 = loadfield %3.y : int
+  ret %4
+}
+
+func @local(%l: @f.<locals>.Local, %e: @Error, %v: type<@Point>) -> int {
+b0:
+  %0 = callmethod %l.norm() : int
+  %1 = loadfield %e.msg : str
+  %2 = loadfield %l.next : @Point?
+  ret %0
+}

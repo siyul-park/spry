@@ -1,0 +1,60 @@
+module m
+
+func @containers(%n: int, %s: str, %b: bytes) -> int {
+b0:
+  %0 = newlist 1, 2, %n : list<int>
+  %1 = newset %n, 4 : set<int>
+  %2 = newdict %s, 1, 'k', 2 : dict<str,int>
+  %3 = newtuple %n, %s, 1.5 : tuple<int,str,f64>
+  %4 = newtuple %n, %n : tuple<int...>
+  %5 = index %0, 0 : int
+  %6 = index %2, %s : int
+  %7 = index %3, 1 : str
+  %8 = index %4, %n : int
+  %9 = index %s, 0 : str
+  %10 = index %b, 0 : int
+  %11 = index %3, -1 : f64
+  setindex %0, 1, %5
+  setindex %2, %s, %6
+  delindex %0, 0
+  delindex %2, 'k'
+  %12 = slice %0, 1, None, None : list<int>
+  %13 = slice %s, None, %n, 2 : str
+  %14 = len %12 : int
+  %15 = len %1 : int
+  %16 = len %2 : int
+  %17 = len %3 : int
+  %18 = len %b : int
+  append %0, %14
+  %19 = unpack %0 : tuple<int,int>
+  %20 = index %19, 0 : int
+  %21 = newlist : list<str>
+  %22 = newtuple : tuple<>
+  %23 = newdict : dict<int,int>
+  %24 = newset : set<str>
+  ret %20
+}
+
+func @strings(%s: str, %n: int) -> str {
+b0:
+  %0 = concat %s, 'tail' : str
+  %1 = format %n, '' : str
+  %2 = format %0, '>10' : str
+  %3 = concat %1, %2 : str
+  ret %3
+}
+
+func @iterate(%l: list<int>) -> int {
+b0:
+  %0 = iter %l : iter<int>
+  jump b1(0)
+b1(%acc: int):
+  %1 = next %0 : i1
+  br %1, b2, b3
+b2:
+  %2 = current %0 : int
+  %3 = add %acc, %2 : int
+  jump b1(%3)
+b3:
+  ret %acc
+}

@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("def s():(i*i or i in ())\ndef scaled(xs,):\n    return (x * k for x in xs if x > 0)\n\n\ndef total(xs):\n    t = 0\n    for v in scaled(xs, 3):\n        t += v\n    inline = sum(x for x in xs)\n    lazy = any(x > 2 for x in xs)\n    return t + inline + len(list(sqwares(4))) + lazy\n\n\nprint(total([1, 2, 3]))")

@@ -1,0 +1,11 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  def grow
+    spec (n: int) -> int | float
+  def pick
+    spec (flag: bool, a: int, b: float) -> int | float
+    spec (flag: bool, a: str, b: str) -> str | int
+fallbacks 2
+  4:12 union: an operand is a union
+  9:12 union: a truth test of a union

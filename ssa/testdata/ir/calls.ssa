@@ -1,0 +1,38 @@
+module m
+global @counter : int
+
+extern func @print(%x: any) -> none
+
+func @callee(%a: int, %b: int) -> int {
+b0:
+  %0 = add %a, %b : int
+  ret %0
+}
+
+func @inner(%x: int) [%c: cell<int>] -> int source "outer.<locals>.inner" {
+b0:
+  %0 = loadcell %c : int
+  %1 = add %0, %x : int
+  storecell %c, %1
+  ret %1
+}
+
+func @calls(%n: int) -> any {
+b0:
+  %0 = call @callee(%n, 1) : int
+  %1 = newcell 0 : cell<int>
+  %2 = makeclosure @inner [%1] : func(int) -> int
+  %3 = callclosure %2(%0) : int
+  %4 = box %3 : any
+  %5 = dyncall %4(%4, 'a':any) : any
+  %6 = call @print(%4) : none
+  %7 = dynbinop %4.add, %5 : any
+  %8 = dyngetattr %7.real : any
+  dynsetattr %8.imag, %7
+  %9 = loadglobal @counter : int
+  %10 = add %9, 1 : int
+  storeglobal @counter, %10
+  delglobal @counter
+  %11 = makeclosure @inner [%1] : func(int) -> int
+  ret %5
+}

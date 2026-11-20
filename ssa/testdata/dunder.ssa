@@ -1,0 +1,333 @@
+class @__main__.Vec {
+  field x : int
+  field y : int
+}
+
+class @__main__.Count {
+  field i : int
+  field n : int
+}
+
+extern class @StopIteration : @Exception {
+}
+
+extern class @Exception : @BaseException {
+}
+
+extern class @BaseException {
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+global @a : @__main__.Vec
+global @b : @__main__.Vec
+global @c : @__main__.Vec
+global @d : @__main__.Vec
+global @v : int
+global @total : int
+global @k : int
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'dunder.py'
+  %1 = alloc @__main__.Vec : @__main__.Vec
+  %2 = call @Vec.__init__(%1, 1, 2) : none
+  storeglobal @a, %1
+  %3 = loadglobal @a : @__main__.Vec
+  %4 = loadglobal @a : @__main__.Vec
+  %5 = call @Vec.__add__(%3, %4) : @__main__.Vec
+  storeglobal @b, %5
+  %6 = loadglobal @b : @__main__.Vec
+  %7 = call @Vec.__radd__(%6, 1) : @__main__.Vec
+  storeglobal @c, %7
+  %8 = loadglobal @c : @__main__.Vec
+  %9 = call @Vec.__neg__(%8) : @__main__.Vec
+  storeglobal @d, %9
+  %10 = loadglobal @a : @__main__.Vec
+  %11 = call @Vec.__getitem__(%10, 0) : int
+  %12 = loadglobal @b : @__main__.Vec
+  %13 = call @Vec.__getitem__(%12, 1) : int
+  %14 = add %11, %13 : int
+  storeglobal @v, %14
+  %15 = loadglobal @a : @__main__.Vec
+  %16 = call @Vec.__setitem__(%15, 1, 9) : none
+  %17 = loadglobal @a : @__main__.Vec
+  %18 = loadglobal @b : @__main__.Vec
+  %19 = call @Vec.__iadd__(%17, %18) : @__main__.Vec
+  storeglobal @a, %19
+  %20 = loadglobal @a : @__main__.Vec
+  %21 = loadglobal @b : @__main__.Vec
+  %22 = call @Vec.__eq__(%20, %21) : i1
+  br %22, b3, b6
+b3:
+  %23 = loadglobal @a : @__main__.Vec
+  %24 = call @Vec.__len__(%23) : int
+  %25 = loadglobal @a : @__main__.Vec
+  %26 = call @Vec.__contains__(%25, 1) : i1
+  %27 = loadglobal @a : @__main__.Vec
+  %28 = call @Vec.__bool__(%27) : i1
+  %29 = box %24 : any
+  %30 = box %26 : any
+  %31 = box %28 : any
+  %32 = newtuple %29, %30, %31 : tuple<any...>
+  %33 = call @builtins:print(%32, ' ':str?, '\n':str?, None:any, False) : none
+  jump b5
+b4:
+  jump b5
+b5:
+  storeglobal @total, 0
+  %34 = alloc @__main__.Count : @__main__.Count
+  %35 = call @Count.__init__(%34, 3) : none
+  %36 = call @Count.__iter__(%34) : @__main__.Count
+  jump b8
+b6:
+  %37 = loadglobal @a : @__main__.Vec
+  %38 = loadglobal @b : @__main__.Vec
+  %39 = call @Vec.__lt__(%37, %38) : i1
+  br %39, b3, b7
+b7:
+  %40 = loadglobal @a : @__main__.Vec
+  %41 = loadglobal @b : @__main__.Vec
+  %42 = call @Vec.__eq__(%40, %41) : i1
+  %43 = not %42 : i1
+  br %43, b4, b3
+b8:
+  %44 = call @Count.__next__(%36) : int -> normal b12, except b10
+b9:
+  jump b14
+b10:
+  %45 = landingpad : any
+  jump b11
+b11:
+  %46 = isinstance %45, @StopIteration : i1
+  br %46, b9, b13
+b12:
+  storeglobal @k, %44
+  %47 = loadglobal @total : int
+  %48 = loadglobal @k : int
+  %49 = add %47, %48 : int
+  storeglobal @total, %49
+  jump b8
+b13:
+  reraise %45
+b14:
+  %50 = loadglobal @total : int
+  %51 = loadglobal @a : @__main__.Vec
+  %52 = call @Vec.__str__(%51) : str
+  %53 = loadglobal @b : @__main__.Vec
+  %54 = call @Vec.__repr__(%53) : str
+  %55 = loadglobal @c : @__main__.Vec
+  %56 = call @Vec.__str__(%55) : str
+  %57 = box %50 : any
+  %58 = box %52 : any
+  %59 = box %54 : any
+  %60 = box %56 : any
+  %61 = newtuple %57, %58, %59, %60 : tuple<any...>
+  %62 = call @builtins:print(%61, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @Vec.__init__(%self: @__main__.Vec, %x: int, %y: int) -> none source "Vec.__init__" {
+b0:
+  storefield %self.x, %x
+  storefield %self.y, %y
+  ret
+}
+
+func @Vec.__add__(%self: @__main__.Vec, %o: @__main__.Vec) -> @__main__.Vec source "Vec.__add__" {
+b0:
+  %0 = alloc @__main__.Vec : @__main__.Vec
+  %1 = loadfield %self.x : int
+  %2 = loadfield %o.x : int
+  %3 = add %1, %2 : int
+  %4 = loadfield %self.y : int
+  %5 = loadfield %o.y : int
+  %6 = add %4, %5 : int
+  %7 = call @Vec.__init__(%0, %3, %6) : none
+  ret %0
+}
+
+func @Vec.__radd__(%self: @__main__.Vec, %o: int) -> @__main__.Vec source "Vec.__radd__" {
+b0:
+  %0 = alloc @__main__.Vec : @__main__.Vec
+  %1 = loadfield %self.x : int
+  %2 = add %1, %o : int
+  %3 = loadfield %self.y : int
+  %4 = add %3, %o : int
+  %5 = call @Vec.__init__(%0, %2, %4) : none
+  ret %0
+}
+
+func @Vec.__neg__(%self: @__main__.Vec) -> @__main__.Vec source "Vec.__neg__" {
+b0:
+  %0 = alloc @__main__.Vec : @__main__.Vec
+  %1 = loadfield %self.x : int
+  %2 = neg %1 : int
+  %3 = loadfield %self.y : int
+  %4 = neg %3 : int
+  %5 = call @Vec.__init__(%0, %2, %4) : none
+  ret %0
+}
+
+func @Vec.__eq__(%self: @__main__.Vec, %o: @__main__.Vec) -> i1 source "Vec.__eq__" {
+b0:
+  %0 = loadfield %self.x : int
+  %1 = loadfield %o.x : int
+  %2 = eq %0, %1 : i1
+  br %2, b2, b1(%2)
+b1(%p0: i1):
+  ret %p0
+b2:
+  %3 = loadfield %self.y : int
+  %4 = loadfield %o.y : int
+  %5 = eq %3, %4 : i1
+  jump b1(%5)
+}
+
+func @Vec.__lt__(%self: @__main__.Vec, %o: @__main__.Vec) -> i1 source "Vec.__lt__" {
+b0:
+  %0 = loadfield %self.x : int
+  %1 = loadfield %o.x : int
+  %2 = lt %0, %1 : i1
+  ret %2
+}
+
+func @Vec.__bool__(%self: @__main__.Vec) -> i1 source "Vec.__bool__" {
+b0:
+  %0 = loadfield %self.x : int
+  %1 = ne %0, 0 : i1
+  br %1, b1(%1), b2
+b1(%p0: i1):
+  ret %p0
+b2:
+  %2 = loadfield %self.y : int
+  %3 = ne %2, 0 : i1
+  jump b1(%3)
+}
+
+func @Vec.__len__(%self: @__main__.Vec) -> int source "Vec.__len__" {
+b0:
+  ret 2
+}
+
+func @Vec.__contains__(%self: @__main__.Vec, %v: int) -> i1 source "Vec.__contains__" {
+b0:
+  %0 = loadfield %self.x : int
+  %1 = eq %v, %0 : i1
+  br %1, b1(%1), b2
+b1(%p0: i1):
+  ret %p0
+b2:
+  %2 = loadfield %self.y : int
+  %3 = eq %v, %2 : i1
+  jump b1(%3)
+}
+
+func @Vec.__getitem__(%self: @__main__.Vec, %i: int) -> int source "Vec.__getitem__" {
+b0:
+  %0 = eq %i, 0 : i1
+  br %0, b1, b2
+b1:
+  %1 = loadfield %self.x : int
+  ret %1
+b2:
+  jump b3
+b3:
+  %2 = loadfield %self.y : int
+  ret %2
+}
+
+func @Vec.__setitem__(%self: @__main__.Vec, %i: int, %v: int) -> none source "Vec.__setitem__" {
+b0:
+  %0 = eq %i, 0 : i1
+  br %0, b1, b2
+b1:
+  storefield %self.x, %v
+  jump b3
+b2:
+  storefield %self.y, %v
+  jump b3
+b3:
+  ret
+}
+
+func @Vec.__iadd__(%self: @__main__.Vec, %o: @__main__.Vec) -> @__main__.Vec source "Vec.__iadd__" {
+b0:
+  %0 = loadfield %self.x : int
+  %1 = loadfield %o.x : int
+  %2 = add %0, %1 : int
+  storefield %self.x, %2
+  %3 = loadfield %self.y : int
+  %4 = loadfield %o.y : int
+  %5 = add %3, %4 : int
+  storefield %self.y, %5
+  ret %self
+}
+
+func @Vec.__repr__(%self: @__main__.Vec) -> str source "Vec.__repr__" {
+b0:
+  ret 'Vec'
+}
+
+func @Vec.__str__(%self: @__main__.Vec) -> str source "Vec.__str__" {
+b0:
+  %0 = loadfield %self.x : int
+  %1 = format %0, '' : str
+  %2 = concat '(', %1 : str
+  %3 = concat %2, ', ' : str
+  %4 = loadfield %self.y : int
+  %5 = format %4, '' : str
+  %6 = concat %3, %5 : str
+  %7 = concat %6, ')' : str
+  ret %7
+}
+
+func @Count.__init__(%self: @__main__.Count, %n: int) -> none source "Count.__init__" {
+b0:
+  storefield %self.i, 0
+  storefield %self.n, %n
+  ret
+}
+
+func @Count.__iter__(%self: @__main__.Count) -> @__main__.Count source "Count.__iter__" {
+b0:
+  ret %self
+}
+
+func @Count.__next__(%self: @__main__.Count) -> int source "Count.__next__" {
+b0:
+  %0 = loadfield %self.i : int
+  %1 = loadfield %self.n : int
+  %2 = ge %0, %1 : i1
+  br %2, b1, b2
+b1:
+  %3 = newtuple : tuple<any...>
+  %4 = call @builtins:BaseException.__init__(%3) : @StopIteration
+  raise %4
+b2:
+  jump b3
+b3:
+  %5 = loadfield %self.i : int
+  %6 = add %5, 1 : int
+  storefield %self.i, %6
+  %7 = loadfield %self.i : int
+  ret %7
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+extern func @BaseException.__init__(%args: tuple<any...>) -> @StopIteration source "BaseException.__init__"
+
+entry @__main__:<module>

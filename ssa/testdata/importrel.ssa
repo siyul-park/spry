@@ -1,0 +1,35 @@
+extern class @ImportError : @Exception {
+}
+
+extern class @Exception : @BaseException {
+}
+
+extern class @BaseException {
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+global @sibling : any
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'importrel.py'
+  %1 = call @builtins:ImportError('attempted relative import with no known parent package') : @ImportError
+  raise %1
+}
+
+module builtins
+
+extern func @ImportError(%msg: str) -> @ImportError source "ImportError"
+
+entry @__main__:<module>

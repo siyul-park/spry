@@ -1,0 +1,52 @@
+class @"a:b" {
+}
+
+class @"x y" {
+  field "n m" : int
+}
+
+module "my mod"
+global @"x-y" : int
+
+func @"my func"(%p: int) -> int source "my mod.my func" {
+b0:
+  %0 = loadglobal @"x-y" : int
+  %1 = call @"other mod":"odd:name"(%p) : int
+  %2 = loadglobal @"other mod":"g g" : int
+  ret %0
+}
+
+func @"日本"() -> none {
+b0:
+  ret
+}
+
+module "other mod"
+global @"g g" : int
+
+func @"odd:name"(%a: int) -> int {
+b0:
+  ret %a
+}
+
+func @bal.<a>.b() -> none {
+b0:
+  ret
+}
+
+func @"unbalanced<"() -> none {
+b0:
+  ret
+}
+
+func @"close>"() -> none {
+b0:
+  ret
+}
+
+func @tail.() -> @"x y" {
+b0:
+  %0 = alloc @"x y" : @"x y"
+  %1 = loadfield %0."n m" : int
+  ret %0
+}

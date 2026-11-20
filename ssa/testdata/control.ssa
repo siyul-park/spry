@@ -1,0 +1,85 @@
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'control.py'
+  %1 = neg 4 : int
+  %2 = call @sign(%1) : int
+  %3 = call @sign(0) : int
+  %4 = call @sign(9) : int
+  %5 = box %2 : any
+  %6 = box %3 : any
+  %7 = box %4 : any
+  %8 = newtuple %5, %6, %7 : tuple<any...>
+  %9 = call @builtins:print(%8, ' ':str?, '\n':str?, None:any, False) : none
+  %10 = call @count(10) : int
+  %11 = box %10 : any
+  %12 = newtuple %11 : tuple<any...>
+  %13 = call @builtins:print(%12, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @sign(%n: int) -> int source "sign" {
+b0:
+  %0 = lt %n, 0 : i1
+  br %0, b1, b2
+b1:
+  %1 = neg 1 : int
+  ret %1
+b2:
+  %2 = eq %n, 0 : i1
+  br %2, b3, b4
+b3:
+  ret 0
+b4:
+  ret 1
+}
+
+func @count(%n: int) -> int source "count" {
+b0:
+  jump b1(%n, 0)
+b1(%p0: int, %p1: int):
+  %0 = gt %p0, 0 : i1
+  br %0, b2, b3
+b2:
+  %1 = sub %p0, 1 : int
+  %2 = mod %1, 2 : int
+  %3 = eq %2, 0 : i1
+  br %3, b5, b6
+b3:
+  %4 = neg %p1 : int
+  jump b4(%4)
+b4(%p2: int):
+  ret %p2
+b5:
+  jump b1(%1, %p1)
+b6:
+  jump b7
+b7:
+  %5 = gt %1, 7 : i1
+  br %5, b8, b9
+b8:
+  jump b4(%p1)
+b9:
+  jump b10
+b10:
+  %6 = add %p1, %1 : int
+  jump b1(%1, %6)
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+entry @__main__:<module>

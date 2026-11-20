@@ -6,7 +6,7 @@ Each phase has exit criteria that are mechanically checkable by `make check` or 
 |---|---|---|
 | P0 | Bootstrap | In progress |
 | P1 | Frontend identical to CPython 3.14 | Done |
-| P2 | Types and SSA build | Planned |
+| P2 | Types and SSA build | Done |
 | P3 | minivm backend, end-to-end execution | Planned |
 | P4 | Optimizer | Planned |
 | P5 | Toward full compatibility | Planned |
@@ -43,12 +43,21 @@ Status: done. Every `testdata/cpython/xfail.txt` is empty: the token, scanner, `
 
 Scope: `types` (scopes, whole-program inference, specialization, diagnostics), `ssa` (IR, builder, verifier, printer/parser).
 
-Exit criteria:
+Exit criteria (with the evidence that shows each):
 
-- All of the phase-1 subset (docs/subset.md) infers or reports a `TYP` diagnostic; every rejected construct has a diagnostic test.
-- SSA goldens exist for each supported statement/expression category; `ssa.Verify` passes on all builder output.
-- Text IR round-trips: `Parse(Print(p))` equals `p`.
-- `-X spry.dump=types|ssa` produce stable output.
+- All of the phase-1 subset (docs/subset.md) infers or reports a `TYP` diagnostic; every rejected construct has a diagnostic test. Evidence: `go test ./types/...` (`subset_test.go`, goldens).
+- SSA goldens exist for each supported statement/expression category; `ssa.Verify` passes on all builder output. Evidence: `go test ./ssa/...` and `make conformance` (parse, check, build, verify of each corpus file).
+- Text IR round-trips: `Parse(Print(p))` equals `p`. Evidence: `go test ./ssa/...`, `go test ./ssa -run '^$' -fuzz FuzzSSA -fuzztime 30s`.
+- `-X spry.dump=types|ssa` produce stable output. Evidence: `go test ./cli/...` (stage goldens).
+
+Status: done. `types` checks whole programs with imports resolved through `WithFS`, and `ssa.Build` lowers them to verified SSA; the CLI runs parse, check and build and stops at `spry: execution not implemented yet (phase P3)`. The documented divergences and deferrals that remain are:
+
+- The soundness property test of inference (docs/typing.md) needs execution and moves to P3.
+- Conformance has only the `basics`, `control` and `functions` categories; `.expected` cases for the others arrive with P3.
+- `__context__` chaining of exceptions, and `gen.throw()`/`gen.close()` and `yield` inside `try`/`finally` or `with` (`TYP150`), are deferred to P3 and P5.
+- P4: counted and index loops, `switch`, and `.nochk` integer operations.
+- P4/P5: namespace packages, and multiple inheritance with fields in more than one base.
+- `-X spry.fallback` is not wired yet; fallbacks are counted in the `types` dump.
 
 ## P3 Backend
 

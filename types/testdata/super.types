@@ -1,0 +1,31 @@
+module __main__
+  var __name__: str
+  var __file__: str
+  var b: __main__.Both
+  class Base
+    mro Base, object
+    field x: int
+    def __init__
+      spec (self: __main__.Base, x: int) -> None
+    def show
+      spec (self: __main__.Base) -> int
+  class Left(Base)
+    mro Left, Base, object
+    def show
+      spec (self: __main__.Left) -> int
+  class Right(Base)
+    mro Right, Base, object
+    def show
+      spec (self: __main__.Right) -> int
+  class Both(Left, Right)
+    mro Both, Left, Right, Base, object
+    def show
+      spec (self: __main__.Both) -> int
+  class Plain(Left)
+    mro Plain, Left, Base, object
+    field y: int
+    def __init__
+      spec (self: __main__.Plain, x: int) -> None
+    def show
+      spec (self: __main__.Plain) -> int
+fallbacks 0

@@ -2,12 +2,18 @@ package conformance_test
 
 import (
 	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 	"testing/fstest"
 
 	"github.com/stretchr/testify/require"
 
 	"github.com/siyul-park/spry/conformance"
+	"github.com/siyul-park/spry/parser"
+	"github.com/siyul-park/spry/ssa"
+	"github.com/siyul-park/spry/token"
+	"github.com/siyul-park/spry/types"
 )
 
 const corpusDir = "testdata"
@@ -108,4 +114,30 @@ func walkExpected(t *testing.T, known map[string]bool) error {
 		}
 	}
 	return nil
+}
+
+// TestFrontEnd runs every corpus program through the stages spry has before
+// phase P3 executes it: parse, type check and SSA construction (which runs
+// ssa.Verify). A type diagnostic or build error fails the case; there is no
+// directive that expects one yet.
+func TestFrontEnd(t *testing.T) {
+	cases, err := conformance.Load(os.DirFS(corpusDir))
+	require.NoError(t, err)
+	require.NotEmpty(t, cases)
+	for _, c := range cases {
+		t.Run(c.ID(), func(t *testing.T) {
+			path, err := filepath.Abs(filepath.Join(corpusDir, filepath.FromSlash(c.Path)))
+			require.NoError(t, err)
+			dir := filepath.Dir(path)
+			fset := token.NewFileSet()
+
+			mod, err := parser.ParseFile(fset, path, strings.NewReader(c.Source))
+			require.NoError(t, err)
+			checked, info, err := types.Check(fset, path, mod, types.WithFS(os.DirFS(dir), dir))
+			require.NoError(t, err)
+			prog, err := ssa.Build(fset, checked, info)
+			require.NoError(t, err)
+			require.NoError(t, ssa.Verify(prog))
+		})
+	}
 }

@@ -1,0 +1,110 @@
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+global @inc$decorated : func(int) -> int
+global @dec$decorated : func(int) -> int
+global @lost$decorated : any
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'decorators.py'
+  %1 = makeclosure @inc [] : func(int) -> int
+  %2 = call @ident#0(%1) : func(int) -> int
+  storeglobal @inc$decorated, %2
+  %3 = makeclosure @dec [] : func(int) -> int
+  %4 = call @twice(%3) : func(int) -> int
+  storeglobal @dec$decorated, %4
+  %5 = loadglobal @inc$decorated : func(int) -> int
+  %6 = callclosure %5(1) : int
+  %7 = loadglobal @dec$decorated : func(int) -> int
+  %8 = callclosure %7(5) : int
+  %9 = call @outer(3) : int
+  %10 = box %6 : any
+  %11 = box %8 : any
+  %12 = box %9 : any
+  %13 = newtuple %10, %11, %12 : tuple<any...>
+  %14 = call @builtins:print(%13, ' ':str?, '\n':str?, None:any, False) : none
+  %15 = makeclosure @lost [] : func(int) -> int
+  %16 = call @unknown(%15) : any
+  storeglobal @lost$decorated, %16
+  ret
+}
+
+func @ident#0(%f: func(int) -> int) -> func(int) -> int source "ident" {
+b0:
+  ret %f
+}
+
+func @ident#1(%f: func(int) -> int) -> func(int) -> int source "ident" {
+b0:
+  ret %f
+}
+
+func @twice(%f: func(int) -> int) -> func(int) -> int source "twice" {
+b0:
+  %0 = newcell %f : cell<func(int) -> int>
+  %1 = makeclosure @twice.<locals>.wrapper [%0] : func(int) -> int
+  ret %1
+}
+
+func @twice.<locals>.wrapper(%x: int) [%f: cell<func(int) -> int>] -> int source "twice.<locals>.wrapper" {
+b0:
+  %0 = loadcell %f : func(int) -> int
+  %1 = loadcell %f : func(int) -> int
+  %2 = callclosure %1(%x) : int
+  %3 = callclosure %0(%2) : int
+  ret %3
+}
+
+func @inc(%x: int) -> int source "inc" {
+b0:
+  %0 = add %x, 1 : int
+  ret %0
+}
+
+func @dec(%x: int) -> int source "dec" {
+b0:
+  %0 = sub %x, 1 : int
+  ret %0
+}
+
+func @outer(%n: int) -> int source "outer" {
+b0:
+  %0 = newcell %n : cell<int>
+  %1 = makeclosure @outer.<locals>.local [%0] : func(int) -> int
+  %2 = call @ident#1(%1) : func(int) -> int
+  %3 = callclosure %2(2) : int
+  ret %3
+}
+
+func @outer.<locals>.local(%y: int) [%n: cell<int>] -> int source "outer.<locals>.local" {
+b0:
+  %0 = loadcell %n : int
+  %1 = mul %y, %0 : int
+  ret %1
+}
+
+func @unknown(%f: func(int) -> int) -> any source "unknown" {
+b0:
+  ret undef:any
+}
+
+func @lost(%x: int) -> int source "lost" {
+b0:
+  ret %x
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+entry @__main__:<module>

@@ -33,11 +33,13 @@ Enforced by lighthouse decisions (ADR 0005).
 
 1. `token`, `scanner`, `ast`, `parser` (the frontend) import nothing else in spry. Within the frontend: `scanner`→`token`; `ast`→`token`; `parser`→`token`,`scanner`,`ast`.
 2. `types` depends on the frontend only.
-3. `ssa` imports `ast` and `types` (builder input) but never minivm.
+3. `ssa` imports `ast`, `token` and `types` (builder input) but never minivm.
 4. `optimize` imports `ssa` only.
 5. `compiler` imports `ssa` and `builtins`.
 6. Only `compiler`, `builtins`, `cli` and `cmd/spry` import minivm.
 7. `internal/cpython` imports nothing from spry.
+
+The rules apply to non-test imports: tests of `ssa` and `types` import `parser` to build their inputs.
 
 Consequences (derived): `cli` is the only place that connects the stages, so it is where `optimize` and `compiler` meet; it also imports `builtins`. There is no package named `runtime` or `codegen`.
 
@@ -56,13 +58,13 @@ token ◄─ scanner ◄─ parser ─► ast ─► token
 |---|---|---|---|
 | scanner | `[]byte`, `*token.File` | token stream | Positions are offsets into the file; INDENT/DEDENT balanced; errors are tokens or diagnostics, never panics |
 | parser | token stream | `*ast.Module` (or `Expression`, `Interactive`) | Dump equals CPython `ast.dump` on valid input; invalid input yields a diagnostic list with partial AST |
-| types | `ast.Module` set (whole program) | `types.Info`: symbol table, type per expression, specialization set, diagnostics | Every expression has a type (possibly `Any`); every `Any` site carries a reason |
-| ssa build | `ast` + `types.Info` | `*ssa.Program` | Passes `ssa.Verify`; no AST references retained except source positions |
+| types | `*ast.Module` of the main module and `fs.FS` entries (`types.WithFS`) | `(*types.Module, *types.Info)` and an `ErrorList`: scopes and objects, type per expression, specializations, fallbacks | Every expression has a type (possibly `Any`); every `Any` site carries a reason from a closed set |
+| ssa build | `ssa.Build(fset, main, info)` | `*ssa.Program` | Passes `ssa.Verify`; no AST references retained except source positions |
 | optimize | `*ssa.Program` | `*ssa.Program` | Semantics-preserving; output passes `ssa.Verify` after every pass in debug mode |
 | compiler | `*ssa.Program` | minivm `*program.Program` | Passes `program.Verify`; unboxed types stay unboxed |
 | builtins | n/a | host functions + Python object layouts registered into a program | Python-visible semantics match CPython for supported features |
 
-Whole-program means the compiler sees all reachable modules before inference. Import resolution over the reachable modules is owned by `types` (the `fs.FS` interface is fixed in P2).
+Whole-program means the compiler sees all reachable modules before inference. Import resolution over the reachable modules is owned by `types`; the file system is fixed by `types.WithFS` (ADR 0012).
 
 ## Zero-Cost Rule
 

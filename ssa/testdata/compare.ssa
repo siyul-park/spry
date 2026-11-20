@@ -1,0 +1,71 @@
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'compare.py'
+  %1 = call @compare(1, 2, 1.5, 'a', 'b') : tuple<i1,i1,i1,i1,i1,i1,i1>
+  %2 = box %1 : any
+  %3 = newtuple %2 : tuple<any...>
+  %4 = call @builtins:print(%3, ' ':str?, '\n':str?, None:any, False) : none
+  %5 = call @chain(1, 2, 3) : i1
+  %6 = box %5 : any
+  %7 = newtuple %6 : tuple<any...>
+  %8 = call @builtins:print(%7, ' ':str?, '\n':str?, None:any, False) : none
+  %9 = call @flags(True, False) : tuple<i1,i1>
+  %10 = box %9 : any
+  %11 = newtuple %10 : tuple<any...>
+  %12 = call @builtins:print(%11, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @compare(%a: int, %b: int, %x: f64, %s: str, %t: str) -> tuple<i1,i1,i1,i1,i1,i1,i1> source "compare" {
+b0:
+  %0 = lt %a, %b : i1
+  %1 = int2f64 %a : f64
+  %2 = eq %1, %x : i1
+  %3 = int2f64 %a : f64
+  %4 = ge %x, %3 : i1
+  %5 = eq %s, %t : i1
+  %6 = lt %s, %t : i1
+  %7 = is %a, None : i1
+  %8 = isnot %s, None : i1
+  %9 = newtuple %0, %2, %4, %5, %6, %7, %8 : tuple<i1,i1,i1,i1,i1,i1,i1>
+  ret %9
+}
+
+func @chain(%a: int, %b: int, %c: int) -> i1 source "chain" {
+b0:
+  %0 = lt %a, %b : i1
+  br %0, b2, b1(%0)
+b1(%p0: i1):
+  ret %p0
+b2:
+  %1 = lt %b, %c : i1
+  jump b1(%1)
+}
+
+func @flags(%p_: i1, %q: i1) -> tuple<i1,i1> source "flags" {
+b0:
+  %0 = eq %p_, %q : i1
+  %1 = select %p_, 1, 0 : int
+  %2 = lt %1, 2 : i1
+  %3 = newtuple %0, %2 : tuple<i1,i1>
+  ret %3
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+entry @__main__:<module>

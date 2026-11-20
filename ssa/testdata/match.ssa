@@ -1,0 +1,235 @@
+class @__main__.Point {
+  field x : int
+  field y : int
+}
+
+class @__main__.Circle {
+  field r : none
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+global @Point.__match_args__ : tuple<str,str>
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'match.py'
+  %1 = newtuple 'x', 'y' : tuple<str,str>
+  storeglobal @Point.__match_args__, %1
+  %2 = alloc @__main__.Point : @__main__.Point
+  %3 = call @Point.__init__(%2, 0, 0) : none
+  %4 = call @where(%2) : any
+  %5 = alloc @__main__.Point : @__main__.Point
+  %6 = call @Point.__init__(%5, 1, 2) : none
+  %7 = call @shape(%5) : int
+  %8 = newlist 1, 2, 3 : list<int>
+  %9 = call @seq(%8) : any
+  %10 = newtuple 1, 2 : tuple<int,int>
+  %11 = call @tup(%10) : int
+  %12 = newdict 'b', 1 : dict<str,int>
+  %13 = call @mapping(%12) : int
+  %14 = call @literal(3, 'x') : str
+  %15 = box %7 : any
+  %16 = box %11 : any
+  %17 = box %13 : any
+  %18 = box %14 : any
+  %19 = newtuple %4, %15, %9, %16, %17, %18 : tuple<any...>
+  %20 = call @builtins:print(%19, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @Point.__init__(%self: @__main__.Point, %x: int, %y: int) -> none source "Point.__init__" {
+b0:
+  storefield %self.x, %x
+  storefield %self.y, %y
+  ret
+}
+
+func @where(%p_: @__main__.Point) -> any source "where" {
+b0:
+  %0 = loadfield %p_.x : int
+  %1 = eq %0, 0 : i1
+  br %1, b2, b1
+b1:
+  %2 = loadfield %p_.x : int
+  %3 = loadfield %p_.y : int
+  %4 = eq %3, 0 : i1
+  br %4, b5, b4
+b2:
+  %5 = loadfield %p_.y : int
+  %6 = eq %5, 0 : i1
+  br %6, b3, b1
+b3:
+  ret 'origin':any
+b4:
+  %7 = loadfield %p_.x : int
+  %8 = eq %7, 0 : i1
+  br %8, b7, b6
+b5:
+  %9 = box %2 : any
+  ret %9
+b6:
+  jump b9
+b7:
+  %10 = loadfield %p_.y : int
+  %11 = gt %10, 5 : i1
+  br %11, b8, b6
+b8:
+  %12 = box %10 : any
+  ret %12
+b9:
+  %13 = neg 1 : int
+  %14 = box %13 : any
+  ret %14
+}
+
+func @shape(%s: @__main__.Point) -> int source "shape" {
+b0:
+  jump b2
+b1:
+  ret 1
+b2:
+  br False, b3, b1
+b3:
+  ret 0
+}
+
+func @seq(%items: list<int>) -> any source "seq" {
+b0:
+  %0 = len %items : int
+  %1 = eq %0, 0 : i1
+  br %1, b3, b2
+b1:
+  ret None:any
+b2:
+  %2 = len %items : int
+  %3 = eq %2, 1 : i1
+  br %3, b5, b4
+b3:
+  ret 0:any
+b4:
+  %4 = len %items : int
+  %5 = eq %4, 2 : i1
+  br %5, b7, b6
+b5:
+  %6 = index %items, 0 : int
+  %7 = box %6 : any
+  ret %7
+b6:
+  %8 = len %items : int
+  %9 = ge %8, 1 : i1
+  br %9, b9, b8
+b7:
+  %10 = index %items, 0 : int
+  %11 = index %items, 1 : int
+  %12 = add %10, %11 : int
+  %13 = box %12 : any
+  ret %13
+b8:
+  jump b1
+b9:
+  %14 = index %items, 0 : int
+  %15 = sub %8, 0 : int
+  %16 = slice %items, 1, %15, None : list<int>
+  %17 = len %16 : int
+  %18 = add %14, %17 : int
+  %19 = box %18 : any
+  ret %19
+}
+
+func @tup(%t: tuple<int,int>) -> int source "tup" {
+b0:
+  %0 = index %t, 0 : int
+  %1 = eq %0, 1 : i1
+  br %1, b2, b1
+b1:
+  %2 = index %t, 0 : int
+  %3 = newlist : list<none>
+  %4 = index %t, 1 : int
+  %5 = add %2, %4 : int
+  %6 = len %3 : int
+  %7 = add %5, %6 : int
+  ret %7
+b2:
+  %8 = index %t, 1 : int
+  ret %8
+}
+
+func @mapping(%d: dict<str,int>) -> int source "mapping" {
+b0:
+  %0 = in 'a', %d : i1
+  br %0, b3, b2
+b1:
+  ret 0
+b2:
+  %1 = in 'b', %d : i1
+  br %1, b6, b5
+b3:
+  %2 = index %d, 'a' : int
+  %3 = eq %2, 1 : i1
+  br %3, b4, b2
+b4:
+  ret 1
+b5:
+  jump b1
+b6:
+  %4 = index %d, 'b' : int
+  %5 = call @builtins:dict.copy(%d) : dict<str,int>
+  delindex %5, 'b'
+  %6 = len %5 : int
+  %7 = add %4, %6 : int
+  ret %7
+}
+
+func @literal(%n: int, %s: str) -> str source "literal" {
+b0:
+  %0 = eq %n, 1 : i1
+  br %0, b5, b4
+b1(%p0: str):
+  %1 = eq %s, 'x' : i1
+  br %1, b11, b10
+b2:
+  %2 = eq %n, 3 : i1
+  br %2, b8, b7
+b3:
+  jump b1('small')
+b4:
+  %3 = eq %n, 2 : i1
+  br %3, b6, b2
+b5:
+  jump b3
+b6:
+  jump b3
+b7:
+  %4 = format %n, '' : str
+  jump b1(%4)
+b8:
+  jump b1('three')
+b9:
+  ret %s
+b10:
+  jump b12
+b11:
+  %5 = concat %p0, '!' : str
+  ret %5
+b12:
+  jump b9
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+extern func @dict.copy(%a: dict<str,int>) -> dict<str,int> source "dict.copy"
+
+entry @__main__:<module>

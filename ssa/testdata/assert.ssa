@@ -1,0 +1,65 @@
+extern class @AssertionError : @Exception {
+}
+
+extern class @Exception : @BaseException {
+}
+
+extern class @BaseException {
+}
+
+module __main__
+global @$init : i1
+global @__name__ : str
+global @__file__ : str
+init @<module>
+
+func @<module>() -> none source "<module>" {
+b0:
+  %0 = loadglobal @$init : i1
+  br %0, b1, b2
+b1:
+  ret
+b2:
+  storeglobal @$init, True
+  storeglobal @__name__, '__main__'
+  storeglobal @__file__, 'assert.py'
+  %1 = call @check(3) : int
+  %2 = box %1 : any
+  %3 = newtuple %2 : tuple<any...>
+  %4 = call @builtins:print(%3, ' ':str?, '\n':str?, None:any, False) : none
+  ret
+}
+
+func @check(%n: int) -> int source "check" {
+b0:
+  %0 = gt %n, 0 : i1
+  br %0, b1, b2
+b1:
+  %1 = lt %n, 100 : i1
+  br %1, b3, b4
+b2:
+  %2 = call @builtins:AssertionError$0() : @AssertionError
+  raise %2
+b3:
+  %3 = ne %n, 7 : i1
+  br %3, b5, b6
+b4:
+  %4 = call @builtins:AssertionError('too big') : @AssertionError
+  raise %4
+b5:
+  ret %n
+b6:
+  %5 = format %n, '' : str
+  %6 = call @builtins:AssertionError(%5) : @AssertionError
+  raise %6
+}
+
+module builtins
+
+extern func @print(%values: tuple<any...>, %sep: str?, %end: str?, %file: any, %flush: i1) -> none source "print"
+
+extern func @AssertionError$0() -> @AssertionError source "AssertionError"
+
+extern func @AssertionError(%msg: str) -> @AssertionError source "AssertionError"
+
+entry @__main__:<module>

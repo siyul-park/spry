@@ -1,0 +1,4 @@
+exit: 1
+--- stdout
+--- stderr
+<string>:1:8: error TYP121: module os is not shipped with spry
